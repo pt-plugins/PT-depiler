@@ -3,22 +3,30 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
+import { INDEXED_METADATA_FIELDS, pickSiteMetadataIndexEntry } from "../src/packages/site/utils/metadataIndex.ts";
+import type { ISiteMetadata } from "../src/packages/site/types/site.ts";
+
 /**
  * 站点定义静态校验（跑在 `pnpm check` 里，**不在构建里** —— 构建只负责编译，校验属于 check 阶段）。
  *
- * 两件事：
+ * 三件事：
  *  1. **结构检查**：`export const siteMetadata` 里那些「写错了也不会报错、只会静默失效」的地方
  *     （id 与文件名不符、category 的 key 重复、levelRequirements 的 id 重复/非递增、urls 不是地址……）；
  *  2. **正则编译检查**：会被 `new RegExp(pattern, "i")` 编译的字段（`TPatterns`）里的字符串字面量，
  *     编译不过就直接失败 —— 它们在打包期本来完全不被检查，坏一个括号要等运行到那行才抛，
- *     而调用点通常在 `.some()` 回调里，会把整页列表解析带崩。
+ *     而调用点通常在 `.some()` 回调里，会把整页列表解析带崩；
+ *  3. **索引字段契约**（全量模式才跑）：`INDEXED_METADATA_FIELDS` 与 `pickSiteMetadataIndexEntry()`
+ *     必须一致 —— 详见 `checkMetadataIndexContract()`。
  *
- * 规则来源：`src/packages/site/index.ts`（加载与回落）、`types/site.ts`、`types/search.ts`。
+ * 规则来源：`src/packages/site/index.ts`（加载与回落）、`types/site.ts`、`types/search.ts`、
+ * `utils/metadataIndex.ts`（索引字段契约）。
  * 用法：`pnpm check`（顺带跑）/ `pnpm check:site-definition`（只跑本项）/ 加文件参数只校验指定定义。
  * 错误（error）让命令以非 0 退出；警告与提示不影响退出码。
  */
 const DEFINITIONS_DIR = "src/packages/site/definitions";
 const SCHEMAS_DIR = "src/packages/site/schemas";
+/** 索引字段契约涉及的文件：`INDEXED_METADATA_FIELDS` 与抽取函数都在这里，报告时挂到它名下 */
+const METADATA_INDEX_FILE = "src/packages/site/utils/metadataIndex.ts";
 
 /** 会被 `new RegExp(pattern, "i")` 编译的字段（类型里的 `TPatterns`） */
 const PATTERN_FIELDS = new Set([
@@ -453,6 +461,86 @@ function checkSiteDefinition(file: string, seenIds: Map<string, string>, knownSc
   return result;
 }
 
+/* ---------------------------------- 索引字段契约 --------------------------------- */
+
+/**
+ * 索引条目里除「可查询的固定属性」之外的键：都是从固定属性派生出来的标志 / 摘要。
+ * 注意 `id` **不在这里** —— 它是索引的 key，条目本身不再存一份。
+ */
+const DERIVED_ENTRY_KEYS = ["hasUserInputSettingMeta", "hasSearch", "hasUserInfo", "searchEntries"];
+
+/**
+ * 每个固定属性都给一个真值，保证抽取函数里的 `if` 全部命中。
+ * 取值只需真值性正确，所以不追求与 ISiteMetadata 的结构完全对齐，用 as 收口。
+ */
+const metadataWithEveryField = {
+  id: "check-site-metadata-index",
+  name: "Check",
+  type: "private",
+  schema: "NexusPHP",
+  isDead: true,
+  urls: ["https://example.com/"],
+  legacyUrls: ["https://legacy.example.com/"],
+  trackerUrls: ["https://tracker.example.com/announce"],
+  aka: ["别名"],
+  tags: ["综合"],
+  version: 1,
+  description: "检查用",
+  userInputSettingMeta: [{ name: "cookie", label: "Cookie", hint: "", required: true }],
+  search: { requestConfig: {} },
+  userInfo: { selectors: {} },
+  searchEntry: { default: { name: "默认" } },
+} as unknown as ISiteMetadata;
+
+export interface IMetadataIndexContractResult {
+  fixedFieldCount: number;
+  derivedKeyCount: number;
+  errors: string[];
+}
+
+/**
+ * `INDEXED_METADATA_FIELDS` 与 `pickSiteMetadataIndexEntry()` 必须一致。
+ *
+ * 索引的**值**不可能漂移 —— 每次构建都从站点定义现算（见 `vite/plugin/generateSiteIndex.ts`），
+ * 没有需要提交的生成产物。唯一会漂的是这层「字段契约」：
+ *
+ *   · 名单里有、抽取函数没写 → `metadataStore.getSiteMergedMetadata()` 会以为能从索引取到，
+ *     实际拿到 `undefined`，而且**不会回落**到完整定义（静默错值，最难查）
+ *   · 抽取函数写了、名单里没有 → 字段白白进了索引却没人能用（索引体积白涨）
+ *
+ * 光靠注释约束不住，所以在 `pnpm check` 里钉死。做法是**行为断言**而不是文本扫描：
+ * 造一个「每个固定属性都有值」的站点定义逼出抽取函数里的全部分支，再比对它实际写出的键集合。
+ *
+ * 这是全量不变量，所以单文件模式（`pnpm check:site-definition <file>`）不跑。
+ */
+export function checkMetadataIndexContract(): IMetadataIndexContractResult {
+  const written = new Set(Object.keys(pickSiteMetadataIndexEntry(metadataWithEveryField)));
+  const expected = new Set<string>([...INDEXED_METADATA_FIELDS, ...DERIVED_ENTRY_KEYS]);
+  const errors: string[] = [];
+
+  const missing = [...expected].filter((key) => !written.has(key));
+  if (missing.length > 0) {
+    errors.push(
+      `INDEXED_METADATA_FIELDS 列了但 pickSiteMetadataIndexEntry() 没写出：${missing.join(", ")}`,
+      "消费方会以为能从索引取到这些字段，实际拿到 undefined，且不会回落到完整站点定义。",
+    );
+  }
+
+  const unexpected = [...written].filter((key) => !expected.has(key));
+  if (unexpected.length > 0) {
+    errors.push(
+      `pickSiteMetadataIndexEntry() 写出了但既不在 INDEXED_METADATA_FIELDS 也不在 DERIVED_ENTRY_KEYS：${unexpected.join(", ")}`,
+      "该字段进了索引却没人能查；若它是新加的固定属性，请一并加进 INDEXED_METADATA_FIELDS。",
+    );
+  }
+
+  return {
+    fixedFieldCount: INDEXED_METADATA_FIELDS.length,
+    derivedKeyCount: DERIVED_ENTRY_KEYS.length,
+    errors,
+  };
+}
+
 /* ---------------------------------- 入口 --------------------------------- */
 
 function listTsFiles(dir: string): string[] {
@@ -485,6 +573,8 @@ export interface ICheckSummary {
   errorCount: number;
   warningCount: number;
   noteCount: number;
+  /** 索引字段契约的结果；单文件模式下为 null（那是全量不变量，只在校验全部定义时查） */
+  metadataIndexContract: IMetadataIndexContractResult | null;
 }
 
 /**
@@ -528,6 +618,15 @@ export function checkSiteDefinitions(onlyFiles?: string[]): ICheckSummary {
     b.notes.push(...r.notes);
   }
 
+  // 索引字段契约：全量不变量，挂到抽取函数所在文件下，于是错误计数 / 报告 / 退出码都走同一套
+  let metadataIndexContract: IMetadataIndexContractResult | null = null;
+  if (!onlyFiles?.length) {
+    metadataIndexContract = checkMetadataIndexContract();
+    if (metadataIndexContract.errors.length) {
+      bucket(path.resolve(process.cwd(), METADATA_INDEX_FILE)).errors.push(...metadataIndexContract.errors);
+    }
+  }
+
   const results = [...byFile.values()].sort((a, b) => a.file.localeCompare(b.file));
   return {
     definitionCount: definitionFiles.length,
@@ -536,6 +635,7 @@ export function checkSiteDefinitions(onlyFiles?: string[]): ICheckSummary {
     errorCount: results.reduce((n, r) => n + r.errors.length, 0),
     warningCount: results.reduce((n, r) => n + r.warnings.length, 0),
     noteCount: results.reduce((n, r) => n + r.notes.length, 0),
+    metadataIndexContract,
   };
 }
 
@@ -555,6 +655,15 @@ if (isMain) {
     for (const e of r.errors) console.log(`   ✖ ${e.replace(/^\S+:\d+\s+/, "")}`);
     for (const w of r.warnings) console.log(`   ⚠ ${w.replace(/^\S+:\d+\s+/, "")}`);
     if (single) for (const n of r.notes) console.log(`   · ${n}`);
+  }
+
+  // 通过的规则在全量模式下不逐条打印，所以这里给索引字段契约一行明确的状态（失败时的细节在文件行里）
+  if (summary.metadataIndexContract) {
+    const { fixedFieldCount, derivedKeyCount, errors } = summary.metadataIndexContract;
+    console.log(
+      `${errors.length ? "✗" : "✓"}  索引字段契约（INDEXED_METADATA_FIELDS ↔ pickSiteMetadataIndexEntry）：` +
+        `${fixedFieldCount} 个固定属性 + ${derivedKeyCount} 个派生标志`,
+    );
   }
 
   console.log(
