@@ -614,7 +614,6 @@ export default class BittorrentSite {
     typeof torrent.leechers != "undefined" && (torrent.leechers = tryToNumber(torrent.leechers));
     typeof torrent.completed != "undefined" && (torrent.completed = tryToNumber(torrent.completed));
     typeof torrent.comments != "undefined" && (torrent.comments = tryToNumber(torrent.comments));
-    typeof torrent.category != "undefined" && (torrent.category = tryToNumber(torrent.category));
     typeof torrent.status == "undefined" && (torrent.status = ETorrentStatus.unknown);
 
     // 仅当设置了时区偏移时，才进行转换
