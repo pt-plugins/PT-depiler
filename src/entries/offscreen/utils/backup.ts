@@ -96,7 +96,8 @@ export async function applyBackupRetention(
   const list = (await backupServerInstance.list()) ?? [];
 
   const backupFiles = list
-    .filter((item) => /^PTD_backup_\d{16}\.zip$/.test(item.filename))
+    // 文件名格式必须与下方 exportBackupData() 里生成的 backupFilename 保持一致
+    .filter((item) => /^PTD_backup_\d{8}T\d{4}\.zip$/.test(item.filename))
     .sort((a, b) => b.time - a.time); // 按备份时间从新到旧排序
   const [deletedFiles] = pruneBackupFiles(
     backupFiles.filter((item) => item.filename !== keepFilename),
