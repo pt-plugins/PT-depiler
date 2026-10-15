@@ -3,7 +3,7 @@
  */
 import type { ISiteMetadata, ITorrent } from "../types";
 import Rartracker, { SchemaMetadata } from "../schemas/Rartracker";
-import { buildCategoryOptionsFromDict, MinManagerLevelId } from "../utils";
+import { buildCategoryOptionsFromDict } from "../utils";
 
 const categoryMap: Record<number, string> = {
   1: "Movies/SD",
@@ -168,11 +168,7 @@ export const siteMetadata: ISiteMetadata = {
           uploads: { selector: "torrents" },
           seeding: { selector: "peersSeeder" },
           leeching: { selector: "peersLeecher" },
-          levelId: {
-            selector: "class",
-            // Developer 的原站 ID 29 位于普通晋升阶梯中，单独映射到管理组区间。
-            filters: [(id: number) => (Number(id) === 29 ? MinManagerLevelId : id)],
-          },
+          // 由基类按名称匹配 levelRequirements 中的内部 ID。
           levelName: { selector: "class", filters: [(id: number) => levelIdMap[id]] },
         },
       },
@@ -215,13 +211,13 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 20,
       privilege: "晋升时增加邀请和请求名额。",
     },
-    { id: 50, name: levelIdMap[50], groupType: "manager" },
-    { id: 51, name: levelIdMap[51], groupType: "manager" },
-    { id: 70, name: levelIdMap[70], groupType: "vip" },
-    { id: 75, name: levelIdMap[75], groupType: "manager" },
-    { id: 80, name: levelIdMap[80], groupType: "manager" },
-    { id: 90, name: levelIdMap[90], groupType: "manager" },
+    { id: 170, name: levelIdMap[70], groupType: "vip" },
     { id: 200, name: levelIdMap[29], groupType: "manager" },
+    { id: 250, name: levelIdMap[50], groupType: "manager" },
+    { id: 251, name: levelIdMap[51], groupType: "manager" },
+    { id: 275, name: levelIdMap[75], groupType: "manager" },
+    { id: 280, name: levelIdMap[80], groupType: "manager" },
+    { id: 290, name: levelIdMap[90], groupType: "manager" },
   ],
 };
 
