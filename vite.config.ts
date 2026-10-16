@@ -178,15 +178,19 @@ export default defineConfig({
         plugins: [
           {
             name: "cs-app-entry",
-            // Firefox 的后台页（firefox_main.html）是纯逻辑页面，不需要任何样式；
+            // offscreen 文档（offscreen.html）与 Firefox 的后台页（firefox_main.html）都是纯逻辑页面：
+            // 不渲染任何 DOM，依赖图里也没有任何样式导入（除 options 外没有 .vue 入口）。
             // 但 cssCodeSplit=false 会让 Vite 把整份 pt-depiler.css 注入该构建的**每个** HTML 入口
-            // （见下方 config 中的 cssCodeSplit），后台事件页每次唤醒都要白加载解析这份 CSS。
+            // （见下方 config 中的 cssCodeSplit）：offscreen 文档每次创建、后台事件页每次唤醒，
+            // 都要白加载并解析这份约 458 KB 的 CSS。
             // Vite 在 generateBundle 里先注入 CSS link、再执行 transformIndexHtml，
-            // 因此这里可以精确摘掉那条注入的 link，且只作用于 firefox_main.html。
+            // 因此这里可以精确摘掉那条注入的 link，且只作用于下面列出的页面。
             transformIndexHtml: {
               order: "post",
               handler(html, ctx) {
-                if (!ctx.filename.endsWith("firefox_main.html")) return html;
+                // 新增 HTML 入口时注意：只有确实需要样式的页面（如 options/index.html）才不应登记在此
+                const cssFreePages = ["firefox_main.html", "offscreen.html"];
+                if (!cssFreePages.some((page) => ctx.filename.endsWith(page))) return html;
                 return html.replace(/[ \t]*<link\b[^>]*>[ \t]*\r?\n?/g, (tag) =>
                   /rel="stylesheet"/.test(tag) && /pt-depiler\.css/.test(tag) ? "" : tag,
                 );
