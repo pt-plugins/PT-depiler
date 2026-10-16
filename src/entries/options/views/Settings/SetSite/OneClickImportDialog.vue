@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { computed, ref, shallowRef, watch } from "vue";
-import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
+import { EResultParseStatus, ISiteUserConfig, TSiteID } from "@ptd/site";
+import type { TSiteMetadataIndexEntryWithId } from "@ptd/site/metadataIndex";
 
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -11,7 +12,7 @@ import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
-import { iterateCanAddedSiteMetadata } from "./utils.ts";
+import { getCanAddedSiteIndexEntries } from "./utils.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -35,18 +36,14 @@ const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
-// 待添加的站点列表：站点定义是一个站点一个 chunk 的动态 import，读满一批就先渲染一批（见 utils.ts）
-const canAddSites = shallowRef<ISiteMetadata[]>([]);
-const isSiteListLoading = shallowRef<boolean>(false);
-
-// 每读满这么多条刷新一次列表：约 16 条一帧，避免 300+ 条时触发 300+ 次全量重渲染
-const SITE_LIST_FLUSH_STEP = 16;
+// 待添加的站点列表：数据来自构建期轻量索引（见 utils.ts），一次同步取全，不需要渐进加载
+const canAddSites = shallowRef<TSiteMetadataIndexEntryWithId[]>([]);
 
 // 卡片高度（两行 v-list-item + 边框），供 v-lazy 占位使用，避免懒加载过程中滚动条来回抖动
 const SITE_CARD_MIN_HEIGHT = 72;
 
 const siteMetadataById = computed(
-  () => new Map<TSiteID, ISiteMetadata>(canAddSites.value.map((site) => [site.id, site])),
+  () => new Map<TSiteID, TSiteMetadataIndexEntryWithId>(canAddSites.value.map((site) => [site.id, site])),
 );
 
 // 是否把 public 站点也列出来（public 站点不经过搜索校验就会被直接添加，所以默认不列）
@@ -68,9 +65,6 @@ watch(includePublicSite, (include) => {
   );
 });
 
-// 每次打开 dialog 递增，用来丢弃上一次尚未读完的加载
-let siteListLoadToken = 0;
-
 // 把 3 个数组换成 3 个 Set：模板里每张卡片都要查「是否已选中/已成功/已失败」，
 // 用 Array.includes 是 O(n)，300+ 张卡片 × 每次状态变化会被重复扫描很多遍
 const toWorkSiteIds = computed(() => new Set(importStatus.value.toWork));
@@ -80,17 +74,17 @@ const failedSiteIds = computed(() => new Set(importStatus.value.failed));
 // 「全选」的可选范围：当前列出的站点里，不需要手动录入、也还没导入成功的那些
 const selectableSiteIds = computed(() =>
   displayedSites.value
-    .filter((site) => !site.userInputSettingMeta && !successSiteIds.value.has(site.id))
+    .filter((site) => !site.hasUserInputSettingMeta && !successSiteIds.value.has(site.id))
     .map((site) => site.id),
 );
 
 // 普通函数即可：模板渲染函数会读取 importStatus/这些 Set，依赖收集照旧；
 // 原来写成 computed 会在每次渲染时给每个站点新建一个 computed 再丢掉
-function statusIconProp(site: ISiteMetadata) {
+function statusIconProp(site: TSiteMetadataIndexEntryWithId) {
   let progressIcon = "progress-helper"; // 默认
   let progressColor = "grey";
   let progressTitle = "";
-  if (site.userInputSettingMeta) {
+  if (site.hasUserInputSettingMeta) {
     progressIcon = "progress-close"; // 需要手动添加
     progressColor = "purple";
     progressTitle = t("SetSite.oneClickImportDialog.status.manual");
@@ -134,8 +128,8 @@ async function doAutoImport() {
     try {
       let isThisSiteSuccess = false;
 
-      // 拿到 siteMetadata, siteUserConfig
-      const siteMetadata = siteMetadataById.value.get(site) as ISiteMetadata;
+      // 索引条目里已经有 type 与 urls（导入本身由 offscreen 用完整定义去做）
+      const siteMetadata = siteMetadataById.value.get(site) as TSiteMetadataIndexEntryWithId;
       const siteUserConfig = (await metadataStore.getSiteUserConfig(site, true)) as ISiteUserConfig;
 
       // 对于 public 站点，不需要额外测试是否能够搜索
@@ -182,34 +176,11 @@ async function doAutoImport() {
   );
 }
 
-async function dialogEnter() {
+function dialogEnter() {
   resetImportStatus(); // 重置状态
-  canAddSites.value = [];
   includePublicSite.value = false;
-
-  const token = ++siteListLoadToken;
-  isSiteListLoading.value = true;
-
-  const loadedSites: ISiteMetadata[] = [];
-  try {
-    for await (const siteMetadata of iterateCanAddedSiteMetadata()) {
-      if (token !== siteListLoadToken) return; // 已经被下一次打开接管，放弃这一轮追加
-      if (siteMetadata.isDead) continue; // 已离线的站点不参与导入
-
-      loadedSites.push(siteMetadata);
-      if (loadedSites.length % SITE_LIST_FLUSH_STEP === 0) {
-        canAddSites.value = [...loadedSites];
-      }
-    }
-
-    if (token === siteListLoadToken) {
-      canAddSites.value = [...loadedSites];
-    }
-  } finally {
-    if (token === siteListLoadToken) {
-      isSiteListLoading.value = false;
-    }
-  }
+  // 轻量索引是一次同步取全的，所以这里不再需要「边读边渲染」那套（分批刷入 / token 作废）
+  canAddSites.value = getCanAddedSiteIndexEntries().filter((site) => !site.isDead); // 已离线的站点不参与导入
 }
 </script>
 
@@ -252,10 +223,6 @@ async function dialogEnter() {
             <span v-if="importStatus.isWorking">
               {{ t("SetSite.oneClickImportDialog.trying", { name: siteMetadataById.get(importStatus.working)?.name }) }}
             </span>
-            <div v-else-if="isSiteListLoading" class="d-flex align-center">
-              <v-progress-circular class="mr-1" indeterminate size="14" width="2" />
-              {{ t("SetSite.oneClickImportDialog.loading", { loaded: displayedSites.length }) }}
-            </div>
           </template>
           <template #append>
             <v-switch
@@ -290,9 +257,11 @@ async function dialogEnter() {
                   <template #prepend>
                     <v-checkbox
                       v-model="importStatus.toWork"
-                      :indeterminate="!!site.userInputSettingMeta || successSiteIds.has(site.id)"
+                      :indeterminate="!!site.hasUserInputSettingMeta || successSiteIds.has(site.id)"
                       :indeterminate-icon="successSiteIds.has(site.id) ? 'mdi-check' : 'mdi-close'"
-                      :disabled="!!site.userInputSettingMeta || importStatus.isWorking || successSiteIds.has(site.id)"
+                      :disabled="
+                        !!site.hasUserInputSettingMeta || importStatus.isWorking || successSiteIds.has(site.id)
+                      "
                       :value="site.id"
                       hide-details
                       multiple
@@ -302,8 +271,22 @@ async function dialogEnter() {
 
                   <template #title>
                     <v-list-item-title>
+                      <!-- 类型只用图标标在名字前面（不写文字、不用 chip）：锁 = 私有，地球 = 公开。
+                           文字放在 subtitle 行会跟 schema 挤在一起，窄卡片上会被压成一列一字。 -->
+                      <v-icon
+                        :color="site.type === 'private' ? 'primary' : 'secondary'"
+                        :icon="site.type === 'private' ? 'mdi-lock' : 'mdi-web'"
+                        :title="
+                          t(
+                            site.type === 'private'
+                              ? 'SetSite.oneClickImportDialog.siteTypePrivateTip'
+                              : 'SetSite.oneClickImportDialog.siteTypePublicTip',
+                          )
+                        "
+                        class="mr-1"
+                        size="14"
+                      />
                       <b>{{ site.name ?? "" }}</b>
-                      <!-- 站点类型 -->
                     </v-list-item-title>
                   </template>
 

@@ -8,6 +8,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
+import { siteMetadataIndex } from "@ptd/site/metadataIndex";
 import { REPO_URL } from "~/helper";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import SiteName from "@/options/components/SiteName.vue";
@@ -47,19 +48,17 @@ const searchPlans = computed(() =>
  * 与 getSiteDefaultSearchSolution 的过滤条件（isOffline || isDead 不返回搜索方案）相比，
  * 额外排除了未开启搜索的站点（与原菜单项的 allowSearch 判断保持一致）。
  * refs: https://github.com/pt-plugins/PT-depiler/issues/1083
+ *
+ * 只需要 isDead，所以直接查构建期轻量索引：这里是 immediate + deep watch，
+ * 原来每触发一次就要为每个已添加站点解析一遍完整站点定义。
  */
 const singleSearchSiteIds = ref<string[]>([]);
 
-async function refreshSingleSearchSiteIds() {
-  const siteIds = await Promise.all(
-    metadataStore.getSortedAddedSites
-      .filter((siteUserConfig) => (siteUserConfig.allowSearch ?? false) && !siteUserConfig.isOffline)
-      .map(async (siteUserConfig) => {
-        const siteMetadata = await metadataStore.getSiteMetadata(siteUserConfig.id);
-        return siteMetadata.isDead ? undefined : siteUserConfig.id;
-      }),
-  );
-  singleSearchSiteIds.value = siteIds.filter((id) => id !== undefined);
+function refreshSingleSearchSiteIds() {
+  singleSearchSiteIds.value = metadataStore.getSortedAddedSites
+    .filter((siteUserConfig) => (siteUserConfig.allowSearch ?? false) && !siteUserConfig.isOffline)
+    .filter((siteUserConfig) => !siteMetadataIndex[siteUserConfig.id]?.isDead)
+    .map((siteUserConfig) => siteUserConfig.id);
 }
 
 // 监听整个已添加站点配置（而非仅ID列表），使站点编辑器中切换 allowSearch/isOffline 后菜单同步刷新

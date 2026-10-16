@@ -309,13 +309,26 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
       </template>
       <template #item.name="{ item }">
         <span>
-          {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
-          <v-tooltip max-width="400" v-if="item.metadata.description" activator="parent">
-            <span v-if="typeof item.metadata.description === 'string'">{{ item.metadata.description }}</span>
-            <ul v-else>
-              <li v-for="(text, index) in item.metadata.description" :key="index">{{ text }}</li>
-            </ul>
-          </v-tooltip>
+          <!-- 与一键导入对话框保持一致：锁 = 私有，地球 = 公开。
+               图标放在描述 tooltip 的 activator（内层 span）之外，免得 hover 图标时两个 tooltip 一起弹。 -->
+          <v-icon
+            :color="item.metadata.type === 'private' ? 'primary' : 'secondary'"
+            :icon="item.metadata.type === 'private' ? 'mdi-lock' : 'mdi-web'"
+            :title="
+              t(item.metadata.type === 'private' ? 'SetSite.common.siteTypePrivate' : 'SetSite.common.siteTypePublic')
+            "
+            class="mr-1"
+            size="14"
+          />
+          <span>
+            {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
+            <v-tooltip max-width="400" v-if="item.metadata.description" activator="parent">
+              <span v-if="typeof item.metadata.description === 'string'">{{ item.metadata.description }}</span>
+              <ul v-else>
+                <li v-for="(text, index) in item.metadata.description" :key="index">{{ text }}</li>
+              </ul>
+            </v-tooltip>
+          </span>
         </span>
       </template>
       <template #item.groups="{ item }">
@@ -345,7 +358,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
       <template #item.userConfig.allowSearch="{ item }">
         <v-switch
           v-model="item.userConfig.allowSearch"
-          :disabled="item.metadata.isDead || item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
+          :disabled="item.metadata.isDead || item.userConfig.isOffline || !item.metadata.hasSearch"
           class="table-switch-btn"
           color="success"
           hide-details
@@ -355,7 +368,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
       <template #item.userConfig.allowQueryUserInfo="{ item }">
         <v-switch
           v-model="item.userConfig.allowQueryUserInfo"
-          :disabled="item.metadata.isDead || item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
+          :disabled="item.metadata.isDead || item.userConfig.isOffline || !item.metadata.hasUserInfo"
           class="table-switch-btn"
           color="success"
           hide-details
@@ -387,7 +400,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
           <!-- 默认站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
           <v-btn
             :title="t('SetSite.index.table.searchEntries')"
-            :disabled="item.metadata.isDead || !item.metadata.searchEntry"
+            :disabled="item.metadata.isDead || !item.metadata.searchEntries"
             class="v-btn--icon"
             size="small"
           >
