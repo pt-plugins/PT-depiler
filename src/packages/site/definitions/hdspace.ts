@@ -4,6 +4,7 @@
 import type { ISiteMetadata } from "../types.ts";
 import { set } from "es-toolkit/compat";
 import { buildCategoryOptionsFromDict } from "../utils.ts";
+import type { TQueryFilter } from "../utils.ts";
 
 const categoryMap: Record<number, string> = {
   15: "Movie / Blu-ray",
@@ -48,7 +49,7 @@ const timeFilterWithDay = (query: string) => {
   currentDate.setHours(...(dateParts[1].trim().split(":").map(Number) as [number, number, number]));
   return currentDate.getTime();
 };
-const timeFilterWithoutDay = { name: "parseTime", args: ["MMMM dd, yyyy,\u00A0HH:mm:ss"] };
+const timeFilterWithoutDay = { name: "parseTime", args: ["MMMM dd, yyyy,\u00A0HH:mm:ss"] } satisfies TQueryFilter;
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,

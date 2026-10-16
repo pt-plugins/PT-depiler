@@ -2,7 +2,7 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/NebulanceAPI.cs
  * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/nebulance.io/config.json
  */
-import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
+import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus, type IElementQuery } from "../types";
 import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata, top10PageList } from "../schemas/Gazelle.ts";
 import { createDocument, parseValidTimeString, buildCategoryOptionsFromList } from "../utils.ts";
@@ -330,7 +330,7 @@ const groupPageSelectors = {
   seeders: { selector: "> td:nth-child(4)" },
   leechers: { selector: "> td:nth-child(5)" },
   completed: { selector: "> td:nth-child(3)" },
-};
+} satisfies Record<string, IElementQuery>;
 
 const categorySelector = {
   selector: "div.showname",

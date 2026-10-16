@@ -5,7 +5,7 @@
 import { mergeWith } from "es-toolkit/compat";
 import Sizzle from "sizzle";
 
-import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { EResultParseStatus, type IElementQuery, type ISiteMetadata, type IUserInfo } from "../types";
 import AbstractPrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { cookie } from "../utils/adapter.ts";
 import { parseSizeString } from "../utils/filesize.ts";
@@ -108,7 +108,7 @@ const commonDocumentSelectors = {
   title: { selector: "a.torTitle" },
   url: { selector: "a.torTitle", attr: "href" },
   link: { selector: "a.directDownload", attr: "href" },
-};
+} satisfies Record<string, IElementQuery>;
 
 interface IMyAnonamouseLoadItem {
   count: number;

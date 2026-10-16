@@ -183,7 +183,8 @@ export const siteMetadata: ISiteMetadata = {
         selector: "td:nth-child(9)",
         filters: [(q: `${number}/${number}`) => q.split("/")[1]],
       },
-      completed: { selector: "td:nth-child(8)", filters: [parseInt] },
+      // parseInt 直接当过滤器会让签名不匹配（第二参数是 radix 而不是 args），这里显式包一层
+      completed: { selector: "td:nth-child(8)", filters: [(query: string) => parseInt(query, 10)] },
       comments: { text: 0, selector: 'a[href*="tocomm=1"]' },
 
       tags: [

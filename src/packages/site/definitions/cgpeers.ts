@@ -20,7 +20,7 @@ const categoryMap: Record<number, string> = {
 };
 
 const linkSelector = { selector: "a[href*='torrent/download/']", attr: "href" };
-const idSelector = {
+const idSelector: IElementQuery = {
   ...linkSelector,
   filters: [{ name: "split", args: ["/", 3] }, { name: "split", args: ["?", 0] }, { name: "parseNumber" }],
 };

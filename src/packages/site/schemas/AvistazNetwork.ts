@@ -267,7 +267,7 @@ export const listTorrentPageMetadata = {
     seeders: { selector: "td:nth-child(7)" },
     leechers: { selector: "td:nth-child(8)" },
     completed: { selector: "td:nth-child(9)" },
-  },
+  } satisfies TSchemaMetadataListSelectors,
 };
 
 // 下载历史页和HR页
@@ -298,7 +298,7 @@ export const listHistoryPageMetadata = {
     seeders: { selector: "span.badge-extra.fa-arrow-up" },
     leechers: { selector: "span.badge-extra.fa-arrow-down" },
     completed: { selector: "span.badge-extra.fa-check" },
-  },
+  } satisfies TSchemaMetadataListSelectors,
 };
 
 export const SchemaMetadata: Pick<
