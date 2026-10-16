@@ -17,7 +17,16 @@ export function tryToNumber(value: any): number {
 
 type TQueryFilterFn = (query: any, args?: any[]) => any;
 
-export const definedFilters: Record<string, TQueryFilterFn> = {
+/**
+ * 可用的具名过滤器。
+ *
+ * ⚠️ 这里必须用 `satisfies` 而不是 `: Record<string, TQueryFilterFn>` —— 后者会把
+ * `keyof typeof definedFilters` 退化成 `string`，于是 `TDefinedFilterName` 形同虚设，
+ * 站点定义里写错过滤器名（例如 `{ name: "divide" }`）能一路通过类型检查，
+ * 运行时被 `runQueryFilters` 静默跳过 → 静默错值（broadcasthenet 的 bonusPerHour 曾因此偏高 24 倍）。
+ * 用 `satisfies` 既保留了键的字面量联合类型，又保证每个过滤器的签名合规。
+ */
+export const definedFilters = {
   /**
    * Extract values from URL arguments.
    * If more than one arg is provided, the first one that matches will be returned.
@@ -208,8 +217,9 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
     console?.log(query);
     return query;
   },
-};
+} satisfies Record<string, TQueryFilterFn>;
 
+/** 全部具名过滤器（供静态校验用；站点定义里的 `filters: [{ name }]` 必须取自这里） */
 export const filterNames = Object.keys(definedFilters);
 
 export type TDefinedFilterName = keyof typeof definedFilters;

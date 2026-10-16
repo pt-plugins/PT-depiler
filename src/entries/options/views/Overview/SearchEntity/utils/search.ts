@@ -171,7 +171,8 @@ export async function doSearchEntity(
           searchResultItem.status ??= ETorrentStatus.unknown; // 确保 status 字段有默认值，避免过滤器无法处理 undefined
 
           if (imdbSearchKeywords && configStore.searchEntity.forceImdbIdMatchFilter && searchResultItem.ext_imdb) {
-            if (definedFilters.extImdbId(searchResultItem.ext_imdb) !== imdbSearchKeywords) {
+            // extImdbId 内部按字符串做正则匹配，而 ext_imdb 的类型允许 number，这里统一转成字符串
+            if (definedFilters.extImdbId(String(searchResultItem.ext_imdb)) !== imdbSearchKeywords) {
               continue;
             }
           }

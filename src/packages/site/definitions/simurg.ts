@@ -3,6 +3,7 @@
  */
 import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Gazelle.ts";
+import type { TQueryFilter } from "../utils.ts";
 
 const categoryMap: Record<string, string> = {
   ebooks: "E-Books",
@@ -16,7 +17,7 @@ const communityItemSelector = (label: string) => `div.head:contains('Community')
 const relativeTimeFilters = [
   (query: string) => (query.trim().toLowerCase() === "just now" ? "0 seconds" : query),
   { name: "parseTTL" },
-];
+] satisfies TQueryFilter[];
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
