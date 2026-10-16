@@ -30,7 +30,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://qnexcrref.bet/"],
-  favicon: "https://darkpeers.org/favicon.ico",
 
   category: [
     {

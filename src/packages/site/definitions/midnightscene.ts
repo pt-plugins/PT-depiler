@@ -25,7 +25,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["https://midnightscene.cc/"],
-  favicon: "https://midnightscene.cc/favicon.ico",
 
   category: [
     {
