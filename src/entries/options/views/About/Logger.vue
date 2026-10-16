@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, shallowRef, ref } from "vue";
+import { onMounted, onUnmounted, shallowRef, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { DataTableHeader } from "vuetify";
 
@@ -31,8 +31,18 @@ function loadLogger() {
   });
 }
 
+// 轮询日志的定时器句柄：必须在组件卸载时清掉。
+// 此前直接 `setInterval(...)` 且从不 clear，离开该页后定时器仍然每秒触发
+// `sendMessage("getLogger")`（每次最多回带 500 条日志）直到整个选项页关闭。
+let loggerTimer: ReturnType<typeof setInterval> | undefined;
+
 onMounted(() => {
-  setInterval(() => loadLogger(), 1000);
+  loggerTimer = setInterval(() => loadLogger(), 1000);
+});
+
+onUnmounted(() => {
+  clearInterval(loggerTimer);
+  loggerTimer = undefined;
 });
 </script>
 
