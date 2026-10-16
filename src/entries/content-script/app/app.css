@@ -11,3 +11,15 @@
   box-sizing: border-box;
   word-break: normal;
 }
+
+/**
+ * Vuetify 的静态基础样式里有一条 `:root{--v-theme-overlay-multiplier:1;--v-scrollbar-offset:0px}`，
+ * 而 pt-depiler.css 里的 `:root` 在 shadow DOM 内**不会匹配**（shadow tree 没有 :root 元素），
+ * 所有用到这两个变量的组件样式（overlay 遮罩不透明度、滚动条补偿）都会拿不到值。
+ * 这里按 :host 补一份默认值，与文档根上的取值保持一致。
+ * （content-script 不再内联整份 styles.scss，所以这两个变量必须在此显式给出，见 app/init.ts）
+ */
+:host {
+  --v-theme-overlay-multiplier: 1;
+  --v-scrollbar-offset: 0px;
+}

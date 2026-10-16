@@ -1,9 +1,8 @@
 /**
- *  引入 Vuetify 基础样式和其他自定义样式
- *  Vuetify 的其他样式会被自动构造在 /pt-depiler.css 中
+ *  引入 shadow DOM 的隔离样式
+ *  Vuetify 的基础样式与组件样式都在 /pt-depiler.css 中，由下方 <link> 引入（不要再内联一份，见下）
  */
 import appCss from "./app.css?inline";
-import vuetifyCss from "../../../styles/vuetify/styles.scss?inline";
 
 import { createApp } from "vue";
 
@@ -23,9 +22,16 @@ export function mountApp(document: Document, data: any = {}) {
   const shadowRoot = contentRoot.attachShadow({ mode: "closed" });
 
   // 将 css 的样式添加到 shadow DOM 中
+  //
+  // 这里只内联 app.css（shadow DOM 的 `all: initial` 隔离 + common.scss，编译后约 1KB）：
+  // 它是唯一「pt-depiler.css 里没有」的部分。**不要**再把 styles/vuetify/styles.scss 内联进来 ——
+  // 那份 Vuetify 基础样式（本仓实测 196,288 字符 ≈ 192 KB）已经完整包含在 pt-depiler.css 中
+  // （上面是 pt-depiler.css 的子串），内联一份等于让同一份 CSS 既进 cs-app.js 又在同一个 shadow root
+  // 里被应用两次；content-script 每次挂载都要多解析/应用这 ~192 KB。
+  // （`:root` → `:host` 的重写对当前 app.css 是空操作，保留是为了以后 common.scss 里若出现 `:root` 时仍然正确。）
   const baseStyleElement = document.createElement("style");
   baseStyleElement.id = "ptd-content-script-style-base";
-  baseStyleElement.textContent = (appCss + "\n" + vuetifyCss).replaceAll(":root", ":host");
+  baseStyleElement.textContent = appCss.replaceAll(":root", ":host");
   shadowRoot.appendChild(baseStyleElement);
 
   // 使用 FontFace API方法 添加 mdi 的样式
