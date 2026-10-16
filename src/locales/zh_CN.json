@@ -747,6 +747,7 @@
           "dateYear": "当前年份",
           "searchKeyword": "当前搜索关键字",
           "searchPlan": "当前搜索方案名称",
+          "torrentCategory": "该种子的分类",
           "torrentSite": "该种子的站点id",
           "torrentSiteName": "该种子的站点名称",
           "torrentSubTitle": "该种子的副标题",

@@ -747,6 +747,7 @@
           "dateYear": "current year",
           "searchKeyword": "Search Keywords",
           "searchPlan": "Search Plan Name",
+          "torrentCategory": "The category of torrent",
           "torrentSite": "The Site ID of torrent",
           "torrentSiteName": "The Site name of torrent",
           "torrentSubTitle": "The subtitle of torrent",

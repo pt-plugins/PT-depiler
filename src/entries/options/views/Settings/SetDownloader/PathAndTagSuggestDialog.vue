@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
+import { PATH_TEMPLATE_VARIABLES } from "@ptd/downloader/utils/pathTemplate.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -20,19 +21,30 @@ const clientConfig = ref<IDownloaderMetadata>();
 const clientMetadata = ref<TorrentClientMetaData>();
 const expansionPanelOpen = ref<string>("note");
 
+// 说明表格里每一列的内容：[i18n key 后缀, 示例]
+// 变量名统一取自 @ptd/downloader 的 PATH_TEMPLATE_VARIABLES（这里用 Record 的键集让 TS 强制对齐，
+// 少写一个变量、或上游改名都会直接编译报错）
+const PATH_TEMPLATE_DOCS: Record<(typeof PATH_TEMPLATE_VARIABLES)[number], [string, string]> = {
+  // 在 torrent 相关字段中，因为对应的 title subTitle 为对应 torrent 的字段，所以这里用 . 来分隔
+  "torrent.title": ["torrentTitle", "/volume1/$torrent.title$ -> /volume1/TorrentTitle"],
+  "torrent.subTitle": ["torrentSubTitle", "/volume1/$torrent.subTitle$ -> /volume1/TorrentSubTitle"],
+  "torrent.category": ["torrentCategory", "/volume1/$torrent.category$/music -> /volume1/Movie/music"],
+  "torrent.site": ["torrentSite", "/volume1/$torrent.site$/music -> /volume1/opencd/music"],
+  "torrent.siteName": ["torrentSiteName", "/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music"],
+  // 而在 search, date 等字段中，则是全局字段，所以用 : 来分隔
+  "search:keyword": ["searchKeyword", "/volume1/$search:keyword$/music -> /volume1/keyword/music"],
+  "search:plan": ["searchPlan", "/volume1/$search:plan$/music -> /volume1/all/music"],
+  "date:YYYY": ["dateYear", "/volume1/$date:YYYY$/music -> /volume1/2019/music"],
+  "date:MM": ["dateMonth", "/volume1/$date:MM$/music -> /volume1/10/music"],
+  "date:DD": ["dateDay", "/volume1/$date:DD$/music -> /volume1/01/music"],
+};
+
 // [key (for i18n), value, example]
 const pathReplaceMap: [string, string, string][] = [
-  // 在 torrent 相关字段中，因为对应的 title subTitle 为对应 torrent 的字段，所以这里用 . 来分隔
-  ["torrentTitle", "$torrent.title$", "/volume1/$torrent.title$ -> /volume1/TorrentTitle"],
-  ["torrentSubTitle", "$torrent.subTitle$", "/volume1/$torrent.subTitle$ -> /volume1/TorrentSubTitle"],
-  ["torrentSite", "$torrent.site$", "/volume1/$torrent.site$/music -> /volume1/opencd/music"],
-  ["torrentSiteName", "$torrent.siteName$", "/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music"],
-  // 而在 search, date 等字段中，则是全局字段，所以用 : 来分隔
-  ["searchKeyword", "$search:keyword$", "/volume1/$search:keyword$/music -> /volume1/keyword/music"],
-  ["searchPlan", "$search:plan$", "/volume1/$search:plan$/music -> /volume1/all/music"],
-  ["dateYear", "$date:YYYY$", "/volume1/$date:YYYY$/music -> /volume1/2019/music"],
-  ["dateMonth", "$date:MM$", "/volume1/$date:MM$/music -> /volume1/10/music"],
-  ["dateDay", "$date:DD$", "/volume1/$date:DD$/music -> /volume1/01/music"],
+  ...PATH_TEMPLATE_VARIABLES.map((variable) => {
+    const [key, example] = PATH_TEMPLATE_DOCS[variable];
+    return [key, `$${variable}$`, example] as [string, string, string];
+  }),
   ["custom", "<...>", "/volume1/<...>/music -> prompt for input 'test' -> /volume1/test/music"],
 ];
 
