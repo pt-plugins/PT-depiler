@@ -1,10 +1,20 @@
 import { toMerged } from "es-toolkit";
-import { ETorrentStatus, type ISiteMetadata, type IUserInfo, type ITorrent, type ISearchInput } from "../types";
+import {
+  type TSchemaMetadata,
+  ETorrentStatus,
+  type ISiteMetadata,
+  type IUserInfo,
+  type ITorrent,
+  type ISearchInput,
+} from "../types";
 import { GazelleBase } from "./Gazelle";
 import { parseSizeString, definedFilters } from "../utils";
 import Sizzle from "sizzle";
 
-export const SchemaMetadata: Partial<ISiteMetadata> = {
+/** 本引擎一定会提供的键；列出来之后消费方读它们不必再写非空断言 */
+type TMetadataKeys = "version" | "search" | "userInfo" | "list" | "detail";
+
+export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
   version: 0,
   search: {
     requestConfig: {

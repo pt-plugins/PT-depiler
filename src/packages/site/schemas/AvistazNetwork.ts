@@ -6,6 +6,7 @@ import { axios, isCloudflareBlocked } from "../utils/adapter";
 import PrivateSite from "./AbstractPrivateSite";
 
 import {
+  type TSchemaMetadata,
   EResultParseStatus,
   ETorrentStatus,
   TSchemaMetadataListSelectors,
@@ -301,10 +302,11 @@ export const listHistoryPageMetadata = {
   },
 };
 
-export const SchemaMetadata: Pick<
-  ISiteMetadata,
-  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" | "userInputSettingMeta" | "list" | "detail"
-> = {
+/** 本引擎一定会提供的键；列出来之后消费方读它们不必再写非空断言 */
+type TMetadataKeys =
+  "version" | "schema" | "type" | "timezoneOffset" | "search" | "list" | "detail" | "userInfo" | "userInputSettingMeta";
+
+export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
   version: 0,
   schema: "AvistazNetwork",
   type: "private",
