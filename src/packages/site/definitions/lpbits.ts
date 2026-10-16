@@ -43,7 +43,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       rows: { selector: "table.torrents > tbody > tr:has(a[href^='download.php?id='])" },
     },
   },

@@ -58,9 +58,9 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     requestConfig: {
-      ...SchemaMetadata.search!.requestConfig,
+      ...SchemaMetadata.search.requestConfig,
       params: {
-        ...SchemaMetadata.search!.requestConfig!.params,
+        ...SchemaMetadata.search.requestConfig!.params,
         order: "desc",
         sort: "d",
         freeleech: false,
@@ -74,7 +74,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       completed: { selector: "timesCompleted" },
       author: { text: "" },
     },
@@ -84,9 +84,9 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo,
     process: [
       {
-        ...SchemaMetadata.userInfo!.process![0],
+        ...SchemaMetadata.userInfo.process![0],
         selectors: {
-          ...SchemaMetadata.userInfo!.process![0].selectors,
+          ...SchemaMetadata.userInfo.process![0].selectors,
           levelId: { selector: "user.class" },
           levelName: {
             selector: "user.class",
@@ -95,9 +95,9 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       {
-        ...SchemaMetadata.userInfo!.process![1],
+        ...SchemaMetadata.userInfo.process![1],
         selectors: {
-          ...SchemaMetadata.userInfo!.process![1].selectors,
+          ...SchemaMetadata.userInfo.process![1].selectors,
           seeding: { selector: "peersSeeder" },
         },
       },

@@ -49,10 +49,10 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       rows: {
         // 站点新版 Unit3D 列表使用 data-table 样式（参考 PDS rastastugan.json）
-        ...SchemaMetadata.search!.selectors!.rows,
+        ...SchemaMetadata.search.selectors!.rows,
         selector: "table.data-table > tbody > tr",
       },
     },

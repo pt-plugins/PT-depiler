@@ -22,7 +22,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       rows: { selector: "tr.torrent-search--list__row" },
       id: { selector: ":self", attr: "data-torrent-id" },
       title: { selector: "div.torrent-title > a" },

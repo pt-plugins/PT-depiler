@@ -180,9 +180,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('喵饼') + td"],
         filters: [{ name: "parseNumber" }],

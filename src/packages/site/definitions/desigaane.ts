@@ -22,7 +22,7 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["https://desigaane.rocks/"],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     advanceKeywordParams: {
       imdb: false,
     },

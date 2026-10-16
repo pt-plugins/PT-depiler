@@ -75,9 +75,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       levelName: {
         selector: [
           "td.rowhead:contains('等级') + td > img[title]",
@@ -92,7 +92,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     donorConfig: {
-      ...SchemaMetadata.userInfo!.donorConfig,
+      ...SchemaMetadata.userInfo.donorConfig,
       bonusPerHourMultiplier: 1,
     },
   },

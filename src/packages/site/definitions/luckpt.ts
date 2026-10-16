@@ -35,14 +35,14 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       size: { selector: ['td[data-col="size"]'] },
       seeders: { selector: ['td[data-col="seeders"]'] },
       leechers: { selector: ['td[data-col="leechers"]'] },
       completed: { selector: ['td[data-col="snatched"]'] },
       comments: { selector: ['td[data-col="comments"]'] },
       time: {
-        ...SchemaMetadata.search!.selectors!.time!,
+        ...SchemaMetadata.search.selectors!.time!,
         selector: ['td[data-col="time"]'],
       },
     },

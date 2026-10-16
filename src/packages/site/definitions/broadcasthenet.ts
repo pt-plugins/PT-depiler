@@ -71,7 +71,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       url: {
         selector: "a[href*='torrents.php?id='][href*='torrentid=']", // 更精确的种子链接选择器
         attr: "href",
@@ -106,7 +106,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
@@ -152,7 +152,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     ],
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       uploaded: {
         selector: "ul.nobullet > li:contains('Upload:')",
         filters: [{ name: "parseSize" }],

@@ -101,9 +101,9 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       category: {
         selector: "a[href^='browse.php?cat=']",
         attr: "href",

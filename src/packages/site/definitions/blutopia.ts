@@ -142,9 +142,9 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.search,
     skipNonLatinCharacters: true,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
+        ...SchemaMetadata.search.selectors!.tags!,
         {
           name: "H&R",
           selector: "*",

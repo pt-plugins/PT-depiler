@@ -198,9 +198,9 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     advanceKeywordParams: {
-      ...SchemaMetadata.search!.advanceKeywordParams,
+      ...SchemaMetadata.search.advanceKeywordParams,
       imdb: false,
     },
     requestConfig: {
@@ -231,7 +231,7 @@ export const siteMetadata: ISiteMetadata = {
       urlPattern: [/\/torrents2?\.php(?!.*(?:\bid=|torrentid=))/],
       mergeSearchSelectors: false,
       selectors: {
-        ...SchemaMetadata.search!.selectors!,
+        ...SchemaMetadata.search.selectors!,
         rows: {
           selector: "div.group_cont",
           filter: (boxes: HTMLElement[] | null): HTMLElement[] | null => {
@@ -290,7 +290,7 @@ export const siteMetadata: ISiteMetadata = {
       urlPattern: [/\/torrents2?\.php\?(?:.*&)?(\bid|torrentid)=\d+/],
       mergeSearchSelectors: false,
       selectors: {
-        ...SchemaMetadata.search!.selectors!,
+        ...SchemaMetadata.search.selectors!,
         ...commonListSelectors,
         keywords: { selector: ["div.thin > h2 > a[href^='/series.php']", "div.thin > h2"] },
         title: { selector: "div.thin > h2" },
@@ -318,13 +318,13 @@ export const siteMetadata: ISiteMetadata = {
       ],
       mergeSearchSelectors: false,
       selectors: {
-        ...SchemaMetadata.search!.selectors!,
+        ...SchemaMetadata.search.selectors!,
         ...commonListSelectors,
         title: { selector: "td > strong:has(a[title='View Torrent'])" },
         category: { selector: "img[src^='/static/common/caticons/']", attr: "title" },
 
         rows: {
-          ...SchemaMetadata.search!.selectors!.rows!,
+          ...SchemaMetadata.search.selectors!.rows!,
           filter: withEpisodeFilter,
         },
         subTitle: commonSubTitleSelector,
@@ -334,10 +334,10 @@ export const siteMetadata: ISiteMetadata = {
       urlPattern: ["/series\\.php.*?[&?]id=\\d+", "/artist\\.php.*?[&?]id=\\d+"],
       mergeSearchSelectors: false,
       selectors: {
-        ...SchemaMetadata.search!.selectors!,
+        ...SchemaMetadata.search.selectors!,
         ...commonListSelectors,
         rows: {
-          ...SchemaMetadata.search!.selectors!.rows!,
+          ...SchemaMetadata.search.selectors!.rows!,
           filter: withEpisodeFilter,
         },
         title: { selector: "td > h3" },
@@ -348,7 +348,7 @@ export const siteMetadata: ISiteMetadata = {
       urlPattern: ["/alltorrents\\.php"],
       mergeSearchSelectors: false,
       selectors: {
-        ...SchemaMetadata.search!.selectors!,
+        ...SchemaMetadata.search.selectors!,
         ...commonListSelectors,
         time: { text: 0 },
         category: { selector: "img[src^='/static/common/caticons/']", attr: "title" },

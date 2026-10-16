@@ -23,9 +23,9 @@ export const siteMetadata: ISiteMetadata = {
   officialGroupPattern: [/(-HDVWEB|-HDVMV)/i],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: [
           "#top-stats-bar a.top-stat[href*='mybonus.php'] b",

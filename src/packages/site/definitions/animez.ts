@@ -91,9 +91,9 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     requestConfig: {
-      ...SchemaMetadata.search!.requestConfig!,
+      ...SchemaMetadata.search.requestConfig!,
       params: { limit: 50 },
     },
     advanceKeywordParams: {
@@ -102,7 +102,7 @@ export const siteMetadata: ISiteMetadata = {
       tmdb: { enabled: false },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       title: { selector: "release_title" },
       category: { selector: "format" },
     },
@@ -113,7 +113,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     pickLast: ["name"],
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       name: {
         selector: ":self",
         elementProcess: (document: Document) =>

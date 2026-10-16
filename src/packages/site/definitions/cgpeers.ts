@@ -64,14 +64,14 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     requestConfig: {
-      ...SchemaMetadata.search!.requestConfig!,
+      ...SchemaMetadata.search.requestConfig!,
       url: "/torrent/browse",
     },
     advanceKeywordParams: {
       imdb: false,
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       id: idSelector,
       title: { selector: "span + a[href*='torrent/']" },
       url: { selector: "span + a[href*='torrent/']", attr: "href" },
@@ -108,7 +108,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     // 改版后站点的上传量、下载量、分享率、积分等信息展示在全局顶栏的用户菜单（div.user-dropdown-menu）中，
     // 任意已登录页面（含 /）均可获取，故第一步只请求首页；等级、入站时间、做种统计等再取资料页（/user/{id}）。
     // 各步骤需要获取的字段由该步骤 selectors 的键决定。
@@ -199,9 +199,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   detail: {
-    ...SchemaMetadata.detail!,
+    ...SchemaMetadata.detail,
     selectors: {
-      ...SchemaMetadata.detail!.selectors,
+      ...SchemaMetadata.detail.selectors,
       title: { selector: "div.page-header h2" },
       id: idSelector,
       link: linkSelector,

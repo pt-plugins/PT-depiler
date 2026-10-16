@@ -55,7 +55,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       progress: {
         selector: [".progress:eq(0) > div"],
         elementProcess: (element: HTMLElement) => {
@@ -75,7 +75,7 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
+        ...SchemaMetadata.search.selectors!.tags!,
         { name: "官方", selector: "span.label.label-primary", color: "#337ab7" },
         { name: "自制", selector: "span.label.label-default", color: "#777" },
         { name: "国语", selector: "span.label.label-warning", color: "#f0ad4e" },
@@ -86,9 +86,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       seeding: {
         selector: [
           "td.rowhead:contains('当前做种') + td, td.rowhead:contains('Current Seeding') + td, td.rowhead:contains('目前做種') + td",
@@ -111,7 +111,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     process: [
-      ...SchemaMetadata.userInfo!.process!.map((item) => ({
+      ...SchemaMetadata.userInfo.process!.map((item) => ({
         ...item,
         requestConfig: {
           ...item.requestConfig,

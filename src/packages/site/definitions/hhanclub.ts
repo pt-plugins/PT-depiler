@@ -132,9 +132,9 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       rows: { selector: ".torrent-table-sub-info" },
       link: hhLinkQuery,
       url: {
@@ -154,7 +154,7 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: {
         selector: [".torrent-title .torrent-info-text-small_name"],
       },
-      time: { selector: ".torrent-info-text-added", ...SchemaMetadata.search!.selectors!.time! },
+      time: { selector: ".torrent-info-text-added", ...SchemaMetadata.search.selectors!.time! },
       size: { selector: ".torrent-info-text-size", filters: [{ name: "parseSize" }] },
       author: { selector: ".torrent-info-text-author" },
       seeders: { selector: ".torrent-info-text-seeders" },
@@ -189,7 +189,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
+        ...SchemaMetadata.search.selectors!.tags!,
         { name: "Free", selector: "span.promotion-tag-free", color: "blue" },
         { name: "官方", selector: "a[href*='tag_id3=1']", color: "#0000ff" },
         { name: "完结", selector: "a[href*='tag_id17=1']", color: "#4682B4" },
@@ -209,9 +209,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       uploaded: {
         selector: ["span:contains('上传量') + span"],
         filters: [{ name: "parseSize" }],

@@ -151,9 +151,9 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       progress: {
         selector: [
           "td[class='embedded'][style*='color: blue;font-weight: bold']",
@@ -188,7 +188,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       bonus: {
         selector: ["td.rowhead:contains('魔力值') + td"],
         filters: [{ name: "parseNumber" }],

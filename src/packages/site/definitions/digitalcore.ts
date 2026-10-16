@@ -123,9 +123,9 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     requestConfig: {
-      ...SchemaMetadata.search!.requestConfig,
+      ...SchemaMetadata.search.requestConfig,
       params: {
-        ...SchemaMetadata.search!.requestConfig!.params,
+        ...SchemaMetadata.search.requestConfig!.params,
         dead: true,
         extendedDead: true,
         page: "search",
@@ -133,7 +133,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       subTitle: { selector: "tagline" },
       completed: { selector: "times_completed" },
       category: {
@@ -190,17 +190,17 @@ export const siteMetadata: ISiteMetadata = {
     pickLast: ["id", "name", "joinTime"],
     process: [
       {
-        ...SchemaMetadata.userInfo!.process![0],
+        ...SchemaMetadata.userInfo.process![0],
         selectors: {
-          ...SchemaMetadata.userInfo!.process![0].selectors,
+          ...SchemaMetadata.userInfo.process![0].selectors,
           uploads: { selector: "user.mytorrents" },
           seeding: { selector: "user.myseeds" },
         },
       },
       {
-        ...SchemaMetadata.userInfo!.process![1],
+        ...SchemaMetadata.userInfo.process![1],
         selectors: {
-          ...SchemaMetadata.userInfo!.process![1].selectors,
+          ...SchemaMetadata.userInfo.process![1].selectors,
           trueUploaded: { selector: "uploaded_real" },
           levelId: { selector: "class" },
           levelName: {

@@ -153,9 +153,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: { selector: "response.stats.gold" },
       bonusPerHour: { selector: "response.community.hourlyGold" },
       seedingSize: { selector: "response.community.seedSize" },

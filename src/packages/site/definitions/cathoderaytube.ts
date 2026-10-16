@@ -56,7 +56,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       category: {
         selector: "td.cats_col > div[title] > a",
         attr: "href",

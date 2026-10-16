@@ -68,16 +68,16 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     advanceKeywordParams: {
       imdb: false,
     },
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     process: [
-      ...SchemaMetadata.userInfo!.process!.filter((item) => item.requestConfig.url !== "/mybonus.php"), // 继承、排除
+      ...SchemaMetadata.userInfo.process!.filter((item) => item.requestConfig.url !== "/mybonus.php"), // 继承、排除
       {
         requestConfig: { url: "/mybonus_new.php", responseType: "document" },
         fields: ["bonusPerHour"],

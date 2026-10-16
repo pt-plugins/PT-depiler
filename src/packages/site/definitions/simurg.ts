@@ -64,11 +64,11 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     requestConfig: {
-      ...SchemaMetadata.search!.requestConfig,
+      ...SchemaMetadata.search.requestConfig,
       params: {
-        ...SchemaMetadata.search!.requestConfig!.params,
+        ...SchemaMetadata.search.requestConfig!.params,
         action: "basic",
         searchsubmit: 1,
       },
@@ -77,9 +77,9 @@ export const siteMetadata: ISiteMetadata = {
       imdb: false,
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       time: {
-        ...SchemaMetadata.search!.selectors!.time!,
+        ...SchemaMetadata.search.selectors!.time!,
         selector: ".td_time",
       },
       category: {
@@ -96,8 +96,8 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
-    process: SchemaMetadata.userInfo!.process!.map((process, index) =>
+    ...SchemaMetadata.userInfo,
+    process: SchemaMetadata.userInfo.process!.map((process, index) =>
       index === 1
         ? {
             ...process,
@@ -106,7 +106,7 @@ export const siteMetadata: ISiteMetadata = {
         : process,
     ),
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       joinTime: {
         selector: `${statisticsItemSelector("Joined:")} > span.time`,
         filters: relativeTimeFilters,

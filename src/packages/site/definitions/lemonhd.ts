@@ -28,9 +28,9 @@ export const siteMetadata: ISiteMetadata = {
 
   /*
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       seeding: {
         selector: ["img.arrowup"],
         elementProcess: (element: HTMLElement) => {

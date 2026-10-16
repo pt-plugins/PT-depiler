@@ -29,9 +29,9 @@ export const siteMetadata: ISiteMetadata = {
    * 但仅支持关键字与 search_area 参数，不支持分类等过滤参数，故不再声明 category。
    */
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     requestConfig: {
-      ...SchemaMetadata.search!.requestConfig!,
+      ...SchemaMetadata.search.requestConfig!,
       url: "/search.php",
     },
   },
@@ -39,9 +39,9 @@ export const siteMetadata: ISiteMetadata = {
   officialGroupPattern: [/PigoHD|PigoWeb|PiGoNF/i],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       messageCount: {
         text: 0,
         selector: "div.message-alerts-container",

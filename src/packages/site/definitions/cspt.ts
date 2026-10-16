@@ -185,12 +185,12 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       rows: { selector: "div.torrent-table-sub-info" },
       subTitle: { selector: ".torrent-info-text-small_name" },
-      time: { selector: ".torrent-info-text-added", ...SchemaMetadata.search!.selectors!.time! },
+      time: { selector: ".torrent-info-text-added", ...SchemaMetadata.search.selectors!.time! },
       size: { selector: ".torrent-info-text-size", filters: [{ name: "parseSize" }] },
       author: { selector: ".torrent-info-text-author" },
       seeders: { selector: ".torrent-info-text-seeders" },
@@ -223,9 +223,9 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       bonus: {
         selector: ["td.rowhead:contains('金元宝') + td"],
         filters: [{ name: "parseNumber" }],

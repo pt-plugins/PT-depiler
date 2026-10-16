@@ -255,9 +255,9 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('杏仁值') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
         filters: [{ name: "parseNumber" }],

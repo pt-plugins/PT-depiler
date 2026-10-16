@@ -338,7 +338,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
@@ -346,7 +346,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
-      tags: [...SchemaMetadata.search!.selectors!.tags!, ...allTagSelectors],
+      tags: [...SchemaMetadata.search.selectors!.tags!, ...allTagSelectors],
     },
   },
 
@@ -357,7 +357,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       bonusPerHour: {
         selector: ["td.text:has(>h1)"],
         elementProcess: (element: any) => {
@@ -386,7 +386,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     donorConfig: {
-      ...SchemaMetadata.userInfo!.donorConfig,
+      ...SchemaMetadata.userInfo.donorConfig,
       bonusPerHourMultiplier: 1, // selector 已能正确选中加倍后的时魔
     },
   },

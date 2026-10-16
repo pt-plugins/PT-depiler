@@ -176,7 +176,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     advanceKeywordParams: {
-      ...SchemaMetadata.search!.advanceKeywordParams,
+      ...SchemaMetadata.search.advanceKeywordParams,
       bangumi: {
         requestConfigTransformer: ({ requestConfig: config }) => {
           if (config?.params?.name) {
@@ -189,7 +189,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       subTitle: { selector: ["span.torrent-listings-subhead"] },
       time: { selector: ["td.torrent-listings-age > span"], data: "originalTitle", filters: [{ name: "parseTime" }] },
       size: { selector: ["td.torrent-listings-size > span"], filters: [{ name: "parseSize" }] },
@@ -231,16 +231,16 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   list: [
-    ...SchemaMetadata.list!,
+    ...SchemaMetadata.list,
     {
       urlPattern: ["/torrents/airing/"],
     },
   ],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["li.ratio-bar__points a:has( > i.fa-coins)"],
         filters: [{ name: "parseNumber" }],

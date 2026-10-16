@@ -43,10 +43,10 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       rows: {
         // 站点列表使用 data-table / torrents_results 样式（参考 PDS danishbytes.json）
-        ...SchemaMetadata.search!.selectors!.rows,
+        ...SchemaMetadata.search.selectors!.rows,
         selector: ["table.table tbody#torrents_results tr", "table.data-table tbody tr", "table.table tbody tr"],
       },
     },

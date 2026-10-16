@@ -113,9 +113,9 @@ export const siteMetadata: ISiteMetadata = {
   officialGroupPattern: ["ZmWeb", "ZmPT", "ZmMusic", "ZmAudio"],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('电力值') + td"],
         filters: [{ name: "parseNumber" }],

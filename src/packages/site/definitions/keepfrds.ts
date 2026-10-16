@@ -201,7 +201,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       subTitle: {
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
         // 处理类似以下 尾部中括号的情况
@@ -209,7 +209,7 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: subTitleRemoveExtraElement(["b"], true),
       },
       tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
+        ...SchemaMetadata.search.selectors!.tags!,
         { selector: "td.embedded b > font.recommended:contains('禁转')", name: "Excl.", color: "red" },
       ],
     },
@@ -218,7 +218,7 @@ export const siteMetadata: ISiteMetadata = {
   detail: {
     ...SchemaMetadata.detail,
     selectors: {
-      ...SchemaMetadata.detail!.selectors,
+      ...SchemaMetadata.detail.selectors,
       link: {
         selector: "input#download_link",
         attr: "value",
@@ -229,7 +229,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       messageCount: {
         text: 0,
         selector: ["a[href*='messages.php'] b span[style*='color: red']"],

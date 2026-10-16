@@ -101,9 +101,9 @@ export const siteMetadata: ISiteMetadata = {
   officialGroupPattern: [/(-PTLGS|.*@PTLGS)/i],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('工分') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
         filters: [{ name: "parseNumber" }],

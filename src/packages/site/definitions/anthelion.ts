@@ -191,9 +191,9 @@ export const siteMetadata: ISiteMetadata = {
       tmdb: { enabled: true },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       title: {
-        ...SchemaMetadata.search!.selectors!.title!,
+        ...SchemaMetadata.search.selectors!.title!,
         elementProcess: GazelleUtils.genTitleElementProcess({ extractTagsFunc: extractTags }),
       },
       subTitle: {

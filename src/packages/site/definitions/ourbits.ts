@@ -177,7 +177,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
@@ -217,7 +217,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
+        ...SchemaMetadata.search.selectors!.tags!,
         { selector: ".tag.tag-gf", name: "官方", color: "blue" },
         { selector: ".tag.tag-diy", name: "DIY", color: "orange" },
         { selector: ".tag.tag-sf", name: "首发", color: "pink" },
@@ -236,9 +236,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       hnrPreWarning: {
         text: 0,
         selector: ["font.color_connectable:contains('H&R'):first"],

@@ -29,9 +29,9 @@ export const siteMetadata: ISiteMetadata = {
   officialGroupPattern: [/HDFans/i],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       hnrPreWarning: {
         text: 0,
         selector: ["#info_block a[href*='myhr.php']:last"],

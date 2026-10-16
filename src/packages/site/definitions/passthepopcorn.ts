@@ -102,7 +102,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     requestConfig: {
       url: "/torrents.php",
       responseType: "document",
@@ -112,7 +112,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
@@ -140,28 +140,28 @@ export const siteMetadata: ISiteMetadata = {
       },
     ],
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       id: {
-        ...SchemaMetadata.userInfo!.selectors!.id!,
+        ...SchemaMetadata.userInfo.selectors!.id!,
         selector: ["a[href*='user.php?id=']:first"],
       },
       name: {
         selector: ["a[href*='user.php?id=']:first"],
       },
       uploaded: {
-        ...SchemaMetadata.userInfo!.selectors!.uploaded!,
+        ...SchemaMetadata.userInfo.selectors!.uploaded!,
         selector: "div.panel__heading:contains('Stats') + div.panel__body > ul.list > li:contains('Uploaded:')",
       },
       downloaded: {
-        ...SchemaMetadata.userInfo!.selectors!.downloaded!,
+        ...SchemaMetadata.userInfo.selectors!.downloaded!,
         selector: "div.panel__heading:contains('Stats') + div.panel__body > ul.list > li:contains('Downloaded:')",
       },
       ratio: {
-        ...SchemaMetadata.userInfo!.selectors!.ratio!,
+        ...SchemaMetadata.userInfo.selectors!.ratio!,
         selector: "div.panel__heading:contains('Stats') + div.panel__body > ul.list > li:contains('Ratio:')",
       },
       levelName: {
-        ...SchemaMetadata.userInfo!.selectors!.levelName!,
+        ...SchemaMetadata.userInfo.selectors!.levelName!,
         selector: "div.panel__heading:contains('Personal') + div.panel__body > ul.list > li:contains('Class:')",
       },
       bonus: {

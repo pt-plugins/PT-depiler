@@ -97,7 +97,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     advanceKeywordParams: {
       imdb: { enabled: false },
       tvdb: { enabled: false },
@@ -183,7 +183,7 @@ export const siteMetadata: ISiteMetadata = {
   detail: {
     urlPattern: ["/torrent/"],
     selectors: {
-      ...SchemaMetadata.detail!.selectors!,
+      ...SchemaMetadata.detail.selectors!,
       title: {
         selector: "table.table tr:contains('Title') td:nth-child(2)",
         elementProcess: (element) => {

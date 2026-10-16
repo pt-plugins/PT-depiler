@@ -40,7 +40,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       category: {
         selector: ":self",
         data: "categoryId",
@@ -50,20 +50,20 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       levelName: {
         selector: [
           ".wow-badges .wow-badge:first-child",
-          ...(SchemaMetadata.userInfo!.selectors!.levelName?.selector ?? []),
+          ...(SchemaMetadata.userInfo.selectors!.levelName?.selector ?? []),
         ],
         elementProcess: (el: Element) => el.getAttribute("title") || el.textContent?.replace(/\s+/g, " ").trim(),
       },
       bonusPerHour: {
         selector: [
           "main aside section > div:nth-child(2) > div:nth-child(4) > div",
-          ...(SchemaMetadata.userInfo!.selectors!.bonusPerHour?.selector ?? []),
+          ...(SchemaMetadata.userInfo.selectors!.bonusPerHour?.selector ?? []),
         ],
         filters: [{ name: "parseNumber" }],
       },

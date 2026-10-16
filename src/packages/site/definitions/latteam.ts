@@ -95,7 +95,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       category: {
         selector: ":self",
         data: "categoryId",
@@ -105,11 +105,11 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       seedingSize: {
-        ...SchemaMetadata.userInfo!.selectors!.seedingSize,
+        ...SchemaMetadata.userInfo.selectors!.seedingSize,
         selector: [
           // 追加西班牙语标签，同时继承 Unit3D 已有的英文/中文标签
           ...["Tamaño total compartiendo", ...userInfoTrans.seedingSize].map((x) => `dt:contains('${x}') + dd`),

@@ -63,9 +63,9 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       rows: {
-        ...SchemaMetadata.search!.selectors!.rows,
+        ...SchemaMetadata.search.selectors!.rows,
         selector: "table.data-table > tbody > tr[data-torrent-id]",
       },
     },

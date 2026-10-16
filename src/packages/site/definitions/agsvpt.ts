@@ -54,7 +54,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       subTitle: {
         selector: ["div.torrent_title_desc"],
         elementProcess: (element: HTMLDivElement) => {
@@ -66,9 +66,9 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('冰晶') + td, td.rowhead:contains('Karma Points') + td"],
         filters: [{ name: "parseNumber" }],

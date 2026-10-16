@@ -69,12 +69,12 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       rows: { selector: "#torrent_table .Table-row" },
       title: {
-        ...SchemaMetadata.search!.selectors!.title!,
+        ...SchemaMetadata.search.selectors!.title!,
         elementProcess: (el: HTMLElement) => {
           const groupYear = el.querySelector("span.TableTorrent-movieInfoYear")?.textContent;
 

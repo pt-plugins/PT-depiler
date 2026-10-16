@@ -129,8 +129,8 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
-      tags: [...SchemaMetadata.search!.selectors!.tags!, { name: "H&R", selector: "img.hitandrun" }],
+      ...SchemaMetadata.search.selectors,
+      tags: [...SchemaMetadata.search.selectors!.tags!, { name: "H&R", selector: "img.hitandrun" }],
       // 虽然提供了 imdb, douban 的评分，但是没有 id 或者 url
     },
   },
@@ -143,7 +143,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       hnrUnsatisfied: {
         selector: ['a[href*="myhr.php?userid="]'],
         filters: [(query: string) => parseInt(query.split("/")?.[1] ?? "0")],

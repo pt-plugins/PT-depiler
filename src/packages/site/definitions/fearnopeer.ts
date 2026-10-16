@@ -196,7 +196,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       category: {
         selector: ":self",
         data: "categoryId",
@@ -206,15 +206,15 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       uploads: {
-        ...SchemaMetadata.userInfo!.selectors!.uploads!,
+        ...SchemaMetadata.userInfo.selectors!.uploads!,
         selector: "dl.profile-stats-list-2026:has(a[href*='/uploads'])",
       },
       joinTime: {
-        ...SchemaMetadata.userInfo!.selectors!.joinTime!,
+        ...SchemaMetadata.userInfo.selectors!.joinTime!,
         selector: "span.profile-hero-2026__meta-item:contains('Registration date')",
       },
       lastAccessAt: {

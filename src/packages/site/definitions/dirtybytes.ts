@@ -87,9 +87,9 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.search,
     advanceKeywordParams: { imdb: false },
     requestConfig: {
-      ...SchemaMetadata.search!.requestConfig,
+      ...SchemaMetadata.search.requestConfig,
       params: {
-        ...SchemaMetadata.search!.requestConfig!.params,
+        ...SchemaMetadata.search.requestConfig!.params,
         page: "search",
         sort: "d",
         order: "desc",
@@ -97,7 +97,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       url: { selector: "id", filters: [(id: number) => `/torrent/${id}`] },
       completed: { selector: "times_completed" },
       category: { selector: "category", filters: [(id: number) => categoryMap[id]] },
@@ -159,11 +159,11 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     ...SchemaMetadata.userInfo,
     process: [
-      SchemaMetadata.userInfo!.process![0],
+      SchemaMetadata.userInfo.process![0],
       {
-        ...SchemaMetadata.userInfo!.process![1],
+        ...SchemaMetadata.userInfo.process![1],
         selectors: {
-          ...SchemaMetadata.userInfo!.process![1].selectors,
+          ...SchemaMetadata.userInfo.process![1].selectors,
           trueUploaded: { selector: "uploaded_real" },
           uploads: { selector: "torrents" },
           seeding: { selector: "peersSeeder" },

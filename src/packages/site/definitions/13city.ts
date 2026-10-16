@@ -147,9 +147,9 @@ export const siteMetadata: ISiteMetadata = {
   officialGroupPattern: [/-(13City|.*13City)/i],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('啤酒瓶') + td, td.rowhead:contains('Karma Points') + td"],
         filters: [{ name: "parseNumber" }],

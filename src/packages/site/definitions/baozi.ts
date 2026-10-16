@@ -109,10 +109,10 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     pickLast: [], // clear id cache
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       // "page": "/index.php",
       id: {
         selector: "#welcome_text > span.nowrap > a[href*='userdetails.php']",
@@ -129,7 +129,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     donorConfig: {
-      ...SchemaMetadata.userInfo!.donorConfig,
+      ...SchemaMetadata.userInfo.donorConfig,
       bonusPerHourMultiplier: 1, // selector 已能正确选中加倍后的时魔
     },
   },
