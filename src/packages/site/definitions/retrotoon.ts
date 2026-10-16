@@ -66,7 +66,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AbstractPrivateSite",
 
   urls: ["uggcf://ergebgbba.jbeyq/"],
-  favicon: "https://retrotoon.world/favicon.ico",
 
   noLoginAssert: {
     urlPatterns: [/login\.php|takelogin\.php/i],

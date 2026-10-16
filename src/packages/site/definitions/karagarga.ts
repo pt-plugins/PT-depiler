@@ -115,7 +115,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AbstractPrivateSite",
 
   urls: ["https://karagarga.in/"],
-  favicon: "https://karagarga.in/favicon.ico",
 
   noLoginAssert: {
     urlPatterns: [/login\.php|takelogin\.php/],

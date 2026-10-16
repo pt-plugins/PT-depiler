@@ -9,17 +9,19 @@ import type { ISiteMetadata } from "../src/packages/site/types/site.ts";
 /**
  * 站点定义静态校验（跑在 `pnpm check` 里，**不在构建里** —— 构建只负责编译，校验属于 check 阶段）。
  *
- * 三件事：
+ * 四件事：
  *  1. **结构检查**：`export const siteMetadata` 里那些「写错了也不会报错、只会静默失效」的地方
  *     （id 与文件名不符、category 的 key 重复、levelRequirements 的 id 重复/非递增、urls 不是地址……）；
  *  2. **正则编译检查**：会被 `new RegExp(pattern, "i")` 编译的字段（`TPatterns`）里的字符串字面量，
  *     编译不过就直接失败 —— 它们在打包期本来完全不被检查，坏一个括号要等运行到那行才抛，
  *     而调用点通常在 `.some()` 回调里，会把整页列表解析带崩；
- *  3. **索引字段契约**（全量模式才跑）：`INDEXED_METADATA_FIELDS` 与 `pickSiteMetadataIndexEntry()`
+ *  3. **favicon 守卫**：`favicon` 字段用远端地址要提醒（本地资产优先且更稳），显式 `"./x"` 引用的
+ *     文件必须存在，且本地图标不应超过 256x256（站点图标实际只显示 14~36px）；
+ *  4. **索引字段契约**（全量模式才跑）：`INDEXED_METADATA_FIELDS` 与 `pickSiteMetadataIndexEntry()`
  *     必须一致 —— 详见 `checkMetadataIndexContract()`。
  *
  * 规则来源：`src/packages/site/index.ts`（加载与回落）、`types/site.ts`、`types/search.ts`、
- * `utils/metadataIndex.ts`（索引字段契约）。
+ * `utils/metadataIndex.ts`（索引字段契约）、`utils/favicon.ts`（favicon 查找顺序）。
  * 用法：`pnpm check`（顺带跑）/ `pnpm check:site-definition`（只跑本项）/ 加文件参数只校验指定定义。
  * 错误（error）让命令以非 0 退出；警告与提示不影响退出码。
  */
@@ -27,6 +29,14 @@ const DEFINITIONS_DIR = "src/packages/site/definitions";
 const SCHEMAS_DIR = "src/packages/site/schemas";
 /** 索引字段契约涉及的文件：`INDEXED_METADATA_FIELDS` 与抽取函数都在这里，报告时挂到它名下 */
 const METADATA_INDEX_FILE = "src/packages/site/utils/metadataIndex.ts";
+/** 本地站点图标目录（与 vite.config.ts 里注入的 `__RESOURCE_SITE_ICONS__` 同源） */
+const ICONS_DIR = "public/icons/site";
+/**
+ * 本地图标的尺寸上限。
+ * 站点图标在界面里的实际显示尺寸只有 14~36px（components/SiteFavicon/Index.vue 的 `size` prop），
+ * 超过这个边长基本只能说明资产没压过（历史上出现过多达 512x512 / 264KB 的 favicon，占整包体积 41%）。
+ */
+const MAX_LOCAL_ICON_DIM = 256;
 
 /** 会被 `new RegExp(pattern, "i")` 编译的字段（类型里的 `TPatterns`） */
 const PATTERN_FIELDS = new Set([
@@ -143,6 +153,96 @@ function urlHost(url: string): string | undefined {
   if (!match) return undefined;
   const host = match[1].toLowerCase().replace(/:\d+$/, "");
   return host.startsWith("www.") ? host.slice(4) : host;
+}
+
+/* ---------------------------------- 图标工具 --------------------------------- */
+
+/**
+ * 本地图标的候选路径，顺序与 `site/utils/favicon.ts:213-231` 一致：
+ * `favicon` 字段以 `"./"` 开头时该文件排在最前，否则依次是 `<id>.png` / `<id>.ico` / `<id>.svg`。
+ * （`favicon` 是 http 地址或 data URI 时，本地候选仍然会被先命中，只是这份名单里不含它。）
+ */
+function localIconCandidates(siteId: string, favicon: string | undefined): string[] {
+  const byId = [`${siteId}.png`, `${siteId}.ico`, `${siteId}.svg`];
+  return favicon?.startsWith("./") ? [favicon.slice(2), ...byId] : byId;
+}
+
+/**
+ * 只读文件头解析图片尺寸（PNG / ICO / JPEG / GIF / WebP / SVG 的显式 width/height）。
+ * 识别不出来的格式返回 null —— 调用方按「跳过」处理，不产生误报。
+ */
+function readImageSize(file: string): { width: number; height: number } | null {
+  let buf: Buffer;
+  try {
+    buf = fs.readFileSync(file);
+  } catch {
+    return null;
+  }
+
+  // PNG：IHDR 里的宽高
+  if (buf.length >= 24 && buf.toString("latin1", 1, 4) === "PNG") {
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+  }
+
+  // ICO：取所有帧里最大的声明尺寸（目录项里 0 表示 256）
+  if (buf.length >= 22 && buf.readUInt16LE(0) === 0 && buf.readUInt16LE(2) === 1) {
+    let width = 0;
+    let height = 0;
+    const count = buf.readUInt16LE(4);
+    for (let i = 0; i < count; i++) {
+      const offset = 6 + i * 16;
+      if (offset + 16 > buf.length) break;
+      width = Math.max(width, buf[offset] === 0 ? 256 : buf[offset]);
+      height = Math.max(height, buf[offset + 1] === 0 ? 256 : buf[offset + 1]);
+    }
+    return width && height ? { width, height } : null;
+  }
+
+  // GIF
+  if (buf.length >= 10 && buf.toString("latin1", 0, 3) === "GIF") {
+    return { width: buf.readUInt16LE(6), height: buf.readUInt16LE(8) };
+  }
+
+  // WebP：VP8X / VP8L / VP8 三种块头的宽高编码各不相同
+  if (buf.length >= 30 && buf.toString("latin1", 0, 4) === "RIFF" && buf.toString("latin1", 8, 12) === "WEBP") {
+    const chunk = buf.toString("latin1", 12, 16);
+    if (chunk === "VP8X") return { width: buf.readUIntLE(24, 3) + 1, height: buf.readUIntLE(27, 3) + 1 };
+    if (chunk === "VP8L") {
+      const bits = buf.readUInt32LE(21);
+      return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
+    }
+    if (chunk === "VP8 ") return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff };
+  }
+
+  // JPEG：扫到 SOFn 段取宽高
+  if (buf.length >= 4 && buf[0] === 0xff && buf[1] === 0xd8) {
+    let i = 2;
+    while (i + 9 < buf.length) {
+      if (buf[i] !== 0xff) {
+        i++;
+        continue;
+      }
+      const marker = buf[i + 1];
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+        return { width: buf.readUInt16BE(i + 7), height: buf.readUInt16BE(i + 5) };
+      }
+      if (marker === 0xd8 || (marker >= 0xd0 && marker <= 0xd9)) {
+        i += 2;
+        continue;
+      }
+      i += 2 + buf.readUInt16BE(i + 2);
+    }
+  }
+
+  // SVG：矢量没有固有像素尺寸，只认显式 width/height（读不到就跳过）
+  const head = buf.toString("utf8", 0, Math.min(buf.length, 2000));
+  if (head.includes("<svg")) {
+    const width = head.match(/\bwidth\s*=\s*["']?(\d+(?:\.\d+)?)/i);
+    const height = head.match(/\bheight\s*=\s*["']?(\d+(?:\.\d+)?)/i);
+    if (width && height) return { width: Math.round(Number(width[1])), height: Math.round(Number(height[1])) };
+  }
+
+  return null;
 }
 
 /* ---------------------------------- 单文件检查 --------------------------------- */
@@ -456,6 +556,50 @@ function checkSiteDefinition(file: string, seenIds: Map<string, string>, knownSc
   // 11. isDead 提示
   if (getProp(meta, "isDead")?.kind === ts.SyntaxKind.TrueKeyword) {
     notes.push("isDead: true —— 按 types/site.ts:108-115 建议注释或删除其后的全部配置项");
+  }
+
+  // 12. favicon：优先本地资产（远端地址与 data URI 都要提醒）；本地资产不应超过 256x256；显式引用的文件必须存在
+  const faviconNode = getProp(meta, "favicon");
+  const favicon = asString(faviconNode);
+  if (faviconNode && favicon === undefined) {
+    notes.push("favicon 不是字符串字面量，已跳过 favicon 检查");
+  } else if (favicon?.startsWith("data:image/")) {
+    warnings.push(
+      `${at(faviconNode!)}  favicon 使用内联 data URI（favicon.ts:220-221 会直接返回它）；建议落成本地资产 ` +
+        `${ICONS_DIR}/${expectedId}.png —— 内联 base64 会随定义 chunk 一起变胖，也享受不到统一的图片压缩`,
+    );
+  } else {
+    const iconsDir = path.resolve(process.cwd(), ICONS_DIR);
+
+    if (favicon !== undefined && isHttpUrl(favicon)) {
+      warnings.push(
+        `${at(faviconNode!)}  favicon 使用远端地址 "${favicon}"；建议落成本地资产 ${ICONS_DIR}/${expectedId}.png —— ` +
+          `favicon.ts:237-252 里本地资产优先于这个字段，且本地资产不受站点改版 / 防盗链 / CF 拦截影响`,
+      );
+    }
+
+    const candidates = localIconCandidates(expectedId, favicon);
+    const explicit = favicon?.startsWith("./") ? favicon.slice(2) : undefined;
+    if (explicit && !fs.existsSync(path.join(iconsDir, explicit))) {
+      errors.push(
+        `${at(faviconNode!)}  favicon "${favicon}" 指向的文件不存在（缺 ${ICONS_DIR}/${explicit}）；` +
+          `favicon.ts:227-231 会静默跳过它，最终回落到运行时抓取`,
+      );
+    }
+
+    // 真正会命中的那一个（favicon.ts 是「按顺序找第一个存在于包内的文件」）
+    const hit = candidates.find((name) => fs.existsSync(path.join(iconsDir, name)));
+    if (hit) {
+      const size = readImageSize(path.join(iconsDir, hit));
+      if (!size) {
+        notes.push(`无法解析本地图标 ${ICONS_DIR}/${hit} 的尺寸，已跳过尺寸检查`);
+      } else if (size.width > MAX_LOCAL_ICON_DIM || size.height > MAX_LOCAL_ICON_DIM) {
+        warnings.push(
+          `${rel}  本地图标 ${ICONS_DIR}/${hit} 为 ${size.width}x${size.height}，超过 ${MAX_LOCAL_ICON_DIM}x${MAX_LOCAL_ICON_DIM}；` +
+            `站点图标实际显示尺寸只有 14~36px（components/SiteFavicon/Index.vue 的 size prop），建议压到 128 以内并去掉未压缩 BMP 载荷`,
+        );
+      }
+    }
   }
 
   return result;
