@@ -76,13 +76,11 @@
   "devDependencies": {
     "@intlify/unplugin-vue-i18n": "^11.2.5",
     "@types/chrome": "^0.3.4",
-    "@types/git-rev-sync": "^2.0.2",
     "@types/node": "^26.6.4",
     "@types/parse-torrent": "^11.0.1",
     "@types/sizzle": "^2.3.10",
     "@vitejs/plugin-vue": "^6.0.9",
     "cross-env": "^10.1.0",
-    "git-rev-sync": "^3.0.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.9",
