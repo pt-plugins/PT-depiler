@@ -12,8 +12,8 @@ import webExtension from "vite-plugin-web-extension";
 // @ts-ignore
 import { vitePluginGenerateWebextLocales } from "./vite/plugin/generateWebextLocales.ts";
 import { vitePluginGenerateSiteIndex } from "./vite/plugin/generateSiteIndex.ts";
+import { getGitInfo } from "./vite/gitInfo.ts";
 
-import git from "git-rev-sync";
 import pkg from "./package.json";
 
 function base_path(_path = "") {
@@ -36,10 +36,9 @@ const permissions = [
 
 const optionalPermissions = ["nativeMessaging"];
 
-// @ts-ignore
-const git_count = git.count("HEAD");
-const base_version = `${pkg.version}.${git_count}`;
-const commit_version = `${base_version}+${git.short(__dirname)}`;
+const gitInfo = getGitInfo();
+const base_version = `${pkg.version}.${gitInfo.count}`;
+const commit_version = `${base_version}+${gitInfo.short}`;
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -302,11 +301,11 @@ export default defineConfig({
     __BROWSER__: JSON.stringify(target),
     __EXT_VERSION__: JSON.stringify(`v${commit_version}`),
     __GIT_VERSION__: {
-      short: git.short(__dirname),
-      long: git.long(__dirname),
-      date: +git.date(),
-      count: git_count,
-      branch: git.branch(__dirname),
+      short: gitInfo.short,
+      long: gitInfo.long,
+      date: gitInfo.date,
+      count: gitInfo.count,
+      branch: gitInfo.branch,
     },
     __BUILD_TIME__: +Date.now(),
     __RESOURCE_SITE_ICONS__: fs.readdirSync(base_path("./public/icons/site")),
