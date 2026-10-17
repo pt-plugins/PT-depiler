@@ -26,7 +26,7 @@ import {
   type VueKonvaRef,
 } from "vue-konva/core";
 
-import { downloadBlob, formatDate, formatTimeAgo, nextPaint } from "@/options/utils.ts";
+import { downloadBlob, formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import {
   defaultTimelineBackgroundColor,
@@ -327,29 +327,13 @@ async function exportTimelineImg() {
       date: formatDate(timelineData.value.createAt),
     }) + ".png";
 
-  // 先让按钮上的转圈画出来：konva 的 toBlob 内部有一次**同步**的整树重绘，不先让出一帧的话
-  // 这一帧会被占满，用户看到的是「先卡死、转圈才出现」
-  await nextPaint();
-
-  // 用 callback 形式收尾（konva 的 toBlob 无论 callback 还是 await，内部都是「同步 toCanvas() +
-  // 异步编码」，代价完全一样；用 callback 可以把 loading 的复位直接放在回调里）。
-  // 返回的 Promise 仍然留着 catch，兜住「编码失败 → 回调不会被调用」的情况，避免按钮一直转圈。
-  stage
-    .toBlob({
-      mimeType: "image/png",
-      pixelRatio: 3,
-      callback: async (blob) => {
-        try {
-          await downloadBlob(blob, filename);
-        } finally {
-          isExporting.value = false;
-        }
-      },
-    })
-    .catch((e) => {
-      isExporting.value = false;
-      console.error("[PTD] 导出时间线失败：", e);
-    });
+  try {
+    // pixelRatio 2 已经是 2 倍图（retina 够用）；用 3 时像素数是 9 倍，整棵树重绘会明显卡住
+    const blob = await stage.toBlob({ mimeType: "image/png", pixelRatio: 2 });
+    await downloadBlob(blob, filename);
+  } finally {
+    isExporting.value = false;
+  }
 }
 
 function saveControl() {
