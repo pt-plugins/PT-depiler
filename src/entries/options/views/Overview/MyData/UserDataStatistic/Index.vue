@@ -23,7 +23,7 @@ import {
 
 import { NO_IMAGE } from "@ptd/site";
 
-import { downloadBlob, formatSize, formatDate } from "@/options/utils.ts";
+import { downloadBlob, formatSize, formatDate, nextPaint } from "@/options/utils.ts";
 import { IStoredUserInfo } from "@/shared/types.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -384,38 +384,41 @@ onMounted(async () => {
 const isExporting = ref(false);
 
 async function exportStatisticImg() {
-  const createdAt = formatDate(new Date());
-  const mainCanvas = document.createElement("canvas");
-  const chartsCanvas = document.querySelectorAll("#chartContainer canvas");
-
-  mainCanvas.width = containerWidth.value;
-  mainCanvas.height = (perChartHeight.value + 10) * chartsCanvas.length + 10;
-
-  const ctx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
-
-  // 填充白色背景
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
-
-  // 将 echart 图表渲染到 canvas 上
-  let yIndex = 0;
-  for (const chartCanvas of chartsCanvas) {
-    ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex, chartCanvas.clientWidth, chartCanvas.clientHeight);
-    yIndex += perChartHeight.value + 10;
-  }
-
-  // 在 canvas 上添加右对齐文字
-  ctx.font = "12px Arial";
-  ctx.fillStyle = "#b5b5b5";
-  ctx.textAlign = "right"; // 设置文字右对齐
-
-  const textX = containerWidth.value - 10; // 距离右侧边缘 10px
-  const textY = yIndex;
-  ctx.fillText("Created By PT-Depiler (" + __EXT_VERSION__ + ") at " + createdAt, textX, textY);
-
-  // 导出图片（canvas.toBlob 是回调式，这里包一层 Promise 以便配合按钮 loading）
   isExporting.value = true;
   try {
+    // 先让按钮上的转圈画出来，再做下面这些同步的合成/编码
+    await nextPaint();
+
+    const createdAt = formatDate(new Date());
+    const mainCanvas = document.createElement("canvas");
+    const chartsCanvas = document.querySelectorAll("#chartContainer canvas");
+
+    mainCanvas.width = containerWidth.value;
+    mainCanvas.height = (perChartHeight.value + 10) * chartsCanvas.length + 10;
+
+    const ctx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
+
+    // 填充白色背景
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+    // 将 echart 图表渲染到 canvas 上
+    let yIndex = 0;
+    for (const chartCanvas of chartsCanvas) {
+      ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex, chartCanvas.clientWidth, chartCanvas.clientHeight);
+      yIndex += perChartHeight.value + 10;
+    }
+
+    // 在 canvas 上添加右对齐文字
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "#b5b5b5";
+    ctx.textAlign = "right"; // 设置文字右对齐
+
+    const textX = containerWidth.value - 10; // 距离右侧边缘 10px
+    const textY = yIndex;
+    ctx.fillText("Created By PT-Depiler (" + __EXT_VERSION__ + ") at " + createdAt, textX, textY);
+
+    // 导出图片（canvas.toBlob 是回调式，这里包一层 Promise 以便配合按钮 loading）
     const blob = await new Promise<Blob | null>((resolve) => mainCanvas.toBlob(resolve));
     if (blob) {
       await downloadBlob(

@@ -5,7 +5,7 @@ import { EResultParseStatus, type IUserInfo, type TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
-import { downloadBlob, formatSize, formatDate } from "@/options/utils.ts";
+import { downloadBlob, formatSize, formatDate, nextPaint } from "@/options/utils.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 import { formatRatio } from "./utils/format.ts";
 import { loadSiteHistoryData } from "./utils/lastUserData.ts";
@@ -72,9 +72,11 @@ async function exportSiteHistoryData() {
     exportData = siteHistoryData.value.filter((item) => tableSelected.value.includes(item.date));
   }
 
-  const exportedSolutionBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
   isExporting.value = true;
   try {
+    // 先让按钮上的转圈画出来：下面这句 JSON.stringify 是同步的（还带缩进），数据量大时会卡住整帧
+    await nextPaint();
+    const exportedSolutionBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
     await downloadBlob(exportedSolutionBlob, `site-history-data-${siteId}.json`); // FIXME filename
   } finally {
     isExporting.value = false;

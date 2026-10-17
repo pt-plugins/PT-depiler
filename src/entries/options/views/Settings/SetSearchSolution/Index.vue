@@ -9,7 +9,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import { downloadBlob, formatDate } from "@/options/utils.ts";
+import { downloadBlob, formatDate, nextPaint } from "@/options/utils.ts";
 import type { ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
 import EditDialog from "./EditDialog.vue";
@@ -100,10 +100,12 @@ async function exportSearchSolutions(solutionIds: TSolutionKey[]) {
   }
 
   if (exportedSolutions.length > 0) {
-    const exportedSolutionBlob = new Blob([JSON.stringify(exportedSolutions)], { type: "application/json" });
     isExporting.value = true;
     exportingId.value = solutionIds.length === 1 ? solutionIds[0] : null;
     try {
+      // 先让按钮上的转圈画出来，再做下面这句同步的 JSON.stringify
+      await nextPaint();
+      const exportedSolutionBlob = new Blob([JSON.stringify(exportedSolutions)], { type: "application/json" });
       await downloadBlob(
         exportedSolutionBlob,
         `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`,

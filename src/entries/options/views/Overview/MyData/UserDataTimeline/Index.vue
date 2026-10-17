@@ -26,7 +26,7 @@ import {
   type VueKonvaRef,
 } from "vue-konva/core";
 
-import { downloadBlob, formatDate, formatTimeAgo } from "@/options/utils.ts";
+import { downloadBlob, formatDate, formatTimeAgo, nextPaint } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import {
   defaultTimelineBackgroundColor,
@@ -319,6 +319,7 @@ onMounted(async () => {
 const isExporting = ref(false);
 
 async function exportTimelineImg() {
+  isExporting.value = true;
   const stage = canvasStage.value!.getStage();
   const filename =
     t("UserDataTimeline.exportFilename", {
@@ -326,8 +327,10 @@ async function exportTimelineImg() {
       date: formatDate(timelineData.value.createAt),
     }) + ".png";
 
-  isExporting.value = true;
   try {
+    // 先让按钮上的转圈画出来：konva 的 toBlob 会**同步**按 pixelRatio 新建画布并重绘整棵节点树，
+    // 不先让出一帧的话这一帧会被占满 —— 用户看到的就是「先卡死一下，转圈才出现」
+    await nextPaint();
     // 直接用 konva 的 toBlob（返回 Promise），省掉 toDataURL 再转一手 base64
     const blob = await stage.toBlob({ mimeType: "image/png", pixelRatio: 3 });
     await downloadBlob(blob, filename);

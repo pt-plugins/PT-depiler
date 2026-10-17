@@ -134,6 +134,19 @@ export const simplifyNumber = (num: number | string, spacer: string = ""): strin
 };
 
 /**
+ * 让出一帧，等浏览器把**当前**的 DOM（例如刚置位的按钮 loading）真正画出来再继续。
+ *
+ * 为什么不是 `nextTick()`：Vue 的 nextTick 只在微任务里 flush DOM 更新，此时浏览器还没绘制 ——
+ * 紧接着执行的同步重活（konva 的 `toCanvas()` 会按 `pixelRatio` 新建画布并**同步**重绘整棵节点树）
+ * 会把这帧占满，用户看到的就是「先卡死一下，转圈才出现」。
+ *
+ * 双 rAF：第一个 rAF 在下一帧绘制前触发，第二个 rAF 说明这一帧已经画完了。
+ */
+export function nextPaint(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+}
+
+/**
  * 触发一次文件下载（导出用户信息 / 历史数据 / 搜索方案 / 统计图 …）。
  *
  * 以前用 `file-saver` 的 `saveAs`（一个 2020 年起不再维护的包），它做的事是在页面里插一个
