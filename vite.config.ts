@@ -12,7 +12,7 @@ import webExtension from "vite-plugin-web-extension";
 // @ts-ignore
 import { vitePluginGenerateWebextLocales } from "./vite/plugin/generateWebextLocales.ts";
 import { vitePluginGenerateSiteIndex } from "./vite/plugin/generateSiteIndex.ts";
-import { getGitInfo } from "./vite/gitInfo.ts";
+import { getGitInfo } from "./vite/utils/gitInfo.ts";
 
 import pkg from "./package.json";
 

@@ -5,7 +5,7 @@ import { execSync } from "node:child_process";
  *
  * 以前用 `git-rev-sync` 拿这几个值 —— 为此要多背一个依赖、一个 `patches/` 补丁、
  * 一条 pnpm `overrides`（`git-rev-sync>shelljs`）以及对应的 `allowBuilds` 条目，
- * 而实际只用到这里 5 个值。改成直接调 git（`vite/sendToTgChannel.ts` 早就是这个写法）。
+ * 而实际只用到这里 5 个值。改成直接调 git（`vite/scripts/sendToTgChannel.ts` 早就是这个写法）。
  *
  * ⚠️ 取不到 git 信息时**不能**让构建失败：开发者机器上可能没装 git，当前目录也可能没有 `.git`
  * （典型如从 GitHub 下载 source zip 解压后构建）。此时退化为占位值，见 {@link getGitInfo}。

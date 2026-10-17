@@ -3,8 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-import { INDEXED_METADATA_FIELDS, pickSiteMetadataIndexEntry } from "../src/packages/site/utils/metadataIndex.ts";
-import type { ISiteMetadata } from "../src/packages/site/types/site.ts";
+import { INDEXED_METADATA_FIELDS, pickSiteMetadataIndexEntry } from "../../src/packages/site/utils/metadataIndex.ts";
+import type { ISiteMetadata } from "../../src/packages/site/types/site.ts";
 
 /**
  * 站点定义静态校验（跑在 `pnpm check` 里，**不在构建里** —— 构建只负责编译，校验属于 check 阶段）。
@@ -913,7 +913,7 @@ export function checkSiteDefinitions(onlyFiles?: string[]): ICheckSummary {
   };
 }
 
-/** 直接运行（`tsx vite/checkSiteDefinition.ts [file...]`）时打印报告，并按错误数设置退出码 */
+/** 直接运行（`tsx vite/scripts/checkSiteDefinition.ts [file...]`）时打印报告，并按错误数设置退出码 */
 const isMain = !!process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const args = process.argv.slice(2).filter((a) => !a.startsWith("-"));
