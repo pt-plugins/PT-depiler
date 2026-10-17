@@ -892,6 +892,12 @@
       "unknownKey": "Unknown",
       "unsupported": "This media server does not support overview statistics (or has no credentials configured)",
       "unwatched": "Never watched",
+      "warningCancel": "Cancel",
+      "warningConfirm": "I understand the risk, start scanning",
+      "warningLine1": "Generating the overview fetches **every item** of your library page by page (movies / series), which is a heavy operation.",
+      "warningLine2": "Most public media servers do **not** allow this kind of full-library traversal — it may be treated as abuse and get your account rate-limited or even banned. Only use it on servers you host yourself or are explicitly allowed to scan.",
+      "warningLine3": "The traversal only starts after you confirm. Closing the dialog stops further requests, but requests already sent cannot be recalled.",
+      "warningTitle": "Please confirm first: a full-library scan may violate server rules",
       "watch": "Watch status",
       "watched": "Finished"
     },

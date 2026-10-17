@@ -17,9 +17,11 @@ const { mediaServerId, mediaServerName } = defineProps<{
 const overview = ref<IMediaServerOverview | null>(null);
 const isLoading = ref<boolean>(false);
 const errorMessage = ref<string>("");
+/** 整库遍历有被封号的风险，必须先由用户显式确认（每次打开都要确认） */
+const confirmed = ref<boolean>(false);
 
 /**
- * 调研 C14 / C20：**默认不获取** —— 只有用户点开这个弹窗时才生成。
+ * 调研 C14 / C20：**默认不获取** —— 打开弹窗先给出风险提示，用户确认后才开始。
  * 整库遍历与聚合都在 offscreen 侧完成（几千条条目不会跨消息边界搬过来）。
  */
 async function generate() {
@@ -38,10 +40,16 @@ async function generate() {
   }
 }
 
+function confirmAndGenerate() {
+  confirmed.value = true;
+  void generate();
+}
+
 watch(showDialog, (opened) => {
   if (opened) {
+    // 每次打开都重新走一遍风险提示：整库遍历是高风险操作，不做「不再提示」
     overview.value = null;
-    void generate();
+    confirmed.value = false;
   }
 });
 
@@ -65,7 +73,7 @@ const keyLabel = (key: string) => (key === "-" ? t("SetMediaServer.Overview.unkn
           </v-toolbar-title>
           <template #append>
             <v-btn
-              :disabled="isLoading"
+              :disabled="isLoading || !confirmed"
               icon="mdi-refresh"
               :title="t('SetMediaServer.Overview.regenerate')"
               @click="generate"
@@ -77,7 +85,36 @@ const keyLabel = (key: string) => (key === "-" ? t("SetMediaServer.Overview.unkn
       <v-divider />
 
       <v-card-text>
-        <div v-if="isLoading" class="d-flex flex-column align-center py-8">
+        <!-- 风险提示：绝大多数公开媒体服务器不允许整库遍历，必须先确认（用户要求） -->
+        <template v-if="!confirmed">
+          <v-alert type="warning" variant="tonal">
+            <template #title>
+              <span class="text-body-large font-weight-bold">
+                {{ t("SetMediaServer.Overview.warningTitle") }}
+              </span>
+            </template>
+            <p class="mt-2">{{ t("SetMediaServer.Overview.warningLine1") }}</p>
+            <p class="mt-2">{{ t("SetMediaServer.Overview.warningLine2") }}</p>
+            <p class="mt-2 text-medium-emphasis">{{ t("SetMediaServer.Overview.warningLine3") }}</p>
+          </v-alert>
+
+          <div class="d-flex justify-end mt-4">
+            <v-btn class="mr-2" variant="text" @click="showDialog = false">
+              {{ t("SetMediaServer.Overview.warningCancel") }}
+            </v-btn>
+            <v-btn
+              color="warning"
+              prepend-icon="mdi-alert-outline"
+              variant="flat"
+              @click="confirmAndGenerate"
+              :loading="isLoading"
+            >
+              {{ t("SetMediaServer.Overview.warningConfirm") }}
+            </v-btn>
+          </div>
+        </template>
+
+        <div v-else-if="isLoading" class="d-flex flex-column align-center py-8">
           <v-progress-circular indeterminate size="48" />
           <div class="mt-4 text-body-medium">{{ t("SetMediaServer.Overview.generating") }}</div>
           <div class="mt-1 text-caption text-medium-emphasis">{{ t("SetMediaServer.Overview.hint") }}</div>
