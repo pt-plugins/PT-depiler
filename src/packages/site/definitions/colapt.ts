@@ -133,8 +133,29 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: "url" },
         selectors: {
           joinTime: { selector: "joined_at", filters: [{ name: "parseTime" }] },
+          lastAccessAt: {
+            selector: "last_login_at",
+            filters: [(value: string | null) => value ?? "", { name: "parseTime" }],
+          },
           uploads: { selector: "contributions.torrents" },
           bonus: { selector: "stats.points", filters: [Number] },
+        },
+      },
+      {
+        requestConfig: { url: "/api/v1/me/points/ledger", params: { page: 1, page_size: 1, kind: "seed_reward" } },
+        selectors: {
+          bonusPerHour: {
+            selector: "items",
+            filters: [
+              (items: { amount: string; created_at: string }[]) => {
+                const latest = items[0];
+                // 与站点瓶盖速度一致：最近两小时没有做种入账时显示 0。
+                return latest && Date.now() - Date.parse(latest.created_at) <= 2 * 60 * 60 * 1000
+                  ? Number(latest.amount)
+                  : 0;
+              },
+            ],
+          },
         },
       },
       {
@@ -162,6 +183,10 @@ export const siteMetadata: ISiteMetadata = {
         requestConfig: { url: "/api/v1/me/cola" },
         // shortcut: 核子可乐余额借用 posts，框架支持通用论坛积分后再迁移。
         selectors: { posts: { selector: "balance" } },
+      },
+      {
+        requestConfig: { url: "/api/v1/me/invitations/quotas" },
+        selectors: { invites: { selector: "available_total" } },
       },
       {
         requestConfig: { url: "/api/v1/me/messages/summary" },
