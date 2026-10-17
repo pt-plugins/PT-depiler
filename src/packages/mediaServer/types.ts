@@ -147,7 +147,17 @@ export interface IMediaServerItem<RAW = any> {
   /** 宣传语（B12） */
   taglines?: string[];
   /** 演职人员（B12，**只在详情弹窗二次拉取**，列表里为空） */
-  people?: Array<{ name: string; role?: string; type?: string }>;
+  people?: Array<{
+    name: string;
+    role?: string;
+    type?: string;
+    /** 演员在该服务器上的条目 id（用于拼头像与演员页） */
+    id?: string;
+    /** chip hover 时的头像地址 */
+    imageUrl?: string;
+    /** 该服务器上的演员页面（拿不到就不给链接，chip 会变成不可点） */
+    url?: string;
+  }>;
 
   // 用户对该媒体的情况
   user: {
