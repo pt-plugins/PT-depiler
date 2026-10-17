@@ -56,7 +56,7 @@ interface IPlexIdentityData {
 interface IPlexSearchItem {
   addedAt: number;
   allowSync: boolean;
-  type: "movie" | "show";
+  type: "movie" | "show" | "season" | "episode";
 
   key: string;
   title: string;
@@ -433,8 +433,8 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
       seriesName: (item as IPlexRecentlyAddedItem).parentTitle,
       childCount: item.leafCount,
       recursiveItemCount: item.leafCount,
-      indexNumber: item.index,
-      parentIndexNumber: item.parentIndex,
+      indexNumber: item.type === "episode" ? item.index : undefined,
+      parentIndexNumber: item.type === "episode" ? item.parentIndex : undefined,
       isHd: media?.videoResolution ? media.videoResolution !== "sd" : undefined,
       width: media?.width ?? videoStream?.width,
       height: media?.height ?? videoStream?.height,
