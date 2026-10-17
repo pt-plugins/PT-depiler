@@ -3,6 +3,8 @@ import {
   IMediaServerBaseConfig,
   IMediaServerItem,
   IMediaServerMetadata,
+  IMediaServerOverview,
+  IMediaServerOverviewOptions,
   IMediaServerSearchOptions,
   IMediaServerSearchResult,
 } from "../types.ts";
@@ -10,7 +12,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { toMerged } from "es-toolkit";
 import { EResultParseStatus } from "@ptd/site";
-import { getPlayedPercentage, getResolutionLabel } from "../utils.ts";
+import { getPlayedPercentage, getResolutionLabel, getRootPath } from "../utils.ts";
 
 export const mediaServerMetaData: IMediaServerMetadata = {
   description: "Emby 是一款家庭媒体库管理软件，能整理服务器上的音视频并流式传输到客户端设备，提供良好的影音体验",
@@ -242,6 +244,136 @@ export abstract class MediaBrowser<
       return this.mapQueryItem(response.data);
     }
     return undefined;
+  }
+
+  /** 概览遍历每页要的字段：比列表多要 MediaStreams/MediaSources，用于统计分辨率与码率 */
+  protected readonly overviewFields: string[] = [
+    "MediaSources",
+    "MediaStreams",
+    "DateCreated",
+    "ProductionYear",
+    "ProviderIds",
+  ];
+
+  /** 子类用自己的参数命名（Emby PascalCase / Jellyfin camelCase）拼一个「遍历整库」请求 */
+  protected abstract buildOverviewRequest(
+    startIndex: number,
+    limit: number,
+    fields: string[],
+  ): { url: string; requestConfig: AxiosRequestConfig };
+
+  /**
+   * 调研 C14 / C20：分页遍历整库并**就地聚合**，只返回统计结果（不把条目搬给 UI）。
+   * 达到 `maxItems` 提前结束并标记 `truncated`；一条都拿不到（未认证/不支持）返回 undefined。
+   */
+  public override async getLibraryOverview(
+    options: IMediaServerOverviewOptions = {},
+  ): Promise<IMediaServerOverview | undefined> {
+    const pageSize = Math.max(1, Math.min(options.pageSize ?? 200, 500));
+    const maxItems = Math.max(pageSize, options.maxItems ?? 20000);
+    const recentThreshold = Date.now() - 7 * 24 * 3600 * 1000;
+
+    const bucket = new Map<string, Map<string, { count: number; size: number }>>();
+    const group = (name: string, key?: string, size?: number) => {
+      const map = bucket.get(name) ?? new Map<string, { count: number; size: number }>();
+      bucket.set(name, map);
+
+      const label = key?.trim() || "-";
+      const entry = map.get(label) ?? { count: 0, size: 0 };
+      entry.count += 1;
+      entry.size += size ?? 0;
+      map.set(label, entry);
+    };
+
+    const neverWatched: Array<{ name: string; size: number; productionYear?: number }> = [];
+    const recentlyAdded: Array<{ name: string; dateCreated?: string }> = [];
+
+    let totalItems = 0;
+    let totalSize = 0;
+    let bitrateSum = 0;
+    let bitrateCount = 0;
+    let watched = 0;
+    let partial = 0;
+    let unwatched = 0;
+    let totalPlays = 0;
+    let truncated = false;
+
+    while (totalItems < maxItems) {
+      const { url, requestConfig } = this.buildOverviewRequest(
+        totalItems,
+        Math.min(pageSize, maxItems - totalItems),
+        this.overviewFields,
+      );
+      const response = await this.request<IEmbyQueryResult<TQueryItem>>(url, requestConfig);
+      if (response.status !== 200) break;
+
+      const items = response.data?.Items ?? [];
+      if (items.length === 0) break;
+
+      for (const rawItem of items) {
+        const item = this.mapQueryItem(rawItem);
+        const size = item.size ?? 0;
+        totalItems += 1;
+        totalSize += size;
+
+        group("resolution", item.mediaInfo?.video?.resolution, size);
+        group("codec", item.mediaInfo?.video?.codec, size);
+        group("container", item.format, size);
+        group("rootPath", getRootPath(item.path), size);
+
+        const bitrate = item.mediaInfo?.video?.bitrate;
+        if (bitrate) {
+          bitrateSum += bitrate;
+          bitrateCount += 1;
+        }
+
+        const percent = item.user?.playedPercentage ?? (item.user?.IsPlayed ? 100 : 0);
+        if (percent >= 100) watched += 1;
+        else if (percent > 0) partial += 1;
+        else unwatched += 1;
+        totalPlays += item.user?.playCount ?? 0;
+
+        if (percent === 0 && size > 0) {
+          neverWatched.push({ name: item.name, size, productionYear: item.productionYear });
+        }
+        if (item.dateCreated && new Date(item.dateCreated).getTime() >= recentThreshold) {
+          recentlyAdded.push({ name: item.name, dateCreated: item.dateCreated });
+        }
+      }
+
+      if (items.length < pageSize) break;
+      if (totalItems >= maxItems) {
+        truncated = true;
+      }
+    }
+
+    if (totalItems === 0) return undefined;
+
+    const entries = (name: string, limit?: number) => {
+      const list = [...(bucket.get(name) ?? new Map())]
+        .map(([key, value]) => ({ key, count: value.count, size: value.size }))
+        .sort((a, b) => b.size - a.size || b.count - a.count);
+      return limit ? list.slice(0, limit) : list;
+    };
+
+    return {
+      mediaServerId: this.config.id!,
+      generatedAt: Date.now(),
+      truncated,
+      totalItems,
+      totalSize,
+      averageBitrate: bitrateCount > 0 ? Math.round(bitrateSum / bitrateCount) : undefined,
+      byResolution: entries("resolution"),
+      byCodec: entries("codec"),
+      byContainer: entries("container"),
+      byRootPath: entries("rootPath", 12),
+      watch: { watched, partial, unwatched, totalPlays },
+      playsPerGb: totalPlays > 0 && totalSize > 0 ? Number((totalPlays / (totalSize / 1e9)).toFixed(2)) : undefined,
+      neverWatched: neverWatched.sort((a, b) => b.size - a.size).slice(0, 10),
+      recentlyAdded: recentlyAdded
+        .sort((a, b) => (b.dateCreated ?? "").localeCompare(a.dateCreated ?? ""))
+        .slice(0, 10),
+    };
   }
 
   protected async request<T = any, D = any>(
@@ -491,6 +623,30 @@ export default class Emby extends MediaBrowser<IEmbyConfig, IEmbyQueryItem> {
     requestConfig = toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {});
 
     return { url, requestConfig };
+  }
+
+  protected override buildOverviewRequest(
+    startIndex: number,
+    limit: number,
+    fields: string[],
+  ): { url: string; requestConfig: AxiosRequestConfig } {
+    const hasUserId = this.config.auth.userId && this.config.auth.userId != "";
+    const requestConfig: AxiosRequestConfig = {
+      params: {
+        IncludeItemTypes: "Movie,Series",
+        Recursive: true,
+        SortBy: "DateCreated",
+        SortOrder: "Descending",
+        startIndex,
+        Limit: limit,
+        Fields: fields.join(","),
+      },
+    };
+
+    return {
+      url: hasUserId ? `/Users/${this.config.auth.userId}/Items` : "/Items",
+      requestConfig: toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {}),
+    };
   }
 
   protected override getItemWebUrl(item: IEmbyQueryItem): string {

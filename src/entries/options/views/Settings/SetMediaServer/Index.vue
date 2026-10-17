@@ -12,6 +12,7 @@ import type { TDownloaderKey, TMediaServerKey } from "@/shared/types.ts";
 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
+import OverviewDialog from "./OverviewDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
@@ -79,6 +80,14 @@ const toDeleteIds = ref<TMediaServerKey[]>([]);
 function deleteMediaServer(mediaServerId: TMediaServerKey[]) {
   toDeleteIds.value = mediaServerId;
   showDeleteDialog.value = true;
+}
+
+// 调研 C14 / C20：概览**按需生成** —— 只有点开弹窗时才去遍历整库并聚合
+const showOverviewDialog = ref<boolean>(false);
+const toOverviewMediaServerId = ref<TMediaServerKey | null>(null);
+function overviewMediaServer(mediaServerId: TMediaServerKey) {
+  toOverviewMediaServerId.value = mediaServerId;
+  showOverviewDialog.value = true;
 }
 
 async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
@@ -183,6 +192,13 @@ async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
+            :title="t('SetMediaServer.Overview.title')"
+            color="info"
+            icon="mdi-chart-box-outline"
+            size="small"
+            @click="overviewMediaServer(item.id)"
+          />
+          <v-btn
             :title="t('common.edit')"
             color="info"
             icon="mdi-pencil"
@@ -202,6 +218,11 @@ async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
 
     <AddDialog v-model="showAddDialog" />
     <EditDialog v-model="showEditDialog" :client-id="toEditMediaServerId!" />
+    <OverviewDialog
+      v-model="showOverviewDialog"
+      :media-server-id="toOverviewMediaServerId!"
+      :media-server-name="metadataStore.mediaServers[toOverviewMediaServerId!]?.name"
+    />
 
     <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteMediaServer" />
   </v-card>

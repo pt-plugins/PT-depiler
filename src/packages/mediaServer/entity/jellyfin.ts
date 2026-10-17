@@ -96,6 +96,31 @@ export default class Jellyfin extends MediaBrowser<IJellyfinConfig, IJellyfinQue
     return { url, requestConfig };
   }
 
+  protected override buildOverviewRequest(
+    startIndex: number,
+    limit: number,
+    fields: string[],
+  ): { url: string; requestConfig: AxiosRequestConfig } {
+    const hasUserId = this.config.auth.userId && this.config.auth.userId != "";
+    const requestConfig: AxiosRequestConfig = {
+      params: {
+        userId: hasUserId ? this.config.auth.userId : undefined,
+        includeItemTypes: "Movie,Series",
+        recursive: true,
+        sortBy: "DateCreated",
+        sortOrder: "Descending",
+        startIndex,
+        limit,
+        fields: fields.join(","),
+      },
+    };
+
+    return {
+      url: "/Items",
+      requestConfig: toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {}),
+    };
+  }
+
   protected override getItemWebUrl(item: IJellyfinQueryItem): string {
     return urlJoin(this.baseUrl, `/web/#/details?id=${item.Id}&serverId=${item.ServerId}`);
   }

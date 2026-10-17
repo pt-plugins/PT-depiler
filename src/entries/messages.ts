@@ -17,6 +17,7 @@ import type {
 import type {
   IMediaServerId,
   IMediaServerItem,
+  IMediaServerOverview,
   IMediaServerSearchOptions,
   IMediaServerSearchResult,
 } from "@ptd/mediaServer";
@@ -125,6 +126,8 @@ interface ProtocolMap extends TMessageMap {
   }): IMediaServerSearchResult;
   /** 调研 B12：详情弹窗按需拉取单条目的完整信息（含 People 等重字段） */
   getMediaServerItemDetail(data: { mediaServerId: IMediaServerId; itemId: string }): IMediaServerItem | null;
+  /** 调研 C14 / C20：按需生成媒体库概览（整库遍历与聚合都在 offscreen 里完成，只回传统计结果） */
+  getMediaServerOverview(data: { mediaServerId: IMediaServerId; maxItems?: number }): IMediaServerOverview | null;
   getSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): ISearchData;
   saveSearchResultSnapshotData(data: { snapshotId: TSearchSnapshotKey; data: ISearchData }): void;
   removeSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): void;

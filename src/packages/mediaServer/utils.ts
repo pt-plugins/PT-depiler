@@ -38,3 +38,23 @@ export function getPlayedPercentage(
   if (!positionTicks || !runTimeTicks) return undefined;
   return Math.min(100, Math.max(0, Math.round((positionTicks / runTimeTicks) * 100)));
 }
+
+/**
+ * 从文件路径取出「库根」，用于按磁盘/目录聚合体积（调研 C14）。
+ *
+ * - Windows：`E:\Media\Movies\x.mkv` → `E:/Media`
+ * - POSIX：`/volume1/media/Movies/x.mkv` → `/volume1/media`
+ *
+ * 只取前两级是有意的：再深就会把每部片子算成一组，失去聚合意义。
+ */
+export function getRootPath(path?: string): string | undefined {
+  if (!path) return undefined;
+
+  const normalized = path.replace(/\\/g, "/");
+  const isWindows = /^[A-Za-z]:/.test(normalized);
+  const segments = normalized.split("/").filter(Boolean);
+  if (segments.length <= 2) return normalized;
+
+  const joined = segments.slice(0, 2).join("/");
+  return isWindows ? joined : `/${joined}`;
+}

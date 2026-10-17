@@ -868,6 +868,33 @@
       "statusOffline": "不可达",
       "statusUntested": "未检测"
     },
+    "Overview": {
+      "averageBitrate": "平均码率",
+      "byCodec": "视频编码分布",
+      "byContainer": "容器格式分布",
+      "byResolution": "分辨率分布",
+      "byRootPath": "按目录/磁盘（体积）",
+      "countUnit": "{count} 条",
+      "generatedAt": "生成于 {time}",
+      "generating": "正在遍历媒体库并聚合…",
+      "hint": "按需生成：整库遍历在后台完成，条目多的库可能需要几十秒",
+      "neverWatched": "占空间但从未观看（前 10）",
+      "partial": "看了一部分",
+      "playsPerGb": "每 GB 观看次数",
+      "playsPerGbValue": "{value} 次/GB",
+      "recentlyAdded": "最近 7 天入库（前 10）",
+      "regenerate": "重新生成",
+      "title": "媒体库概览",
+      "totalItems": "条目数",
+      "totalPlays": "观看总次数",
+      "totalSize": "总体积",
+      "truncated": "达到条目上限（已统计 {count} 条），结果只覆盖部分媒体库",
+      "unknownKey": "未知",
+      "unsupported": "该媒体服务器暂不支持概览统计（或未配置认证信息）",
+      "unwatched": "未观看",
+      "watch": "观看情况",
+      "watched": "已看完"
+    },
     "add": {
       "title": "添加媒体服务器"
     }

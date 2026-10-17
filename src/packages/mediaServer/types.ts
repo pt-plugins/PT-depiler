@@ -173,6 +173,60 @@ export interface IMediaServerSearchOptions {
   limit?: number; // 限制数量
 }
 
+/** 媒体库概览里的一个聚合分组（key 用服务器原始值，UI 直接展示，不做本地化） */
+export interface IMediaServerOverviewEntry {
+  key: string;
+  count: number;
+  /** 该组条目的体积合计（字节） */
+  size: number;
+}
+
+/** 媒体库概览的可选参数（调研 C14 / C20） */
+export interface IMediaServerOverviewOptions {
+  /** 最多扫描多少条目（默认 20000），防止超大库把 offscreen 拖死 */
+  maxItems?: number;
+  /** 每页条数（默认 200） */
+  pageSize?: number;
+}
+
+/**
+ * 媒体库概览（调研 C14 库存与空间分析 + C20 媒体库概览）。
+ *
+ * **整库遍历后必须就地聚合**，只回传这个小对象 —— 不要把几千条条目跨消息边界搬给 UI。
+ * 由设置页的按钮**按需触发**（默认不获取）。
+ */
+export interface IMediaServerOverview {
+  mediaServerId: IMediaServerId;
+  /** 生成时间（毫秒） */
+  generatedAt: number;
+  /** 是否因达到条目上限提前结束（结果仍可用，但只覆盖部分库） */
+  truncated: boolean;
+  totalItems: number;
+  totalSize: number;
+  /** 平均码率（bps）：只统计有码率的条目 */
+  averageBitrate?: number;
+  byResolution: IMediaServerOverviewEntry[];
+  byCodec: IMediaServerOverviewEntry[];
+  byContainer: IMediaServerOverviewEntry[];
+  /** 按库根/磁盘聚合（C14） */
+  byRootPath: IMediaServerOverviewEntry[];
+  watch: {
+    /** 看完 */
+    watched: number;
+    /** 看了一部分 */
+    partial: number;
+    /** 从未观看 */
+    unwatched: number;
+    totalPlays: number;
+  };
+  /** 每 GB 观看次数（C14）：衡量占用的空间「值不值」 */
+  playsPerGb?: number;
+  /** 占空间但从未观看，按体积降序（C14，最多 10 条） */
+  neverWatched: Array<{ name: string; size: number; productionYear?: number }>;
+  /** 最近 7 天入库，按时间降序（C20，最多 10 条） */
+  recentlyAdded: Array<{ name: string; dateCreated?: string }>;
+}
+
 export interface IMediaServerSearchResult<RAW = any> {
   status: EResultParseStatus; // 状态码
 
@@ -211,6 +265,18 @@ export abstract class AbstractMediaServer<T extends IMediaServerBaseConfig = IMe
    * 调用方据此不渲染额外区块。
    */
   public async getItemDetail(_itemId: string): Promise<IMediaServerItem | undefined> {
+    return undefined;
+  }
+
+  /**
+   * 调研 C14 / C20：**按需**生成媒体库概览（库存与空间分析 + 概览数字）。
+   *
+   * 需要遍历整库，所以默认不实现；调用方（设置页的按钮）显式触发。实现方必须就地聚合，
+   * 只返回 {@link IMediaServerOverview} 这个小对象。
+   */
+  public async getLibraryOverview(
+    _options: IMediaServerOverviewOptions = {},
+  ): Promise<IMediaServerOverview | undefined> {
     return undefined;
   }
 }
