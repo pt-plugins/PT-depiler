@@ -79,8 +79,9 @@ pnpm dev                    # Vite dev server (HMR for the options page and cs-a
 pnpm build:dist             # Build Chrome extension  → dist-chrome/
 pnpm build:dist-firefox     # Build Firefox addon     → dist-firefox/ (TARGET=firefox)
 pnpm build:watch            # Unminified watch build
-pnpm check                  # vue-tsc --noEmit && tsx vite/scripts/checkSiteDefinition.ts
+pnpm check                  # vue-tsc --noEmit && tsx vite/scripts/checkSiteDefinition.ts && tsx vite/scripts/checkMdiIcons.ts
 pnpm check:site-definition  # Site-definition checks only (optionally with file paths)
+pnpm check:mdi-icons        # MDI icon names used in src/ vs the full font in public/lib/mdi
 pnpm format                 # prettier
 ```
 
