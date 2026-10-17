@@ -28,10 +28,11 @@
   "scripts": {
     "dev": "vite dev",
     "format": "prettier --list-different -w ./",
-    "check": "vue-tsc --noEmit && tsx vite/scripts/checkSiteDefinition.ts",
+    "check": "vue-tsc --noEmit && tsx vite/scripts/checkSiteDefinition.ts && tsx vite/scripts/checkMdiIcons.ts",
     "check:site-definition": "tsx vite/scripts/checkSiteDefinition.ts",
-    "build:dist": "vite build",
-    "build:dist-firefox": "cross-env TARGET=firefox vite build",
+    "check:mdi-icons": "tsx vite/scripts/checkMdiIcons.ts",
+    "build:dist": "vite build && tsx vite/scripts/subsetMdiFont.ts dist-chrome",
+    "build:dist-firefox": "cross-env TARGET=firefox vite build && tsx vite/scripts/subsetMdiFont.ts dist-firefox",
     "build:watch": "vite build --watch --mode development --minify false",
     "action:upload_telegram": "tsx vite/scripts/sendToTgChannel.ts",
     "prepare": "husky"
@@ -85,6 +86,7 @@
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.9",
     "sass": "^1.105.1",
+    "subset-font": "^2.9.0",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vite": "^6.4.3",
