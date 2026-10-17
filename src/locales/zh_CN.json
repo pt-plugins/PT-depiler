@@ -119,6 +119,11 @@
   },
   "MediaServerEntity": {
     "ItemInformationDialog": {
+      "watched": "观看",
+      "playbackProgress": "播放进度",
+      "notWatched": "未观看",
+      "favorite": "已收藏",
+      "notFavorite": "未收藏",
       "audio": "音轨：",
       "criticRating": "影评人",
       "dateCreated": "入库时间：",

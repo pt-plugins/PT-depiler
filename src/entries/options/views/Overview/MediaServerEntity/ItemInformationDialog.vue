@@ -79,6 +79,14 @@ const watchText = computed(() => {
   return parts.join(" · ");
 });
 
+/** 进度图标与收藏图标的原生 title（鼠标悬停说明含义） */
+const playedTitle = computed(() => watchText.value || t("MediaServerEntity.ItemInformationDialog.notWatched"));
+const favoriteTitle = computed(() =>
+  richItem.value.user?.IsFavorite
+    ? t("MediaServerEntity.ItemInformationDialog.favorite")
+    : t("MediaServerEntity.ItemInformationDialog.notFavorite"),
+);
+
 function secondsToISO8601(seconds: number) {
   seconds = Math.abs(seconds);
 
@@ -423,11 +431,17 @@ function secondsToISO8601(seconds: number) {
 
             <div class="d-flex w-100 align-center">
               <v-icon
+                :title="playedTitle"
                 :icon="getPlayedIcon(richItem.user?.playedPercentage, richItem.user?.IsPlayed)"
                 color="green"
                 size="36"
               />
-              <v-icon :icon="richItem.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" size="36" />
+              <v-icon
+                :title="favoriteTitle"
+                :icon="richItem.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'"
+                color="red"
+                size="36"
+              />
               <v-spacer />
               <v-btn
                 :href="richItem.url"

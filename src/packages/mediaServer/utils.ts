@@ -43,7 +43,9 @@ export function parseResolutionFromTitle(displayTitle?: string): string | undefi
  * 否则子集化后这些图标会静默消失。
  */
 export function getPlayedIcon(percent?: number, isPlayed?: boolean): string {
-  if (isPlayed || percent === 100) return "mdi-check-bold";
+  // 有真实进度时以进度为准：列表项里的 IsPlayed 可能滞后（如已标「已看」但实际只看了 10%）
+  if (typeof percent === "number" && percent >= 100) return "mdi-check-bold";
+  if (!percent || percent <= 0) return isPlayed ? "mdi-check-bold" : "mdi-circle-outline";
   if (!percent || percent <= 0) return "mdi-circle-outline";
 
   const slice = Math.min(7, Math.max(1, Math.ceil((percent / 100) * 7)));

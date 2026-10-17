@@ -119,6 +119,11 @@
   },
   "MediaServerEntity": {
     "ItemInformationDialog": {
+      "watched": "Watched",
+      "playbackProgress": "Playback progress",
+      "notWatched": "Not watched",
+      "favorite": "In favorites",
+      "notFavorite": "Not in favorites",
       "audio": "Audio: ",
       "criticRating": "Critics",
       "dateCreated": "Added: ",
