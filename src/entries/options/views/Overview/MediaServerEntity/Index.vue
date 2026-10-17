@@ -70,6 +70,14 @@ function videoRangeBadge(item: IMediaServerItem): string | undefined {
   return range.toUpperCase();
 }
 
+/** 剧集编号（调研 B10）：S01E05（季号缺失时只给 E05） */
+function seriesText(item: IMediaServerItem): string | undefined {
+  if (typeof item.indexNumber !== "number") return undefined;
+  const season =
+    typeof item.parentIndexNumber === "number" ? `S${String(item.parentIndexNumber).padStart(2, "0")}` : "";
+  return `${season}E${String(item.indexNumber).padStart(2, "0")}`;
+}
+
 function onScroll() {
   // 当滚动到页面底部时加载更多
   if (
@@ -200,6 +208,36 @@ onMounted(async () => {
                     size="x-small"
                   >
                     {{ videoRangeBadge(item) }}
+                  </v-chip>
+                  <!-- 年份（调研 B8） -->
+                  <v-chip
+                    v-if="item.productionYear"
+                    :variant="isActive ? 'tonal' : 'elevated'"
+                    base-color="blue-grey"
+                    label
+                    size="x-small"
+                  >
+                    {{ item.productionYear }}
+                  </v-chip>
+                  <!-- 同片多版本（调研 B9） -->
+                  <v-chip
+                    v-if="(item.mediaSourceCount ?? 0) > 1"
+                    :variant="isActive ? 'tonal' : 'elevated'"
+                    base-color="purple"
+                    label
+                    size="x-small"
+                  >
+                    {{ t("MediaServerEntity.versions", { count: item.mediaSourceCount }) }}
+                  </v-chip>
+                  <!-- 剧集编号（调研 B10） -->
+                  <v-chip
+                    v-if="seriesText(item)"
+                    :variant="isActive ? 'tonal' : 'elevated'"
+                    base-color="indigo"
+                    label
+                    size="x-small"
+                  >
+                    {{ seriesText(item) }}
                   </v-chip>
                 </div>
                 <v-img v-bind="props" :src="item.poster" :title="item.name" />

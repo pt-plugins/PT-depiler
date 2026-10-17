@@ -103,6 +103,29 @@ export interface IEmbyQueryItem {
     Name: string;
     Url: string;
   }>;
+  // —— 调研 B8–B12 需要的字段 ——
+  ProductionYear?: number;
+  PremiereDate?: string;
+  OfficialRating?: string;
+  CustomRating?: string;
+  CriticRating?: number;
+  Studios?: Array<{ Name: string; Id?: number }>;
+  MediaSourceCount?: number;
+  ChildCount?: number;
+  RecursiveItemCount?: number;
+  SeriesName?: string;
+  IndexNumber?: number;
+  ParentIndexNumber?: number;
+  IsHd?: boolean;
+  Width?: number;
+  Height?: number;
+  /** 自定义标签（与 GenreItems 不同） */
+  Tags?: string[];
+  Taglines?: string[];
+  /** 外部标识：imdb / tmdb / tvdb … */
+  ProviderIds?: Record<string, string>;
+  /** 演职人员（**只在详情接口要**，列表不要） */
+  People?: Array<{ Name: string; Role?: string; Type?: string; Id?: string }>;
   UserData: {
     IsFavorite: boolean;
     PlayCount: number;
@@ -171,7 +194,54 @@ export abstract class MediaBrowser<
    * 所以默认取顶层、Jellyfin 覆写。
    */
   protected getItemSize(item: TQueryItem): number | undefined {
-    return (item as Partial<IEmbyQueryItem>).Size;
+    // 列表接口给顶层 Size；详情接口（/Items/{id}）不一定给，回退到首个媒体源
+    const typed = item as Partial<IEmbyQueryItem>;
+    return typed.Size ?? typed.MediaSources?.[0]?.Size;
+  }
+
+  /**
+   * 列表接口额外请求的**轻量**字段（调研 B8–B12）。
+   * `People` 这类会让响应明显变大的字段不在这里 —— 见 {@link detailExtraFields}。
+   */
+  protected readonly listExtraFields: string[] = [
+    "ProviderIds",
+    "ProductionYear",
+    "PremiereDate",
+    "OfficialRating",
+    "CustomRating",
+    "CriticRating",
+    "Studios",
+    "MediaSourceCount",
+    "ChildCount",
+    "RecursiveItemCount",
+    "SeriesName",
+    "IndexNumber",
+    "ParentIndexNumber",
+    "IsHd",
+    "Width",
+    "Height",
+    "Tags",
+    "Taglines",
+  ];
+
+  /** 只在详情弹窗按需拉取时才要的字段（含列表里刻意不要的重字段） */
+  protected readonly detailExtraFields: string[] = [...this.listExtraFields, "People", "MediaStreams", "MediaSources"];
+
+  /**
+   * 调研 B12：详情弹窗打开时按需拉取完整条目。
+   * 列表接口只带轻量字段，这里再要一次 `People` 等重字段，并复用同一套映射。
+   */
+  public override async getItemDetail(itemId: string): Promise<IMediaServerItem | undefined> {
+    const params: Record<string, unknown> = { Fields: this.detailExtraFields.join(",") };
+    if (this.config.auth.userId) {
+      params["userId"] = this.config.auth.userId;
+    }
+
+    const response = await this.request<TQueryItem>(`/Items/${itemId}`, { params });
+    if (response.status === 200 && response.data?.Id) {
+      return this.mapQueryItem(response.data);
+    }
+    return undefined;
   }
 
   protected async request<T = any, D = any>(
@@ -257,6 +327,7 @@ export abstract class MediaBrowser<
 
     return {
       server: this.config.id!,
+      id: item.Id,
       name: item.Name,
       url: this.getItemWebUrl(item),
       type: item.MediaType,
@@ -317,6 +388,30 @@ export abstract class MediaBrowser<
       externalUrls: item.ExternalUrls?.map((externalUrl) => ({
         name: externalUrl.Name,
         url: externalUrl.Url,
+      })),
+      // 调研 B7–B12
+      providerIds: item.ProviderIds,
+      productionYear: item.ProductionYear,
+      premiereDate: item.PremiereDate,
+      officialRating: item.OfficialRating,
+      criticRating: item.CriticRating,
+      studios: item.Studios?.map((studio) => studio.Name),
+      mediaSourceCount: item.MediaSourceCount,
+      childCount: item.ChildCount,
+      recursiveItemCount: item.RecursiveItemCount,
+      seriesName: item.SeriesName,
+      indexNumber: item.IndexNumber,
+      parentIndexNumber: item.ParentIndexNumber,
+      isHd: item.IsHd,
+      width: item.Width,
+      height: item.Height,
+      labels: item.Tags,
+      taglines: item.Taglines,
+      // People 只在详情接口出现，这里限制条数避免 UI 过长
+      people: item.People?.slice(0, 12).map((person) => ({
+        name: person.Name,
+        role: person.Role,
+        type: person.Type,
       })),
       user: {
         IsFavorite: userData?.IsFavorite ?? false,
@@ -389,7 +484,8 @@ export default class Emby extends MediaBrowser<IEmbyConfig, IEmbyQueryItem> {
     config.startIndex = requestConfig.params["startIndex"] = config.startIndex ?? 0;
     config.limit = requestConfig.params["Limit"] = config.limit ?? 50;
     requestConfig.params["Fields"] =
-      "BasicSyncInfo,Path,Status,ExternalUrls,CommunityRating,MediaSources,DisplayPreferences,Genres,DateCreated,Overview,ExtraIds";
+      "BasicSyncInfo,Path,Status,ExternalUrls,CommunityRating,MediaSources,DisplayPreferences,Genres,DateCreated,Overview,ExtraIds," +
+      this.listExtraFields.join(",");
 
     // 处理额外的请求配置
     requestConfig = toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {});

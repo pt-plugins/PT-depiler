@@ -42,6 +42,8 @@ export interface IMediaServerMetadata {
 export interface IMediaServerItem<RAW = any> {
   // 所在的媒体服务器id
   server: IMediaServerId;
+  /** 服务器侧的条目 id（调研 B12：详情弹窗按需二次拉取时要用） */
+  id?: string;
   // 名称
   name: string;
   // 对应服务器浏览地址
@@ -111,6 +113,42 @@ export interface IMediaServerItem<RAW = any> {
   /** 外部链接（调研 A5：IMDb / TMDB 等） */
   externalUrls?: Array<{ name: string; url: string }>;
 
+  // —— 以下为调研 B8–B12：轻量字段随列表一起请求；People 这类重字段只在详情弹窗按需拉取 ——
+
+  /** 发行/首播年份（B8） */
+  productionYear?: number;
+  /** 首播日期 ISO（B8） */
+  premiereDate?: string;
+  /** 官方分级，如 PG-13 / R（B8） */
+  officialRating?: string;
+  /** 影评人评分（B8） */
+  criticRating?: number;
+  /** 制片公司（B8） */
+  studios?: string[];
+  /** 库内媒体源数量，> 1 表示同片多版本（B9） */
+  mediaSourceCount?: number;
+  /** 剧集：直接子项数（B10） */
+  childCount?: number;
+  /** 剧集：递归子项数，即总集数（B10） */
+  recursiveItemCount?: number;
+  /** 剧集名（B10） */
+  seriesName?: string;
+  /** 集号 / 季号（B10） */
+  indexNumber?: number;
+  parentIndexNumber?: number;
+  /** 是否高清（B11，`mediaInfo.video.resolution` 缺失时的回退） */
+  isHd?: boolean;
+  width?: number;
+  height?: number;
+  /** 外部标识（B7）：`{ imdb: "tt1234567", tmdb: "…", tvdb: "…" }`，用于跳站点搜索 */
+  providerIds?: Record<string, string>;
+  /** 自定义标签（B12，区别于 genres 的 `tags`） */
+  labels?: string[];
+  /** 宣传语（B12） */
+  taglines?: string[];
+  /** 演职人员（B12，**只在详情弹窗二次拉取**，列表里为空） */
+  people?: Array<{ name: string; role?: string; type?: string }>;
+
   // 用户对该媒体的情况
   user: {
     IsFavorite?: boolean; // 是否喜欢
@@ -164,4 +202,15 @@ export abstract class AbstractMediaServer<T extends IMediaServerBaseConfig = IMe
     keywords?: string,
     options?: IMediaServerSearchOptions,
   ): Promise<IMediaServerSearchResult>;
+
+  /**
+   * 按 id 拉取**单条目**的完整信息（调研 B12）。
+   *
+   * 列表接口只请求轻量字段（`/Items` 的响应本来就带 `MediaSources`，再加 `People` 会明显变大），
+   * 重量级字段（演职人员等）在详情弹窗打开时再调一次这里。默认不实现 —— 不支持的服务器返回 `undefined`，
+   * 调用方据此不渲染额外区块。
+   */
+  public async getItemDetail(_itemId: string): Promise<IMediaServerItem | undefined> {
+    return undefined;
+  }
 }

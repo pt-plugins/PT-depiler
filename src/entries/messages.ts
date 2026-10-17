@@ -14,7 +14,12 @@ import type {
   ISocialRecommendationsResult,
   TSupportSocialSite$1,
 } from "@ptd/social";
-import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
+import type {
+  IMediaServerId,
+  IMediaServerItem,
+  IMediaServerSearchOptions,
+  IMediaServerSearchResult,
+} from "@ptd/mediaServer";
 import type { IBackupData, IBackupFileInfo } from "@ptd/backupServer";
 import type {
   CTorrent,
@@ -118,6 +123,8 @@ interface ProtocolMap extends TMessageMap {
     keywords?: string;
     options?: IMediaServerSearchOptions;
   }): IMediaServerSearchResult;
+  /** 调研 B12：详情弹窗按需拉取单条目的完整信息（含 People 等重字段） */
+  getMediaServerItemDetail(data: { mediaServerId: IMediaServerId; itemId: string }): IMediaServerItem | null;
   getSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): ISearchData;
   saveSearchResultSnapshotData(data: { snapshotId: TSearchSnapshotKey; data: ISearchData }): void;
   removeSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): void;

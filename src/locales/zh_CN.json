@@ -120,19 +120,31 @@
   "MediaServerEntity": {
     "ItemInformationDialog": {
       "audio": "音轨：",
+      "criticRating": "影评人",
       "dateCreated": "入库时间：",
       "duration": "时长：",
+      "episodeCount": "共 {count} 集",
       "externalUrls": "外部链接：",
+      "labels": "标签：",
+      "loadingDetail": "正在获取详情…",
       "mediaInfo": "媒体信息：",
+      "mediaSourceCount": "库内版本：",
+      "officialRating": "分级：",
       "path": "文件路径：",
+      "people": "演职人员：",
       "playCountText": "共 {count} 次",
       "rating": "评分：",
+      "searchOnSite": "站点搜索：",
+      "series": "剧集：",
       "size": "大小：",
+      "studios": "制片公司：",
       "subtitle": "字幕：",
+      "taglines": "宣传语：",
       "title": "媒体详情",
       "type": "类型：",
       "video": "画质：",
-      "watched": "观看："
+      "watched": "观看：",
+      "year": "年份："
     },
     "detail": "详情",
     "embedded": "内封",
@@ -144,6 +156,7 @@
       "all": "全部服务器"
     },
     "unwatched": "未看",
+    "versions": "{count} 个版本",
     "watched": "已看",
     "watchedPercent": "{percent}%"
   },

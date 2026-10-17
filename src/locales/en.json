@@ -120,19 +120,31 @@
   "MediaServerEntity": {
     "ItemInformationDialog": {
       "audio": "Audio: ",
+      "criticRating": "Critics",
       "dateCreated": "Added: ",
       "duration": "Duration: ",
+      "episodeCount": "{count} episode(s)",
       "externalUrls": "Links: ",
+      "labels": "Labels: ",
+      "loadingDetail": "Loading details…",
       "mediaInfo": "Media Info: ",
+      "mediaSourceCount": "Versions: ",
+      "officialRating": "Rated: ",
       "path": "Path: ",
+      "people": "Cast & Crew: ",
       "playCountText": "{count} play(s)",
       "rating": "Rating: ",
+      "searchOnSite": "Search on sites: ",
+      "series": "Series: ",
       "size": "Size: ",
+      "studios": "Studios: ",
       "subtitle": "Subtitle: ",
+      "taglines": "Taglines: ",
       "title": "Media Details",
       "type": "Type: ",
       "video": "Video: ",
-      "watched": "Watched: "
+      "watched": "Watched: ",
+      "year": "Year: "
     },
     "detail": "Details",
     "embedded": "Embedded",
@@ -144,6 +156,7 @@
       "all": "All Servers"
     },
     "unwatched": "Unwatched",
+    "versions": "{count} version(s)",
     "watched": "Watched",
     "watchedPercent": "{percent}%"
   },

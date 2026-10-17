@@ -87,7 +87,8 @@ export default class Jellyfin extends MediaBrowser<IJellyfinConfig, IJellyfinQue
     config.startIndex = requestConfig.params["startIndex"] = config.startIndex ?? 0;
     config.limit = requestConfig.params["limit"] = config.limit ?? 50;
     requestConfig.params["fields"] =
-      "Path,Status,ExternalUrls,CommunityRating,MediaSources,DisplayPreferences,Genres,DateCreated,Overview,ExtraIds";
+      "Path,Status,ExternalUrls,CommunityRating,MediaSources,DisplayPreferences,Genres,DateCreated,Overview,ExtraIds," +
+      this.listExtraFields.join(",");
 
     // 处理额外的请求配置
     requestConfig = toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {});

@@ -70,6 +70,17 @@ onMessage("getMediaServerSearchResult", async ({ data: { mediaServerId, keywords
   return await mediaServer.getSearchResult(keywords ?? "", options);
 });
 
+// 调研 B12：详情弹窗按需拉取单条目的完整信息（列表只带轻量字段，避免 /Items 响应过大）
+onMessage("getMediaServerItemDetail", async ({ data: { mediaServerId, itemId } }) => {
+  logger({
+    msg: `getMediaServerItemDetail For mediaServer: ${mediaServerId} with itemId: ${itemId}`,
+  });
+  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  const mediaServerConfig = metadataStore.mediaServers[mediaServerId];
+  const mediaServer = await getMediaServer(mediaServerConfig);
+  return (await mediaServer.getItemDetail(itemId)) ?? null;
+});
+
 async function getSnapshotData() {
   return ((await sendMessage("getExtStorage", "searchResultSnapshot")) ?? {}) as TSearchResultSnapshotStorageSchema;
 }

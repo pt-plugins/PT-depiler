@@ -1,15 +1,53 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { formatBitrate, IMediaServerItem } from "@ptd/mediaServer";
 import { formatDate, formatSize } from "@/options/utils.ts";
+import { sendMessage } from "@/messages.ts";
 
 const { t } = useI18n();
+const router = useRouter();
 
 const showDialog = defineModel<boolean>();
 const { item } = defineProps<{
   item: IMediaServerItem;
 }>();
+
+/**
+ * 调研 B12：列表接口只请求轻量字段，演职人员等重字段在弹窗打开时**按需二次拉取**。
+ * 拉不到（服务器不支持 / 请求失败）时静默降级，只展示列表已有的信息。
+ */
+const detail = ref<IMediaServerItem | null>(null);
+const isLoadingDetail = ref<boolean>(false);
+
+watch(showDialog, async (opened) => {
+  if (!opened) {
+    detail.value = null;
+    return;
+  }
+  if (!item.id) return;
+
+  isLoadingDetail.value = true;
+  try {
+    detail.value = await sendMessage("getMediaServerItemDetail", { mediaServerId: item.server, itemId: item.id });
+  } catch (e) {
+    detail.value = null;
+  } finally {
+    isLoadingDetail.value = false;
+  }
+});
+
+/** 详情拉取成功就用详情覆盖，否则退回列表里那条 */
+const richItem = computed<IMediaServerItem>(() => detail.value ?? item);
+
+/** 调研 B7：用外部标识（imdb / tmdb）一键跳到站点搜索页 */
+function searchOnSite(field: "imdb" | "tmdb") {
+  const value = richItem.value.providerIds?.[field];
+  if (!value) return;
+  showDialog.value = false;
+  router.push({ path: "/search-entity", query: { search: `${field}|${value}`, flush: 1 } });
+}
 
 function streamsTextFactory(type: "Video" | "Audio" | "Subtitle") {
   return computed(() =>
@@ -285,6 +323,110 @@ function secondsToISO8601(seconds: number) {
                 </template>
               </v-chip-group>
             </div>
+            <!-- 年份 / 首播 / 分级 / 影评人评分 / 制片公司（调研 B8） -->
+            <div v-if="item.productionYear || item.premiereDate" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.year") }}</v-label>
+              <v-chip v-if="item.productionYear" base-color="blue-grey" class="mr-1" label size="small">
+                {{ item.productionYear }}
+              </v-chip>
+              <v-chip v-if="item.premiereDate" base-color="blue-grey" class="mr-1" label size="small">
+                {{ item.premiereDate.slice(0, 10) }}
+              </v-chip>
+            </div>
+            <div v-if="item.officialRating || item.criticRating" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.officialRating") }}</v-label>
+              <v-chip v-if="item.officialRating" base-color="orange" class="mr-1" label size="small">
+                {{ item.officialRating }}
+              </v-chip>
+              <v-chip v-if="item.criticRating" base-color="amber" class="mr-1" label size="small">
+                {{ t("MediaServerEntity.ItemInformationDialog.criticRating") }} {{ item.criticRating.toFixed(1) }}
+              </v-chip>
+            </div>
+            <!-- 剧集信息（调研 B10） -->
+            <div v-if="item.seriesName || item.recursiveItemCount || item.childCount" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.series") }}</v-label>
+              <span class="text-body-small text-medium-emphasis">
+                {{
+                  [
+                    item.seriesName,
+                    typeof item.parentIndexNumber === "number"
+                      ? `S${String(item.parentIndexNumber).padStart(2, "0")}`
+                      : undefined,
+                    typeof item.indexNumber === "number" ? `E${String(item.indexNumber).padStart(2, "0")}` : undefined,
+                    item.recursiveItemCount || item.childCount
+                      ? t("MediaServerEntity.ItemInformationDialog.episodeCount", {
+                          count: item.recursiveItemCount ?? item.childCount,
+                        })
+                      : undefined,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")
+                }}
+              </span>
+            </div>
+            <!-- 同片多版本 / 制片公司 / 自定义标签 / 宣传语（调研 B9 / B8 / B12） -->
+            <div v-if="(item.mediaSourceCount ?? 0) > 1" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.mediaSourceCount") }}</v-label>
+              <v-chip base-color="purple" class="mr-1" label size="small">
+                {{ t("MediaServerEntity.versions", { count: item.mediaSourceCount }) }}
+              </v-chip>
+            </div>
+            <div v-if="item.studios?.length" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.studios") }}</v-label>
+              <span class="text-body-small text-medium-emphasis">{{ item.studios.join(" / ") }}</span>
+            </div>
+            <div v-if="richItem.labels?.length" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.labels") }}</v-label>
+              <v-chip-group show-arrows>
+                <v-chip v-for="label in richItem.labels" :key="label" base-color="cyan" label size="small">
+                  {{ label }}
+                </v-chip>
+              </v-chip-group>
+            </div>
+            <div v-if="richItem.taglines?.length" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.taglines") }}</v-label>
+              <span class="text-body-small text-medium-emphasis font-italic">{{ richItem.taglines.join(" / ") }}</span>
+            </div>
+            <!-- 演职人员（调研 B12，二次拉取才有） -->
+            <div v-if="isLoadingDetail" class="info-label">
+              <v-progress-circular indeterminate size="16" width="2" />
+              <span class="ml-2 text-body-small text-medium-emphasis">
+                {{ t("MediaServerEntity.ItemInformationDialog.loadingDetail") }}
+              </span>
+            </div>
+            <div v-else-if="richItem.people?.length" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.people") }}</v-label>
+              <v-chip-group show-arrows>
+                <v-chip v-for="person in richItem.people" :key="person.name + (person.role ?? '')" label size="small">
+                  {{ person.name }}
+                  <template v-if="person.role"> · {{ person.role }}</template>
+                </v-chip>
+              </v-chip-group>
+            </div>
+            <!-- 调研 B7：外部标识 → 站点搜索 -->
+            <div v-if="richItem.providerIds?.imdb || richItem.providerIds?.tmdb" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.searchOnSite") }}</v-label>
+              <v-btn
+                v-if="richItem.providerIds?.imdb"
+                class="mr-1"
+                prepend-icon="mdi-movie-search-outline"
+                size="small"
+                variant="tonal"
+                @click="searchOnSite('imdb')"
+              >
+                IMDb {{ richItem.providerIds.imdb }}
+              </v-btn>
+              <v-btn
+                v-if="richItem.providerIds?.tmdb"
+                prepend-icon="mdi-movie-search-outline"
+                size="small"
+                variant="tonal"
+                @click="searchOnSite('tmdb')"
+              >
+                TMDb {{ richItem.providerIds.tmdb }}
+              </v-btn>
+            </div>
+
             <v-divider class="my-2" />
 
             <div class="d-flex w-100 align-center">
