@@ -10,7 +10,13 @@ import {
 } from "../types";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { EResultParseStatus } from "@ptd/site";
-import { createOverviewAccumulator, getPlayedPercentage, getResolutionLabel, getRootPath } from "../utils.ts";
+import {
+  createOverviewAccumulator,
+  getPlayedPercentage,
+  getResolutionLabel,
+  getRootPath,
+  normalizeProviderIds,
+} from "../utils.ts";
 import { toMerged } from "es-toolkit";
 import urlJoin from "url-join";
 
@@ -503,7 +509,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
       dateCreated: item.DateCreated,
       externalUrls: item.ExternalUrls?.map((externalUrl) => ({ name: externalUrl.Name, url: externalUrl.Url })),
       // 调研 B7–B12
-      providerIds: item.ProviderIds,
+      providerIds: normalizeProviderIds(item.ProviderIds),
       productionYear: item.ProductionYear,
       premiereDate: item.PremiereDate,
       officialRating: item.OfficialRating,

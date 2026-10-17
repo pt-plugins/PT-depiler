@@ -67,6 +67,22 @@ export function getRootPath(path?: string): string | undefined {
  * 拉到条目后调用 {@link IMediaServerOverviewAccumulator.add}，最后 `build()` 出统计结果 ——
  * 聚合逻辑只有这一份，避免三家各写一遍。
  */
+/**
+ * 统一 `ProviderIds` 的键名大小写。
+ *
+ * Emby / Jellyfin 返回的是 **PascalCase**（`{"Imdb":"tt46656123","Tmdb":"1777750"}`），
+ * 而 UI 与站点搜索跳转按小写 `imdb` / `tmdb` 取值 —— 大小写差异必须止步在映射层。
+ */
+export function normalizeProviderIds(providerIds?: Record<string, string>): Record<string, string> | undefined {
+  if (!providerIds) return undefined;
+
+  const normalized: Record<string, string> = {};
+  for (const [key, value] of Object.entries(providerIds)) {
+    if (value) normalized[key.toLowerCase()] = value;
+  }
+  return Object.keys(normalized).length > 0 ? normalized : undefined;
+}
+
 export interface IMediaServerOverviewAccumulator {
   add(item: IMediaServerItem): void;
   /** 生成结果；一条都没有加入过时返回 undefined */

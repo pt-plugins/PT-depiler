@@ -12,7 +12,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { toMerged } from "es-toolkit";
 import { EResultParseStatus } from "@ptd/site";
-import { createOverviewAccumulator, getPlayedPercentage, getResolutionLabel } from "../utils.ts";
+import { createOverviewAccumulator, getPlayedPercentage, getResolutionLabel, normalizeProviderIds } from "../utils.ts";
 
 export const mediaServerMetaData: IMediaServerMetadata = {
   description: "Emby 是一款家庭媒体库管理软件，能整理服务器上的音视频并流式传输到客户端设备，提供良好的影音体验",
@@ -458,13 +458,14 @@ export abstract class MediaBrowser<
         url: externalUrl.Url,
       })),
       // 调研 B7–B12
-      providerIds: item.ProviderIds,
+      providerIds: normalizeProviderIds(item.ProviderIds),
       productionYear: item.ProductionYear,
       premiereDate: item.PremiereDate,
       officialRating: item.OfficialRating,
       criticRating: item.CriticRating,
       studios: item.Studios?.map((studio) => studio.Name),
-      mediaSourceCount: item.MediaSourceCount,
+      // Emby 不返回 MediaSourceCount，用 MediaSources 数量兜底
+      mediaSourceCount: item.MediaSourceCount ?? item.MediaSources?.length,
       childCount: item.ChildCount,
       recursiveItemCount: item.RecursiveItemCount,
       seriesName: item.SeriesName,
