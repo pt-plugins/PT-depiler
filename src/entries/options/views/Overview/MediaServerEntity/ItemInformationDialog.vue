@@ -163,33 +163,16 @@ function secondsToISO8601(seconds: number) {
                   {{ t("MediaServerEntity.ItemInformationDialog.searchOnSite") }}
                 </div>
                 <div class="d-flex flex-column ga-1">
-                  <v-btn
-                    v-if="richItem.providerIds?.imdb"
-                    :prepend-icon="socialIcon('imdb')"
-                    variant="tonal"
-                    @click="searchOnSite('imdb')"
-                  >
+                  <v-btn v-if="richItem.providerIds?.imdb" variant="tonal" @click="searchOnSite('imdb')">
                     <template #prepend>
-                      <img
-                        v-if="socialIcon('imdb')"
-                        :src="socialIcon('imdb')"
-                        alt=""
-                        class="mr-1"
-                        style="width: 18px; height: 18px"
-                      />
+                      <v-img v-if="socialIcon('imdb')" :src="socialIcon('imdb')" class="mr-1" width="18" height="18" />
                       <v-icon v-else icon="mdi-movie-search-outline" />
                     </template>
                     IMDb {{ richItem.providerIds.imdb }}
                   </v-btn>
                   <v-btn v-if="richItem.providerIds?.tmdb" variant="tonal" @click="searchOnSite('tmdb')">
                     <template #prepend>
-                      <img
-                        v-if="socialIcon('tmdb')"
-                        :src="socialIcon('tmdb')"
-                        alt=""
-                        class="mr-1"
-                        style="width: 18px; height: 18px"
-                      />
+                      <v-img v-if="socialIcon('tmdb')" :src="socialIcon('tmdb')" class="mr-1" width="18" height="18" />
                       <v-icon v-else icon="mdi-movie-search-outline" />
                     </template>
                     TMDb {{ richItem.providerIds.tmdb }}
@@ -211,12 +194,12 @@ function secondsToISO8601(seconds: number) {
                     variant="tonal"
                   >
                     <template #prepend>
-                      <img
+                      <v-img
                         v-if="socialIcon(externalUrl.name)"
                         :src="socialIcon(externalUrl.name)"
-                        alt=""
                         class="mr-1"
-                        style="width: 18px; height: 18px"
+                        width="18"
+                        height="18"
                       />
                     </template>
                     {{ externalUrl.name }}
