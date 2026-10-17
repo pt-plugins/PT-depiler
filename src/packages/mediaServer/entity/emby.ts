@@ -20,12 +20,8 @@ export const mediaServerMetaData: IMediaServerMetadata = {
   auth_field: ["apikey", { name: "userId", required: false, message: "可以额外获取用户喜欢、观看情况" }],
 } as const;
 
-interface IEmbyConfig extends IMediaServerBaseConfig {
+export interface IEmbyConfig extends IMediaBrowserConfig {
   type: "emby";
-  auth: {
-    apikey: string;
-    userId: string;
-  };
 }
 
 export const mediaServerConfig: IEmbyConfig = {
@@ -92,25 +88,60 @@ export interface IEmbyQueryResult<T extends any> {
   TotalRecordCount: number;
 }
 
-export default class Emby extends AbstractMediaServer<IEmbyConfig> {
+/** MediaBrowser 家族的配置形状：apikey 必填，userId 可选（有的话能拿到「喜欢 / 已看」状态） */
+export interface IMediaBrowserConfig extends IMediaServerBaseConfig {
+  auth: {
+    apikey: string;
+    userId: string;
+  };
+}
+
+/**
+ * Emby 与 Jellyfin 共用的基类（审计 §3.5：两者 76% 逐字相同）。
+ *
+ * Jellyfin 是 Emby 3.5.2 的分支，`/System/Info`、`/Items` 的请求与条目映射几乎逐字一致，
+ * 真正的差异只有四类，全部做成下面的挂点，其余流程（`ping` / `request` / `getSearchResult` 的
+ * 骨架、条目映射、错误与状态处理）都在基类里共享：
+ *
+ * 1. **鉴权头** `authHeaders`：Emby 用 `X-Emby-Token`，Jellyfin 用 `Authorization: MediaBrowser Token="…"`；
+ * 2. **查询参数命名** `buildSearchRequest`：Emby 用 PascalCase，Jellyfin 用 camelCase；
+ * 3. **Web UI 链接形状** `getItemWebUrl` / `getTagWebUrl` / `getPosterUrl`；
+ * 4. **条目体积位置** `getItemSize`：Emby 在顶层 `Size`，Jellyfin 在 `MediaSources[0].Size`。
+ *
+ * 基类只描述接口、不注册为媒体服务器实体 —— `mediaServer/index.ts` 是按名字取
+ * `default` / `mediaServerConfig` / `mediaServerMetaData` 的，多导出这个类不影响注册。
+ */
+export abstract class MediaBrowser<
+  TConfig extends IMediaBrowserConfig = IMediaBrowserConfig,
+  TQueryItem extends Omit<IEmbyQueryItem, "Size"> = IEmbyQueryItem,
+> extends AbstractMediaServer<TConfig> {
+  /** JSON API 的入口地址（Emby 需要补 `/emby/`，Jellyfin 就是用户填的根地址） */
+  public abstract get apiBaseUrl(): string;
+
+  /** 鉴权头：两家取值不同，Emby 还会混用 `X-Emby-Token` */
+  protected abstract get authHeaders(): Record<string, string>;
+
+  /** 组装搜索请求：路径（`/Items` 还是 `/Users/{id}/Items`）与参数命名的差异都在子类里 */
+  protected abstract buildSearchRequest(
+    keywords: string,
+    options: IMediaServerSearchOptions,
+  ): { url: string; requestConfig: AxiosRequestConfig };
+
+  /** 条目在各自 Web UI 里的详情页地址 */
+  protected abstract getItemWebUrl(item: TQueryItem): string;
+
+  /** 条目标签（流派）在 Web UI 里的筛选地址 */
+  protected abstract getTagWebUrl(tag: IEmbyQueryItem["GenreItems"][number], item: TQueryItem): string;
+
+  /** 海报地址 */
+  protected abstract getPosterUrl(item: TQueryItem): string;
+
   /**
-   * 修正baseUrl，如果用户传入的地址为 https://127.0.0.1:8096/web/index.html 或者 https://127.0.0.1:8096/
-   * 则将其修正为 JSON API 入口 https://127.0.0.1:8096/emby/
+   * 条目体积。Emby 的 `/Items` 在顶层返回 `Size`，Jellyfin 只在 `MediaSources[0].Size` 里给，
+   * 所以默认取顶层、Jellyfin 覆写。
    */
-  get apiBaseUrl() {
-    let serverAddress = this.config.address;
-    if (!serverAddress.includes("/emby/")) {
-      serverAddress = serverAddress.replace(/\/web\/index.html#.+/, "");
-      serverAddress = urlJoin(serverAddress, "/emby/");
-    }
-
-    return serverAddress;
-  }
-
-  get webBaseUrl() {
-    let serverAddress = this.config.address;
-    serverAddress = serverAddress.replace(/\/web\/index.html#.+/, "");
-    return urlJoin(serverAddress, "/web/index.html");
+  protected getItemSize(item: TQueryItem): number | undefined {
+    return (item as Partial<IEmbyQueryItem>).Size;
   }
 
   protected async request<T = any, D = any>(
@@ -123,7 +154,7 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     // 处理认证方式
     config.headers = {
       ...(config.headers ?? {}),
-      "X-Emby-Token": this.config.auth.apikey,
+      ...this.authHeaders,
     };
 
     // 处理请求url
@@ -149,11 +180,104 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     config: IMediaServerSearchOptions = {},
   ): Promise<IMediaServerSearchResult> {
     // 预定义搜索结果
-    const result: IMediaServerSearchResult<IEmbyQueryItem> = {
+    const result: IMediaServerSearchResult<TQueryItem> = {
       status: EResultParseStatus.unknownError,
       items: [],
     };
 
+    const { url, requestConfig } = this.buildSearchRequest(keywords, config);
+
+    try {
+      const response = await this.request<IEmbyQueryResult<TQueryItem>>(url, requestConfig);
+      if (response.status === 200) {
+        const {
+          data: { Items = [] },
+        } = response;
+        for (const item of Items) {
+          // 处理搜索结果
+          result.items.push(this.mapQueryItem(item));
+        }
+        result.options = config;
+        result.status = EResultParseStatus.success;
+      } else {
+        result.status = EResultParseStatus.needLogin;
+      }
+    } catch (e) {
+      // 401 是认证问题（needLogin），其余（超时、网络不可达、解析异常等）不是认证问题，
+      // 需要把真实错误带回去，避免 UI 统一提示「请检查认证信息」误导排障（#1396）
+      if (e instanceof AxiosError && e.response?.status === 401) {
+        result.status = EResultParseStatus.needLogin;
+      } else {
+        result.status = EResultParseStatus.parseError;
+      }
+      result.errorMessage = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+    }
+
+    return result;
+  }
+
+  /** 把各家的查询条目映射成统一的 `IMediaServerItem`，差异通过上面的挂点注入 */
+  protected mapQueryItem(item: TQueryItem): IMediaServerItem<TQueryItem> {
+    return {
+      server: this.config.id!,
+      name: item.Name,
+      url: this.getItemWebUrl(item),
+      type: item.MediaType,
+      description: item.Overview ?? "",
+      format: item.Container,
+      size: this.getItemSize(item),
+      duration: item.RunTimeTicks / 10000000, // 10000 ticks = 1 ms, 10000 ms = 1 s
+      poster: this.getPosterUrl(item),
+      tags: item.GenreItems?.map((tag) => ({
+        name: tag.Name,
+        url: this.getTagWebUrl(tag, item),
+      })),
+      rating: item.CommunityRating ?? "-",
+      streams: item.MediaSources?.[0]?.MediaStreams?.map((stream) => ({
+        title: stream.Title ?? stream.DisplayTitle,
+        type: stream.Type,
+        format: stream.Codec,
+      })),
+      user: {
+        IsFavorite: item.UserData?.IsFavorite ?? false,
+        IsPlayed: item.UserData?.Played ?? false,
+      },
+      raw: item,
+    };
+  }
+}
+
+export default class Emby extends MediaBrowser<IEmbyConfig, IEmbyQueryItem> {
+  /**
+   * 修正baseUrl，如果用户传入的地址为 https://127.0.0.1:8096/web/index.html 或者 https://127.0.0.1:8096/
+   * 则将其修正为 JSON API 入口 https://127.0.0.1:8096/emby/
+   */
+  public override get apiBaseUrl() {
+    let serverAddress = this.config.address;
+    if (!serverAddress.includes("/emby/")) {
+      serverAddress = serverAddress.replace(/\/web\/index.html#.+/, "");
+      serverAddress = urlJoin(serverAddress, "/emby/");
+    }
+
+    return serverAddress;
+  }
+
+  public get webBaseUrl() {
+    let serverAddress = this.config.address;
+    serverAddress = serverAddress.replace(/\/web\/index.html#.+/, "");
+    return urlJoin(serverAddress, "/web/index.html");
+  }
+
+  protected override get authHeaders(): Record<string, string> {
+    return {
+      "X-Emby-Token": this.config.auth.apikey,
+    };
+  }
+
+  protected override buildSearchRequest(
+    keywords: string,
+    config: IMediaServerSearchOptions,
+  ): { url: string; requestConfig: AxiosRequestConfig } {
     // 处理搜索参数
     let url = "/Items";
     const hasUserId = this.config.auth.userId && this.config.auth.userId != "";
@@ -185,59 +309,18 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     // 处理额外的请求配置
     requestConfig = toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {});
 
-    try {
-      const response = await this.request<IEmbyQueryResult<IEmbyQueryItem>>(url, requestConfig);
-      if (response.status === 200) {
-        const {
-          data: { Items = [] },
-        } = response;
-        for (const item of Items) {
-          // 处理搜索结果
+    return { url, requestConfig };
+  }
 
-          const mediaItem: IMediaServerItem<IEmbyQueryItem> = {
-            server: this.config.id!,
-            name: item.Name,
-            url: this.webBaseUrl + `#!/item?id=${item.Id}&serverId=${item.ServerId}`,
-            type: item.MediaType,
-            description: item.Overview ?? "",
-            format: item.Container,
-            size: item.Size,
-            duration: item.RunTimeTicks / 10000000, // 10000 ticks = 1 ms, 10000 ms = 1 s
-            poster: urlJoin(this.apiBaseUrl, `/Items/${item.Id}/Images/Primary`),
-            tags: item.GenreItems?.map((tag) => ({
-              name: tag.Name,
-              url: this.webBaseUrl + `#!/list/list.html?genreId=${tag.Id}&serverId=${item.ServerId}`,
-            })),
-            rating: item.CommunityRating ?? "-",
-            streams: item.MediaSources?.[0]?.MediaStreams?.map((stream) => ({
-              title: stream.Title ?? stream.DisplayTitle,
-              type: stream.Type,
-              format: stream.Codec,
-            })),
-            user: {
-              IsFavorite: item.UserData?.IsFavorite ?? false,
-              IsPlayed: item.UserData?.Played ?? false,
-            },
-            raw: item,
-          };
-          result.items.push(mediaItem);
-        }
-        result.options = config;
-        result.status = EResultParseStatus.success;
-      } else {
-        result.status = EResultParseStatus.needLogin;
-      }
-    } catch (e) {
-      // 401 是认证问题（needLogin），其余（超时、网络不可达、解析异常等）不是认证问题，
-      // 需要把真实错误带回去，避免 UI 统一提示「请检查认证信息」误导排障（#1396）
-      if (e instanceof AxiosError && e.response?.status === 401) {
-        result.status = EResultParseStatus.needLogin;
-      } else {
-        result.status = EResultParseStatus.parseError;
-      }
-      result.errorMessage = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
-    }
+  protected override getItemWebUrl(item: IEmbyQueryItem): string {
+    return this.webBaseUrl + `#!/item?id=${item.Id}&serverId=${item.ServerId}`;
+  }
 
-    return result;
+  protected override getTagWebUrl(tag: IEmbyQueryItem["GenreItems"][number], item: IEmbyQueryItem): string {
+    return this.webBaseUrl + `#!/list/list.html?genreId=${tag.Id}&serverId=${item.ServerId}`;
+  }
+
+  protected override getPosterUrl(item: IEmbyQueryItem): string {
+    return urlJoin(this.apiBaseUrl, `/Items/${item.Id}/Images/Primary`);
   }
 }
