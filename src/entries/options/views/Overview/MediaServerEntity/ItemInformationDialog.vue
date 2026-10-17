@@ -403,7 +403,14 @@ function secondsToISO8601(seconds: number) {
                     </v-chip>
                   </template>
                   <div class="text-center">
-                    <v-img v-if="person.imageUrl" :src="person.imageUrl" class="mb-1" max-width="160" />
+                    <v-img
+                      v-if="person.imageUrl"
+                      :src="person.imageUrl"
+                      class="mx-auto mb-1 rounded"
+                      cover
+                      height="213"
+                      width="160"
+                    />
                     <div>{{ person.name }}</div>
                     <div v-if="person.role" class="text-caption text-medium-emphasis">{{ person.role }}</div>
                   </div>
