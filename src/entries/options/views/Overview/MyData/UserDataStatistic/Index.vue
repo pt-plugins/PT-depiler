@@ -23,7 +23,7 @@ import {
 
 import { NO_IMAGE } from "@ptd/site";
 
-import { downloadBlob, formatSize, formatDate, nextPaint } from "@/options/utils.ts";
+import { downloadBlob, formatSize, formatDate } from "@/options/utils.ts";
 import { IStoredUserInfo } from "@/shared/types.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -380,55 +380,45 @@ onMounted(async () => {
   }
 });
 
-/** 导出中：按钮转圈（合成 canvas + 编码 PNG + 触发下载都算在内） */
-const isExporting = ref(false);
+function exportStatisticImg() {
+  const createdAt = formatDate(new Date());
+  const mainCanvas = document.createElement("canvas");
+  const chartsCanvas = document.querySelectorAll("#chartContainer canvas");
 
-async function exportStatisticImg() {
-  isExporting.value = true;
-  try {
-    // 先让按钮上的转圈画出来，再做下面这些同步的合成/编码
-    await nextPaint();
+  mainCanvas.width = containerWidth.value;
+  mainCanvas.height = (perChartHeight.value + 10) * chartsCanvas.length + 10;
 
-    const createdAt = formatDate(new Date());
-    const mainCanvas = document.createElement("canvas");
-    const chartsCanvas = document.querySelectorAll("#chartContainer canvas");
+  const ctx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
 
-    mainCanvas.width = containerWidth.value;
-    mainCanvas.height = (perChartHeight.value + 10) * chartsCanvas.length + 10;
+  // 填充白色背景
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
 
-    const ctx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
+  // 将 echart 图表渲染到 canvas 上
+  let yIndex = 0;
+  for (const chartCanvas of chartsCanvas) {
+    ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex, chartCanvas.clientWidth, chartCanvas.clientHeight);
+    yIndex += perChartHeight.value + 10;
+  }
 
-    // 填充白色背景
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+  // 在 canvas 上添加右对齐文字
+  ctx.font = "12px Arial";
+  ctx.fillStyle = "#b5b5b5";
+  ctx.textAlign = "right"; // 设置文字右对齐
 
-    // 将 echart 图表渲染到 canvas 上
-    let yIndex = 0;
-    for (const chartCanvas of chartsCanvas) {
-      ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex, chartCanvas.clientWidth, chartCanvas.clientHeight);
-      yIndex += perChartHeight.value + 10;
-    }
+  const textX = containerWidth.value - 10; // 距离右侧边缘 10px
+  const textY = yIndex;
+  ctx.fillText("Created By PT-Depiler (" + __EXT_VERSION__ + ") at " + createdAt, textX, textY);
 
-    // 在 canvas 上添加右对齐文字
-    ctx.font = "12px Arial";
-    ctx.fillStyle = "#b5b5b5";
-    ctx.textAlign = "right"; // 设置文字右对齐
-
-    const textX = containerWidth.value - 10; // 距离右侧边缘 10px
-    const textY = yIndex;
-    ctx.fillText("Created By PT-Depiler (" + __EXT_VERSION__ + ") at " + createdAt, textX, textY);
-
-    // 导出图片（canvas.toBlob 是回调式，这里包一层 Promise 以便配合按钮 loading）
-    const blob = await new Promise<Blob | null>((resolve) => mainCanvas.toBlob(resolve));
+  // 导出图片：这个导出很快（只是把已有图表 canvas 拼起来 + 编码），不加 loading，免得按钮白闪一下
+  mainCanvas.toBlob((blob) => {
     if (blob) {
-      await downloadBlob(
+      void downloadBlob(
         blob,
         t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png",
       );
     }
-  } finally {
-    isExporting.value = false;
-  }
+  });
 }
 
 function saveControl() {
@@ -497,7 +487,6 @@ function saveControl() {
               color="info"
               icon="mdi-file-export-outline"
               :text="t('common.exportImage')"
-              :loading="isExporting"
               @click="exportStatisticImg"
             />
             <NavButton color="green" icon="mdi-content-save" :text="t('common.saveSettings')" @click="saveControl" />
