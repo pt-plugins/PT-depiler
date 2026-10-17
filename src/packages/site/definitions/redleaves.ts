@@ -146,9 +146,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       name: {
         selector: "a[href*='userdetails.php'][class*='Name']:first > b",
         elementProcess: (element) => {

@@ -146,9 +146,9 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         // 本站魔力值称为「金币」
         selector: ["td.rowhead:contains('金币') + td"],

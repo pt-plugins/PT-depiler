@@ -28,9 +28,9 @@ export const siteMetadata: ISiteMetadata = {
   category: [CategoryIncldead, CategorySpstate],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
 
       // 站点把上传量/下载量/分享率集中在一个 span.medium 里，需整体取出后再拆分。
       // 注意：elementProcess 返回 undefined 才会继续尝试下一个 selector，返回 "" 会被当成命中。

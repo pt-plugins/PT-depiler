@@ -271,7 +271,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     pickLast: ["name", "id"],
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       // page '/api/profile'
       name: { selector: "data.username" },
       levelName: { selector: "data.group" },

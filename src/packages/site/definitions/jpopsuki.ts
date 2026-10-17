@@ -81,7 +81,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     keywordPath: "params.torrentname",
     requestConfig: {
       url: "/ajax.php",
@@ -95,9 +95,9 @@ export const siteMetadata: ISiteMetadata = {
       imdb: false,
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       title: {
-        ...SchemaMetadata.search!.selectors!.title!,
+        ...SchemaMetadata.search.selectors!.title!,
         // 有时候不显示 tags...
         elementProcess: GazelleUtils.genTitleElementProcess({
           tdSelector: "td:has(a[href*='torrents.php?id='][title])",
@@ -179,9 +179,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       uploaded: {
         selector: genUserInfoSelector("stats", "uploaded"),
         filters: [{ name: "parseSize" }],

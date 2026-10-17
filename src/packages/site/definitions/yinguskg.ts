@@ -115,7 +115,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     advanceKeywordParams: {
       imdb: false, // 暂不支持IMDB搜索
     },

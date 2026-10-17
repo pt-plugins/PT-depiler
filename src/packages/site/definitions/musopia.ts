@@ -87,16 +87,16 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('魔力值') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
         filters: [{ name: "parseNumber" }],
       },
     },
     donorConfig: {
-      ...SchemaMetadata.userInfo!.donorConfig,
+      ...SchemaMetadata.userInfo.donorConfig,
       bonusPerHourMultiplier: 1, // selector 已能正确选中加倍后的时魔
     },
   },

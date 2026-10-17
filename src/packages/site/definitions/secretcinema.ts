@@ -63,12 +63,12 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ keywords, requestConfig }) => {
           if (keywords) {
-            unset(requestConfig!, SchemaMetadata.search!.keywordPath!);
+            unset(requestConfig!, SchemaMetadata.search.keywordPath!);
             set(requestConfig!, "params.cataloguenumber", keywords);
           }
           return requestConfig!;
@@ -121,9 +121,9 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       ratio: { text: "N/A" },
     },
   },

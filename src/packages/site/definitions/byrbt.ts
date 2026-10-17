@@ -56,7 +56,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       rows: { selector: "table.torrents:last > tbody > tr:gt(0)" },
       id: {
         selector: "a[title][href*='details.php?id=']",
@@ -104,9 +104,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       messageCount: {
         text: 0,
         selector: "#msg-bar a[href*='messages.php'] strong",
@@ -119,7 +119,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     process: [
-      ...SchemaMetadata.userInfo!.process!.filter((item) => item.requestConfig.url !== "/mybonus.php"), // 继承、排除
+      ...SchemaMetadata.userInfo.process!.filter((item) => item.requestConfig.url !== "/mybonus.php"), // 继承、排除
       {
         requestConfig: { url: "/mybonus.php", params: { show: "seed" }, responseType: "document" },
         fields: ["bonusPerHour"],

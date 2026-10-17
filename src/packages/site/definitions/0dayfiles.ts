@@ -110,9 +110,9 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       rows: {
-        ...SchemaMetadata.search!.selectors!.rows,
+        ...SchemaMetadata.search.selectors!.rows,
         selector: "table.data-table > tbody > tr",
       },
       category: {
@@ -120,7 +120,7 @@ export const siteMetadata: ISiteMetadata = {
         attr: "alt",
       },
       tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
+        ...SchemaMetadata.search.selectors!.tags!,
         {
           name: "Free",
           selector: "span.torrent-badge--freeleech",
@@ -138,7 +138,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       bonusPerHour: {
         selector: "dl.key-value > div:has(dt:contains('Points per hour')) > dd",
         filters: [{ name: "parseNumber" }],

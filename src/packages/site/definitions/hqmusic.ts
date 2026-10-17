@@ -34,7 +34,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       // 站点列表为嵌套结构：table.main > td.embedded 内含 table.torrents（参考 Jackett hqmusic.yml）
       rows: {
         selector:

@@ -97,15 +97,15 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('火花') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
         filters: [{ name: "parseNumber" }],
       },
     },
-    process: SchemaMetadata.userInfo!.process!.map((item) =>
+    process: SchemaMetadata.userInfo.process!.map((item) =>
       item.requestConfig?.url === "/mybonus.php"
         ? { ...item, requestConfig: { ...item.requestConfig, url: "/mybonusmine.php" } }
         : item,

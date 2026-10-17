@@ -9,7 +9,7 @@ import { toMerged } from "es-toolkit";
 
 const requestConfigTransformer: TSearchRequestConfigTransformer = ({ keywords, requestConfig }) => {
   if (keywords) {
-    unset(requestConfig!, SchemaMetadata.search!.keywordPath!);
+    unset(requestConfig!, SchemaMetadata.search.keywordPath!);
     set(requestConfig!, "params.taglist", keywords);
   }
   return requestConfig!;
@@ -73,7 +73,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer,
@@ -85,9 +85,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       donation: { selector: "li:contains('Donated:')", filters: [{ name: "parseNumber" }] },
       seedingBonus: { selector: "li:contains('SeedBonus:')", filters: [{ name: "parseNumber" }] },
     },

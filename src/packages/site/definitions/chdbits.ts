@@ -156,7 +156,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       progress: {
         selector: ["td.rowfollow:last"],
         elementProcess: (element: HTMLElement) => {
@@ -205,9 +205,9 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       hnrPreWarning: {
         text: 0,
         selector: ["#info_block a[href*='hnr.php']"],

@@ -166,9 +166,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       // /bonus.php?action=bprates
       bonusPerHour: {
         selector: ["table#bprates_overview > tbody > tr > td:eq(1)"],

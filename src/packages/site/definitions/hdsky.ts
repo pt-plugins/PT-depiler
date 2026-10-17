@@ -275,9 +275,9 @@ export const siteMetadata: ISiteMetadata = {
   officialGroupPattern: [/-(hds|.*@HDSky)/i],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       id: {
         ...baseIdSelector,
         filters: [{ name: "querystring", args: ["id"] }],

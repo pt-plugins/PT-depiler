@@ -169,7 +169,7 @@ export const siteMetadata: ISiteMetadata = {
   officialGroupPattern: [/-DBTV|-QHstudIo|Dream$|.*@dream/i],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     advanceKeywordParams: {
       imdb: false, // 该站点不支持 imdb
       tmdb: {
@@ -180,20 +180,20 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       subTitle: {
         selector: ["td:has(a[href*='hit'][title]) > span:last"],
       },
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
-      tags: [...SchemaMetadata.search!.selectors!.tags!, ...allTagSelectors],
+      tags: [...SchemaMetadata.search.selectors!.tags!, ...allTagSelectors],
     },
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('鲸币') + td", "td.rowhead:contains('Karma Points') + td"],
         filters: [{ name: "parseNumber" }],

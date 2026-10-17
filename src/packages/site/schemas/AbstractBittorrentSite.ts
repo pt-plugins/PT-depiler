@@ -7,6 +7,7 @@ import { supportSocialSite } from "@ptd/social";
 // noinspection ES6PreferShortImport
 import { axios, isCloudflareBlocked, retrieve, sleep, store } from "../utils/adapter";
 import {
+  type TSchemaMetadata,
   EResultParseStatus,
   IElementQuery,
   ISearchResult,
@@ -37,7 +38,10 @@ import {
   hasNonLatinCharacters,
 } from "../utils";
 
-export const SchemaMetadata: Partial<ISiteMetadata> = {
+/** 本引擎一定会提供的键；列出来之后消费方读它们不必再写非空断言 */
+type TMetadataKeys = "version" | "search";
+
+export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
   version: -1,
   search: {},
 };

@@ -241,7 +241,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       id: {
         selector: ["a[href*='download.php?id=']:has(span.bi-download)"],
         attr: "href",
@@ -317,7 +317,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       bonus: {
         selector: ["td.rowhead:contains('积分') + td"],
         filters: [
@@ -343,7 +343,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       messageCount: {
-        ...SchemaMetadata.userInfo!.selectors!.messageCount,
+        ...SchemaMetadata.userInfo.selectors!.messageCount,
         selector: ["a[href*='messages.php'] > b[style*='background: darkorange']"],
       },
     },

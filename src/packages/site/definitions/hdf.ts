@@ -96,7 +96,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    ...SchemaMetadata.search!,
+    ...SchemaMetadata.search,
     requestConfig: {
       url: "/torrents.php",
       responseType: "document",
@@ -134,7 +134,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       rows: {
         selector: "table#torrent_table tr.torrent, table#torrent_table tr.group_torrent",
         filter: filterHdfTorrentRows,
@@ -203,9 +203,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     process: [
-      ...(SchemaMetadata.userInfo!.process ?? []).map((step, index) =>
+      ...(SchemaMetadata.userInfo.process ?? []).map((step, index) =>
         index === 1
           ? {
               ...step,
@@ -229,7 +229,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     ],
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       name: {
         selector: [
           "div.user-name-class span[class^='class_']",

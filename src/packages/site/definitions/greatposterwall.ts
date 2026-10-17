@@ -234,9 +234,9 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       trueDownloaded: {
         selector: ["#downloaded-value span[data-tooltip]"],
         attr: "data-tooltip",

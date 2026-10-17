@@ -75,7 +75,7 @@ export const siteMetadata: ISiteMetadata = {
       imdb: false,
     },
     selectors: {
-      ...GazelleSchemaMetadata.search!.selectors!,
+      ...GazelleSchemaMetadata.search.selectors!,
       subTitle: {
         selector: "div.torrent_info:first",
         filters: [GazelleUtils.extractTags],

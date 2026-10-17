@@ -15,9 +15,9 @@ import NexusPHP, {
 
 // 邀请采集配置
 const userInfoWithInvitesInUserDetailsPage = {
-  ...SchemaMetadata.userInfo!,
+  ...SchemaMetadata.userInfo,
   selectors: {
-    ...SchemaMetadata.userInfo!.selectors!,
+    ...SchemaMetadata.userInfo.selectors!,
     invites: {
       selector: [
         "td.rowhead:contains('邀请') + td",
@@ -47,7 +47,7 @@ const userInfoWithInvitesInUserDetailsPage = {
     },
   },
   process: [
-    ...SchemaMetadata.userInfo!.process!.map((item) => {
+    ...SchemaMetadata.userInfo.process!.map((item) => {
       // 在用户详情页面添加 invites 字段
       if (item.requestConfig.url === "/userdetails.php") {
         return {
@@ -165,7 +165,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       progress: {
         selector: ["td.snatched_no_yes, td.snatched_yes_yes", "td.snatched_no_no, td.snatched_yes_no"],
         attr: "class",

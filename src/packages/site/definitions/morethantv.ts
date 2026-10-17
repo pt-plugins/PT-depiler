@@ -135,7 +135,7 @@ export const siteMetadata: ISiteMetadata = {
       urlPattern: ["/torrents/browse"],
       mergeSearchSelectors: false,
       selectors: {
-        ...SchemaMetadata.search!.selectors!,
+        ...SchemaMetadata.search.selectors!,
         id: {
           selector: "a.overlay_torrent[href]",
           attr: "href",

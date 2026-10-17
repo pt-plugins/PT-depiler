@@ -35,10 +35,10 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     // 站点使用 levelExtendInfo 接口补充做种/发布/完成数，沿用 PTPP 的 ajax 端点
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       seeding: {
         selector: "li:contains('Seeding:')",
         filters: [{ name: "parseNumber" }],

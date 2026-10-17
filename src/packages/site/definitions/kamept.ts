@@ -154,7 +154,7 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
+      ...SchemaMetadata.userInfo.selectors,
       seedingBonusPerHour: {
         selector: ["h1:contains('每小时获得的合计魔力值') + div > table > tbody > tr:nth-child(2) > td:nth-child(4)"],
         filters: [{ name: "parseNumber" }],

@@ -225,7 +225,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       subTitle: {
         selector: ["td.embedded:first"],
         elementProcess: (element: HTMLElement) => {
@@ -241,9 +241,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...SchemaMetadata.userInfo,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...SchemaMetadata.userInfo.selectors!,
       bonus: createUserBonusSelectorFn(["U币", "UBits Coin", "魔力值"]),
       seedingBonus: createUserBonusSelectorFn(["做种积分", "Seed points", "做種積分", "保种积分"]),
     },

@@ -80,7 +80,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       id: { selector: "a[href*='torrents.php?id=']", data: "browseId" },
       title: { selector: "a[href*='torrents.php?id=']", data: "src" },
       size: { selector: "a[href*='torrents.php?id=']", data: "filesize" },

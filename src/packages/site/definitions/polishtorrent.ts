@@ -35,11 +35,11 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors!,
+      ...SchemaMetadata.search.selectors!,
       rows: {
         // 站点新版 Unit3D 列表使用 data-table 样式（参考 PDS polishtorrent.json）
         // 保留 SchemaMetadata 默认的 filter（只保留含 /torrents/{id} 链接的行）
-        ...SchemaMetadata.search!.selectors!.rows,
+        ...SchemaMetadata.search.selectors!.rows,
         selector: "table.data-table > tbody > tr",
       },
     },

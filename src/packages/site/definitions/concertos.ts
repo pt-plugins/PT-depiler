@@ -35,7 +35,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       // JSON 响应可能带 data 包装，沿用多候选路径
       rows: { selector: ["data.data", "data", "torrents.data", "torrents"] },
       id: { selector: ["id", "attributes.id"] },

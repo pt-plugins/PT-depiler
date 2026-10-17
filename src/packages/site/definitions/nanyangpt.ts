@@ -61,7 +61,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
+      ...SchemaMetadata.search.selectors,
       progress: {
         selector: [
           ".rowfollow[title='Downloading'], .rowfollow[title='Seeding'], .rowfollow[title='Stopped'], .rowfollow[title='Completed']",
@@ -84,7 +84,7 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
+        ...SchemaMetadata.search.selectors!.tags!,
         { name: "Excl.", selector: "td.embedded > a[title] > b > font[color='red']" },
       ],
     },
