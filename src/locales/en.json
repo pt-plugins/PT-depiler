@@ -862,6 +862,12 @@
     "Editor": {
       "authInfo": "Authentication Info"
     },
+    "Index": {
+      "refreshStatus": "Refresh Status",
+      "status": "Server Status",
+      "statusOffline": "Unreachable",
+      "statusUntested": "Untested"
+    },
     "add": {
       "title": "Add Media Server"
     }

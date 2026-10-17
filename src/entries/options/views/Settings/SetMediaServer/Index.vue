@@ -2,7 +2,8 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { DataTableHeader } from "vuetify";
-import { getMediaServerIcon } from "@ptd/mediaServer";
+import { getMediaServer, getMediaServerIcon } from "@ptd/mediaServer";
+import type { IMediaServerBaseConfig } from "@ptd/mediaServer";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -27,13 +28,48 @@ const fullTableHeader = computed(() =>
     { title: t("common.type"), key: "type", align: "center" },
     { title: t("SetDownloader.common.name"), key: "name", align: "start" },
     { title: t("SetDownloader.common.address"), key: "address", align: "start" },
+    { title: t("SetMediaServer.Index.status"), key: "status", align: "center", sortable: false },
     { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
     { title: t("common.action"), key: "action", sortable: false },
   ] as DataTableHeader[]),
 );
+
+/** 服务器状态列：逐台 ping 一次，记录是否可达与耗时 */
+interface IMediaServerStatus {
+  checking: boolean;
+  tested: boolean;
+  ok: boolean;
+  ms?: number;
+}
+
+const statuses = ref<Record<string, IMediaServerStatus>>({});
+function statusOf(id: string): IMediaServerStatus {
+  return (statuses.value[id] ??= { checking: false, tested: false, ok: false });
+}
+
+async function checkStatus(mediaServer: IMediaServerBaseConfig) {
+  const state = statusOf(mediaServer.id!);
+  state.checking = true;
+  const startedAt = Date.now();
+  try {
+    const client = await getMediaServer(mediaServer);
+    state.ok = await client.ping();
+  } catch (e) {
+    state.ok = false;
+  } finally {
+    state.ms = Date.now() - startedAt;
+    state.checking = false;
+    state.tested = true;
+  }
+}
+
+async function checkAllStatus() {
+  await Promise.all(metadataStore.getMediaServers.map((mediaServer) => checkStatus(mediaServer)));
+}
+
 const tableSelected = ref<TMediaServerKey[]>([]);
 
-const toEditMediaServerId = ref<TDownloaderKey | null>(null);
+const toEditMediaServerId = ref<TMediaServerKey | null>(null);
 function editMediaServer(mediaServerId: TMediaServerKey) {
   toEditMediaServerId.value = mediaServerId;
   showEditDialog.value = true;
@@ -63,6 +99,12 @@ async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
           icon="mdi-minus"
           @click="deleteMediaServer(tableSelected)"
         />
+        <NavButton
+          :text="t('SetMediaServer.Index.refreshStatus')"
+          color="info"
+          icon="mdi-access-point-check"
+          @click="checkAllStatus"
+        />
       </v-row>
     </v-card-title>
 
@@ -90,6 +132,42 @@ async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
           {{ item.address }}
           <v-icon icon="mdi-open-in-new" size="x-small"></v-icon>
         </a>
+      </template>
+
+      <template #item.status="{ item }">
+        <div class="d-flex align-center justify-center">
+          <v-progress-circular v-if="statusOf(item.id).checking" indeterminate size="16" width="2" />
+          <template v-else>
+            <v-icon
+              :color="statusOf(item.id).tested ? (statusOf(item.id).ok ? 'success' : 'error') : 'grey'"
+              :icon="
+                !statusOf(item.id).tested
+                  ? 'mdi-access-point'
+                  : statusOf(item.id).ok
+                    ? 'mdi-access-point-check'
+                    : 'mdi-access-point-remove'
+              "
+            />
+            <span class="ml-1 text-caption">
+              {{
+                !statusOf(item.id).tested
+                  ? t("SetMediaServer.Index.statusUntested")
+                  : statusOf(item.id).ok
+                    ? `${statusOf(item.id).ms} ms`
+                    : t("SetMediaServer.Index.statusOffline")
+              }}
+            </span>
+          </template>
+          <v-btn
+            class="ml-1"
+            density="compact"
+            icon="mdi-refresh"
+            size="x-small"
+            :title="t('SetMediaServer.Index.refreshStatus')"
+            variant="text"
+            @click="() => checkStatus(item)"
+          />
+        </div>
       </template>
 
       <template #item.enabled="{ item }">

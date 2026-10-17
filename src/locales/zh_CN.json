@@ -862,6 +862,12 @@
     "Editor": {
       "authInfo": "认证信息"
     },
+    "Index": {
+      "refreshStatus": "刷新状态",
+      "status": "服务器状态",
+      "statusOffline": "不可达",
+      "statusUntested": "未检测"
+    },
     "add": {
       "title": "添加媒体服务器"
     }
