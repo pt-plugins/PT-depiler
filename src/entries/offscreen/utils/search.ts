@@ -70,6 +70,29 @@ onMessage("getMediaServerSearchResult", async ({ data: { mediaServerId, keywords
   return await mediaServer.getSearchResult(keywords ?? "", options);
 });
 
+// 调研 B12：详情弹窗按需拉取单条目的完整信息（列表只带轻量字段，避免 /Items 响应过大）
+onMessage("getMediaServerItemDetail", async ({ data: { mediaServerId, itemId } }) => {
+  logger({
+    msg: `getMediaServerItemDetail For mediaServer: ${mediaServerId} with itemId: ${itemId}`,
+  });
+  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  const mediaServerConfig = metadataStore.mediaServers[mediaServerId];
+  const mediaServer = await getMediaServer(mediaServerConfig);
+  return (await mediaServer.getItemDetail(itemId)) ?? null;
+});
+
+// 调研 C14 / C20：按需生成媒体库概览 —— 整库遍历与聚合都在这里做，只把统计结果回传 UI
+onMessage("getMediaServerOverview", async ({ data: { mediaServerId, maxItems } }) => {
+  logger({
+    msg: `getMediaServerOverview For mediaServer: ${mediaServerId}`,
+    data: { maxItems },
+  });
+  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  const mediaServerConfig = metadataStore.mediaServers[mediaServerId];
+  const mediaServer = await getMediaServer(mediaServerConfig);
+  return (await mediaServer.getLibraryOverview({ maxItems })) ?? null;
+});
+
 async function getSnapshotData() {
   return ((await sendMessage("getExtStorage", "searchResultSnapshot")) ?? {}) as TSearchResultSnapshotStorageSchema;
 }

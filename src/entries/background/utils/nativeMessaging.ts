@@ -25,6 +25,8 @@ const ALLOWED_METHODS = new Set([
   // Search
   "getSiteSearchResult",
   "getMediaServerSearchResult",
+  "getMediaServerItemDetail",
+  "getMediaServerOverview",
   // Download and downloader
   "getDownloaderList",
   "getDownloaderConfig",

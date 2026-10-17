@@ -119,19 +119,47 @@
   },
   "MediaServerEntity": {
     "ItemInformationDialog": {
+      "premiereDate": "首播：",
+      "watched": "观看：",
+      "playbackProgress": "播放进度",
+      "notWatched": "未观看",
+      "favorite": "已收藏",
+      "notFavorite": "未收藏",
+      "audio": "音轨：",
+      "criticRating": "影评人",
+      "dateCreated": "入库时间：",
       "duration": "时长：",
-      "mediaInfo": "媒体信息：",
+      "episodeCount": "共 {count} 集",
+      "externalUrls": "外部链接：",
+      "labels": "标签：",
+      "loadingDetail": "正在获取详情…",
+      "mediaSourceCount": "库内版本：",
+      "officialRating": "分级：",
+      "path": "文件路径：",
+      "people": "演职人员：",
+      "playCountText": "共 {count} 次",
+      "rating": "评分：",
+      "searchOnSite": "站点搜索：",
+      "series": "剧集：",
       "size": "大小：",
+      "studios": "制片公司：",
+      "subtitle": "字幕：",
+      "taglines": "宣传语：",
       "title": "媒体详情",
-      "type": "类型："
+      "type": "类型：",
+      "video": "画质：",
+      "year": "年份："
     },
     "detail": "详情",
+    "embedded": "内封",
+    "external": "外挂",
     "loadMore": "加载更多",
     "noItems": "暂无内容，请使用搜索框或点击加载更多按钮",
     "searchPlaceholder": "搜索词",
     "serverFilter": {
       "all": "全部服务器"
-    }
+    },
+    "versions": "{count} 个版本"
   },
   "MyClient": {
     "action": {
@@ -834,6 +862,43 @@
   "SetMediaServer": {
     "Editor": {
       "authInfo": "认证信息"
+    },
+    "Index": {
+      "refreshStatus": "刷新状态",
+      "status": "服务器状态",
+      "statusOffline": "不可达",
+      "statusUntested": "未检测"
+    },
+    "Overview": {
+      "averageBitrate": "平均码率",
+      "byCodec": "视频编码分布",
+      "byContainer": "容器格式分布",
+      "byResolution": "分辨率分布",
+      "byRootPath": "按目录/磁盘（体积）",
+      "countUnit": "{count} 条",
+      "generatedAt": "生成于 {time}",
+      "generating": "正在遍历媒体库并聚合…",
+      "hint": "按需生成：整库遍历在后台完成，条目多的库可能需要几十秒",
+      "neverWatched": "占空间但从未观看（前 10）",
+      "partial": "看了一部分",
+      "playsPerGb": "每 GB 观看次数",
+      "playsPerGbValue": "{value} 次/GB",
+      "recentlyAdded": "最近 7 天入库（前 10）",
+      "regenerate": "重新生成",
+      "title": "媒体库概览",
+      "totalItems": "条目数",
+      "totalPlays": "观看总次数",
+      "totalSize": "总体积",
+      "truncated": "达到条目上限（已统计 {count} 条），结果只覆盖部分媒体库",
+      "unknownKey": "未知",
+      "unsupported": "该媒体服务器暂不支持概览统计（或未配置认证信息）",
+      "warningCancel": "取消",
+      "warningConfirm": "我已了解风险，开始遍历",
+      "warningLine1": "生成概览需要逐页拉取你媒体库中的全部条目（电影 / 剧集），属于高负载操作。",
+      "warningLine2": "绝大多数公开媒体服务器并不允许这种整库遍历，可能被判定为滥用，导致账号被限速、甚至封禁。请只在你自建或有明确授权的服务器上使用。",
+      "warningLine3": "确认后才会开始遍历与聚合；中途关闭弹窗只能停止后续请求，已发出的请求无法撤回。",
+      "warningTitle": "开始前请确认：整库遍历可能违反服务器规则",
+      "watch": "观看情况"
     },
     "add": {
       "title": "添加媒体服务器"

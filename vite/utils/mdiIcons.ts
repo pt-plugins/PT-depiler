@@ -33,6 +33,14 @@ export const DYNAMIC_MDI_NAMES = [
   "progress-helper",
   "progress-close",
   "progress-pencil",
+  // 播放进度图标：mediaServer/utils.ts 的 getPlayedIcon 会动态拼出 mdi-circle-slice-N
+  "circle-slice-1",
+  "circle-slice-2",
+  "circle-slice-3",
+  "circle-slice-4",
+  "circle-slice-5",
+  "circle-slice-6",
+  "circle-slice-7",
   "progress-wrench",
   "progress-check",
   "progress-alert",
@@ -121,7 +129,12 @@ export function collectMdiIconUsage(tables: IMdiCssTables, root: string = proces
       const where = `${rel}:${index + 1}`;
 
       for (const m of line.matchAll(/\bmdi-([a-z0-9-]+)/g)) {
-        record(used, m[1], where);
+        const name = m[1];
+        const matchedEnd = (m.index ?? 0) + m[0].length;
+        // `mdi-circle-slice-${n}` 这类是**动态前缀**（以 - 结尾或紧跟 ${），不是完整名字：
+        // 跳过它，其取值由本文件的 DYNAMIC_MDI_NAMES 登记
+        if (name.endsWith("-") || line[matchedEnd] === "$") continue;
+        record(used, name, where);
       }
 
       // 字面私有区字符：只认 CSS 里真实出现过的码点，避免区间猜测
