@@ -119,7 +119,7 @@
   },
   "MediaServerEntity": {
     "ItemInformationDialog": {
-      "watched": "观看",
+      "watched": "观看：",
       "playbackProgress": "播放进度",
       "notWatched": "未观看",
       "favorite": "已收藏",
