@@ -54,8 +54,6 @@ const videoText = computed(() => {
   const video = richItem.value.mediaInfo?.video;
   if (!video) return "";
   return [
-    // 容器格式（原先由旧版「媒体信息」摘要展示）
-    richItem.value.format ? richItem.value.format.toUpperCase() : undefined,
     video.resolution,
     video.codec ? `${video.codec}${video.profile ? ` ${video.profile}` : ""}` : undefined,
     video.videoRange && !/^sdr$/i.test(video.videoRange) ? video.videoRange.toUpperCase() : undefined,
@@ -225,11 +223,16 @@ function secondsToISO8601(seconds: number) {
               </v-chip>
             </div>
             <!-- 画质（调研 A2） -->
-            <div v-if="videoText" class="info-label">
+            <div v-if="richItem.format || videoText" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.video") }}</v-label>
-              <v-chip base-color="blue" class="mr-1" label prepend-icon="mdi-movie-open" size="small">
-                {{ videoText }}
-              </v-chip>
+              <v-chip-group show-arrows>
+                <v-chip v-if="richItem.format" base-color="blue" label prepend-icon="mdi-aspect-ratio" size="small">
+                  {{ richItem.format.toUpperCase() }}
+                </v-chip>
+                <v-chip v-if="videoText" base-color="blue" label prepend-icon="mdi-movie-open" size="small">
+                  {{ videoText }}
+                </v-chip>
+              </v-chip-group>
             </div>
             <!-- 音轨（调研 A2） -->
             <div v-if="richItem.mediaInfo?.audio?.length" class="info-label">
@@ -292,7 +295,7 @@ function secondsToISO8601(seconds: number) {
               </v-chip>
             </div>
             <!-- 文件路径（调研 A3） -->
-            <div v-if="richItem.path" class="info-label">
+            <div v-if="richItem.path" class="info-label info-path">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.path") }}</v-label>
               <span
                 class="text-body-small text-medium-emphasis"
@@ -429,6 +432,19 @@ function secondsToISO8601(seconds: number) {
     margin-top: 0;
     margin-bottom: 0;
   }
+}
+
+/* 标签永不被压缩：否则「音轨 (1)」「字幕 (9)」的计数会被挤掉或折行藏起来 */
+.info-label :deep(.v-label) {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* 文件路径很长且不含空格：独占整行、按字符换行，避免撑破容器压到相邻行 */
+.info-path {
+  display: block;
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 .visit-btn {
