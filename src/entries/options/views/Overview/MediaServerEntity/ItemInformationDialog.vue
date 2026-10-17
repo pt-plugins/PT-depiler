@@ -165,15 +165,13 @@ function secondsToISO8601(seconds: number) {
                 <div class="d-flex flex-column ga-1">
                   <v-btn v-if="richItem.providerIds?.imdb" variant="tonal" @click="searchOnSite('imdb')">
                     <template #prepend>
-                      <v-img v-if="socialIcon('imdb')" :src="socialIcon('imdb')" class="mr-1" width="18" height="18" />
-                      <v-icon v-else icon="mdi-movie-search-outline" />
+                      <v-img :src="'/icons/social/imdb.png'" class="mr-1" width="18" height="18" />
                     </template>
                     IMDb {{ richItem.providerIds.imdb }}
                   </v-btn>
                   <v-btn v-if="richItem.providerIds?.tmdb" variant="tonal" @click="searchOnSite('tmdb')">
                     <template #prepend>
-                      <v-img v-if="socialIcon('tmdb')" :src="socialIcon('tmdb')" class="mr-1" width="18" height="18" />
-                      <v-icon v-else icon="mdi-movie-search-outline" />
+                      <v-img :src="'/icons/social/tmdb.png'" class="mr-1" width="18" height="18" />
                     </template>
                     TMDb {{ richItem.providerIds.tmdb }}
                   </v-btn>
