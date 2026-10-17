@@ -560,7 +560,9 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
    */
   public override async getItemDetail(itemId: string): Promise<IMediaServerItem<IFnOSQueryItem> | undefined> {
     try {
-      const response = await this.request<IFnOSQueryItem>(`/Items/${itemId}`, {
+      // 与 Emby 同理：没有 /Items/{id}，走用户维度的单条目接口
+      const session = await this.login();
+      const response = await this.request<IFnOSQueryItem>(`/Users/${session.userId}/Items/${itemId}`, {
         params: { Fields: FnOS.DETAIL_FIELDS.join(",") },
       });
       const item = response.data;

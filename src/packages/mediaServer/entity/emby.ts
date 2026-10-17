@@ -233,17 +233,27 @@ export abstract class MediaBrowser<
    * 调研 B12：详情弹窗打开时按需拉取完整条目。
    * 列表接口只带轻量字段，这里再要一次 `People` 等重字段，并复用同一套映射。
    */
-  public override async getItemDetail(itemId: string): Promise<IMediaServerItem | undefined> {
-    const params: Record<string, unknown> = { Fields: this.detailExtraFields.join(",") };
-    if (this.config.auth.userId) {
-      params["userId"] = this.config.auth.userId;
-    }
+  /** 子类按各自 API 组装「取单条目」的请求（Emby 没有 /Items/{id} 这个路由） */
+  protected abstract buildItemDetailRequest(
+    itemId: string,
+    fields: string[],
+  ): { url: string; requestConfig: AxiosRequestConfig };
 
-    const response = await this.request<TQueryItem>(`/Items/${itemId}`, { params });
-    if (response.status === 200 && response.data?.Id) {
-      return this.mapQueryItem(response.data);
-    }
-    return undefined;
+  /**
+   * 调研 B12：详情弹窗打开时按需拉取完整条目。
+   *
+   * ⚠️ 不能直接请求 `/Items/{id}` —— Emby 没有这个路由（实测返回「找不到文件」）。
+   * 各子类在 {@link buildItemDetailRequest} 里选择可用路由，这里统一兼容两种响应形状：
+   * 单条目对象，或集合接口的 `{ Items: [...] }`。
+   */
+  public override async getItemDetail(itemId: string): Promise<IMediaServerItem | undefined> {
+    const { url, requestConfig } = this.buildItemDetailRequest(itemId, this.detailExtraFields);
+    const response = await this.request<IEmbyQueryItem & IEmbyQueryResult<TQueryItem>>(url, requestConfig);
+    if (response.status !== 200) return undefined;
+
+    const data = response.data as IEmbyQueryItem & IEmbyQueryResult<TQueryItem>;
+    const item = Array.isArray(data?.Items) ? data.Items[0] : data;
+    return item?.Id ? this.mapQueryItem(item as TQueryItem) : undefined;
   }
 
   /** 概览遍历每页要的字段：比列表多要 MediaStreams/MediaSources，用于统计分辨率与码率 */
@@ -549,6 +559,21 @@ export default class Emby extends MediaBrowser<IEmbyConfig, IEmbyQueryItem> {
     requestConfig = toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {});
 
     return { url, requestConfig };
+  }
+
+  protected override buildItemDetailRequest(
+    itemId: string,
+    fields: string[],
+  ): { url: string; requestConfig: AxiosRequestConfig } {
+    const params: Record<string, unknown> = { Fields: fields.join(",") };
+
+    // Emby 的单条目接口在用户维度下：GET /Users/{UserId}/Items/{ItemId}
+    if (this.config.auth.userId) {
+      return { url: `/Users/${this.config.auth.userId}/Items/${itemId}`, requestConfig: { params } };
+    }
+
+    // 没配 userId 时退回集合接口：GET /Items?Ids={id}（与搜索同一条已被验证可用的路由）
+    return { url: "/Items", requestConfig: { params: { ...params, Ids: itemId, Recursive: true } } };
   }
 
   protected override buildOverviewRequest(

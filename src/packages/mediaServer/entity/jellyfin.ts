@@ -96,6 +96,25 @@ export default class Jellyfin extends MediaBrowser<IJellyfinConfig, IJellyfinQue
     return { url, requestConfig };
   }
 
+  protected override buildItemDetailRequest(
+    itemId: string,
+    fields: string[],
+  ): { url: string; requestConfig: AxiosRequestConfig } {
+    const hasUserId = this.config.auth.userId && this.config.auth.userId != "";
+    const params: Record<string, unknown> = { fields: fields.join(",") };
+
+    // Jellyfin 同样以用户维度为准（/Items/{itemId} 在 10.9 已标记废弃）
+    if (hasUserId) {
+      return {
+        url: `/Users/${this.config.auth.userId}/Items/${itemId}`,
+        requestConfig: { params: { ...params, userId: this.config.auth.userId } },
+      };
+    }
+
+    // 没有 userId 时用集合接口按 ids 过滤（官方推荐的替代写法）
+    return { url: "/Items", requestConfig: { params: { ...params, ids: itemId, recursive: true } } };
+  }
+
   protected override buildOverviewRequest(
     startIndex: number,
     limit: number,
