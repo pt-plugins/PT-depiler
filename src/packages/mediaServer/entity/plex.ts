@@ -243,9 +243,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
         role: person.role,
         type: "Role",
         // Plex 的人物头像是相对路径（与海报同款，需要带 token）
-        imageUrl: person.thumb
-          ? urlJoin(this.apiBaseUrl, `${person.thumb}?X-Plex-Token=${this.config.auth.apikey}`)
-          : undefined,
+        imageUrl: this.getPlexImageUrl(person.thumb) || undefined,
       })),
       ...(item.Director ?? []).map((person) => ({ name: person.tag, type: "Director" })),
     ];
@@ -253,9 +251,16 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
   }
 
   /** Plex 的观看进度：viewOffset / duration 都是毫秒，换算成 0-100 */
-  /** Plex 的海报是相对路径（需要带 token），季条目常常只有 parentThumb */
-  private getPlexPosterUrl(thumb?: string): string {
-    return thumb ? urlJoin(this.apiBaseUrl, `${thumb}?X-Plex-Token=${this.config.auth.apikey}`) : "";
+  /**
+   * Plex 的图片地址有两种形态：
+   * - 服务器本地相对路径（`/library/metadata/…`）→ 需要拼接服务器地址并带 token；
+   * - **外部绝对地址**（人物头像常是 `https://metadata-static.plex.tv/…`）→ 直接使用，
+   *   既不能拼服务器地址（会变成 `服务器/https://…`），也不该附 token（会泄露给第三方）。
+   */
+  private getPlexImageUrl(path?: string): string {
+    if (!path) return "";
+    if (/^https?:\/\//i.test(path)) return path;
+    return urlJoin(this.apiBaseUrl, `${path}?X-Plex-Token=${this.config.auth.apikey}`);
   }
 
   /** 制片公司：季/集条目上通常只有 parentStudio */
@@ -362,7 +367,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
       format: media?.container ?? "",
       size: part?.size ?? 0,
       duration: item.duration ?? 0,
-      poster: this.getPlexPosterUrl(item.thumb ?? (item as IPlexRecentlyAddedItem).parentThumb),
+      poster: this.getPlexImageUrl(item.thumb ?? (item as IPlexRecentlyAddedItem).parentThumb),
       tags: item.Genre?.map((tag) => ({ name: tag.tag, url: "" })) ?? [],
       rating: item.audienceRating ?? "-",
       streams: streams
