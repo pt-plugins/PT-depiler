@@ -360,7 +360,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
                 .map((stream) => ({
                   title: stream.displayTitle ?? stream.title,
                   codec: stream.codec,
-                  language: normalizeLanguage(stream.languageCode ?? stream.language),
+                  language: normalizeLanguage(stream.language ?? stream.languageCode),
                   channels: stream.channels,
                   channelLayout: stream.audioChannelLayout,
                   isDefault: stream.selected,
@@ -370,7 +370,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
                 .map((stream) => ({
                   title: stream.displayTitle ?? stream.title,
                   codec: stream.codec,
-                  language: normalizeLanguage(stream.languageCode ?? stream.language),
+                  language: normalizeLanguage(stream.language ?? stream.languageCode),
                   isExternal: !!stream.key,
                   isDefault: stream.selected,
                 })),

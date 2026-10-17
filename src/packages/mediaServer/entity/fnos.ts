@@ -101,6 +101,8 @@ interface IFnOSMediaStream {
   Type: "Video" | "Audio" | "Subtitle" | string;
   IsDefault?: boolean;
   Language?: string;
+  /** 语言的可读名称（如 "Chinese Simplified"），优先展示 */
+  DisplayLanguage?: string;
   Width?: number;
   Height?: number;
   BitRate?: number;
@@ -493,7 +495,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
               .map((stream) => ({
                 title: streamTitle(stream),
                 codec: stream.Codec,
-                language: normalizeLanguage(stream.Language),
+                language: normalizeLanguage(stream.DisplayLanguage ?? stream.Language),
                 channels: stream.Channels,
                 channelLayout: stream.ChannelLayout,
                 isDefault: stream.IsDefault,
@@ -503,7 +505,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
               .map((stream) => ({
                 title: streamTitle(stream),
                 codec: stream.Codec,
-                language: normalizeLanguage(stream.Language),
+                language: normalizeLanguage(stream.DisplayLanguage ?? stream.Language),
                 isExternal: stream.IsExternal,
                 isDefault: stream.IsDefault,
               })),

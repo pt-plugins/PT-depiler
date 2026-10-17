@@ -72,6 +72,8 @@ export interface IEmbyQueryItem {
         IsDefault?: boolean;
         /** 语言（ISO 639-2/3，如 chi / eng / jpn） */
         Language?: string;
+        /** 语言的**可读名称**（如 "Chinese Simplified" / "Japanese"），优先展示这个 */
+        DisplayLanguage?: string;
         // 视频流
         Width?: number;
         Height?: number;
@@ -444,7 +446,7 @@ export abstract class MediaBrowser<
               .map((s) => ({
                 title: streamTitle(s),
                 codec: s.Codec,
-                language: normalizeLanguage(s.Language),
+                language: normalizeLanguage(s.DisplayLanguage ?? s.Language),
                 channels: s.Channels,
                 channelLayout: s.ChannelLayout,
                 isDefault: s.IsDefault,
@@ -454,7 +456,7 @@ export abstract class MediaBrowser<
               .map((s) => ({
                 title: streamTitle(s),
                 codec: s.Codec,
-                language: normalizeLanguage(s.Language),
+                language: normalizeLanguage(s.DisplayLanguage ?? s.Language),
                 isExternal: s.IsExternal,
                 isDefault: s.IsDefault,
               })),
