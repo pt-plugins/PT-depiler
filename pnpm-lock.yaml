@@ -275,6 +275,9 @@ importers:
       '@types/sizzle':
         specifier: ^2.3.10
         version: 2.3.10
+      '@types/subset-font':
+        specifier: ^2.3.0
+        version: 2.3.0
       '@vitejs/plugin-vue':
         specifier: ^6.0.9
         version: 6.0.9(vite@6.4.3(@types/node@26.6.4)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.43(typescript@6.0.3))
@@ -1240,6 +1243,9 @@ packages:
 
   '@types/sizzle@2.3.10':
     resolution: {integrity: sha512-TC0dmN0K8YcWEAEfiPi5gJP14eJe30TTGjkvek3iM/1NdHHsdCA/Td6GvNndMOo/iSnIsZ4HuuhrYPDAmbxzww==}
+
+  '@types/subset-font@2.3.0':
+    resolution: {integrity: sha512-+u2CzLEE7ZReuBP0Mfz0tBydVZvWESmZpBbL7sc+J+qB9ImNp1QmOptMe28uXj2aRPDoQhQF3dubXMgwo56gIg==}
 
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
@@ -3981,6 +3987,10 @@ snapshots:
       '@types/node': 26.6.4
 
   '@types/sizzle@2.3.10': {}
+
+  '@types/subset-font@2.3.0':
+    dependencies:
+      '@types/node': 26.6.4
 
   '@types/web-bluetooth@0.0.21': {}
 
