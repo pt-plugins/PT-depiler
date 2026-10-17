@@ -13,7 +13,7 @@ import {
   IMediaServerSearchOptions,
   IMediaServerSearchResult,
 } from "../types";
-import { createOverviewAccumulator, getResolutionLabel } from "../utils.ts";
+import { createOverviewAccumulator, getResolutionLabel, normalizeLanguage } from "../utils.ts";
 
 export const mediaServerMetaData: IMediaServerMetadata = {
   description: "Plex 是一款流行的媒体服务器软件，支持多种设备和平台，提供丰富的媒体管理和播放功能",
@@ -339,10 +339,9 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
                 ? {
                     width: videoStream.width ?? media?.width,
                     height: videoStream.height ?? media?.height,
-                    resolution: getResolutionLabel(
-                      videoStream.width ?? media?.width,
-                      videoStream.height ?? media?.height,
-                    ),
+                    resolution: media?.videoResolution
+                      ? `${media.videoResolution}`.replace(/k$/i, "K").replace(/^(\d+)$/, "$1p")
+                      : getResolutionLabel(videoStream.width ?? media?.width, videoStream.height ?? media?.height),
                     codec: videoStream.codec ?? media?.videoCodec,
                     profile: videoStream.profile ?? media?.videoProfile,
                     videoRange: videoStream.doviPresent
@@ -361,7 +360,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
                 .map((stream) => ({
                   title: stream.displayTitle ?? stream.title,
                   codec: stream.codec,
-                  language: stream.languageCode ?? stream.language,
+                  language: normalizeLanguage(stream.languageCode ?? stream.language),
                   channels: stream.channels,
                   channelLayout: stream.audioChannelLayout,
                   isDefault: stream.selected,
@@ -371,7 +370,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
                 .map((stream) => ({
                   title: stream.displayTitle ?? stream.title,
                   codec: stream.codec,
-                  language: stream.languageCode ?? stream.language,
+                  language: normalizeLanguage(stream.languageCode ?? stream.language),
                   isExternal: !!stream.key,
                   isDefault: stream.selected,
                 })),

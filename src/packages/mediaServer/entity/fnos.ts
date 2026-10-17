@@ -15,7 +15,9 @@ import {
   getPlayedPercentage,
   getResolutionLabel,
   getRootPath,
+  normalizeLanguage,
   normalizeProviderIds,
+  parseResolutionFromTitle,
 } from "../utils.ts";
 import { toMerged } from "es-toolkit";
 import urlJoin from "url-join";
@@ -175,6 +177,7 @@ interface IFnOSQueryItem {
   Taglines?: string[];
   /** 演职人员（只在详情接口要，列表不要） */
   People?: Array<{ Name: string; Role?: string; Type?: string; Id?: string }>;
+  TagItems?: Array<{ Name: string; Id?: string | number }>;
 }
 
 interface IFnOSSession {
@@ -475,7 +478,9 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
               ? {
                   width: videoStream.Width,
                   height: videoStream.Height,
-                  resolution: getResolutionLabel(videoStream.Width, videoStream.Height),
+                  resolution:
+                    parseResolutionFromTitle(videoStream.DisplayTitle) ??
+                    getResolutionLabel(videoStream.Width, videoStream.Height),
                   codec: videoStream.Codec,
                   profile: videoStream.Profile,
                   videoRange: videoStream.VideoRangeType ?? videoStream.VideoRange,
@@ -488,7 +493,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
               .map((stream) => ({
                 title: streamTitle(stream),
                 codec: stream.Codec,
-                language: stream.Language,
+                language: normalizeLanguage(stream.Language),
                 channels: stream.Channels,
                 channelLayout: stream.ChannelLayout,
                 isDefault: stream.IsDefault,
@@ -498,7 +503,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
               .map((stream) => ({
                 title: streamTitle(stream),
                 codec: stream.Codec,
-                language: stream.Language,
+                language: normalizeLanguage(stream.Language),
                 isExternal: stream.IsExternal,
                 isDefault: stream.IsDefault,
               })),
@@ -524,7 +529,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
       isHd: item.IsHd,
       width: item.Width,
       height: item.Height,
-      labels: item.Tags,
+      labels: item.TagItems?.length ? item.TagItems.map((tag) => tag.Name) : item.Tags,
       taglines: item.Taglines,
       people: item.People?.slice(0, 12).map((person) => ({
         name: person.Name,

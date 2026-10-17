@@ -12,7 +12,14 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { toMerged } from "es-toolkit";
 import { EResultParseStatus } from "@ptd/site";
-import { createOverviewAccumulator, getPlayedPercentage, getResolutionLabel, normalizeProviderIds } from "../utils.ts";
+import {
+  createOverviewAccumulator,
+  getPlayedPercentage,
+  getResolutionLabel,
+  normalizeLanguage,
+  normalizeProviderIds,
+  parseResolutionFromTitle,
+} from "../utils.ts";
 
 export const mediaServerMetaData: IMediaServerMetadata = {
   description: "Emby 是一款家庭媒体库管理软件，能整理服务器上的音视频并流式传输到客户端设备，提供良好的影音体验",
@@ -121,7 +128,8 @@ export interface IEmbyQueryItem {
   IsHd?: boolean;
   Width?: number;
   Height?: number;
-  /** 自定义标签（与 GenreItems 不同） */
+  /** 自定义标签：Emby 实际放在 `TagItems` 里（`Tags` 通常是字符串数组，可能不返回） */
+  TagItems?: Array<{ Name: string; Id?: number }>;
   Tags?: string[];
   Taglines?: string[];
   /** 外部标识：imdb / tmdb / tvdb … */
@@ -421,7 +429,9 @@ export abstract class MediaBrowser<
               ? {
                   width: videoStream.Width,
                   height: videoStream.Height,
-                  resolution: getResolutionLabel(videoStream.Width, videoStream.Height),
+                  resolution:
+                    parseResolutionFromTitle(videoStream.DisplayTitle) ??
+                    getResolutionLabel(videoStream.Width, videoStream.Height),
                   codec: videoStream.Codec,
                   profile: videoStream.Profile,
                   videoRange: videoStream.VideoRangeType ?? videoStream.VideoRange,
@@ -434,7 +444,7 @@ export abstract class MediaBrowser<
               .map((s) => ({
                 title: streamTitle(s),
                 codec: s.Codec,
-                language: s.Language,
+                language: normalizeLanguage(s.Language),
                 channels: s.Channels,
                 channelLayout: s.ChannelLayout,
                 isDefault: s.IsDefault,
@@ -444,7 +454,7 @@ export abstract class MediaBrowser<
               .map((s) => ({
                 title: streamTitle(s),
                 codec: s.Codec,
-                language: s.Language,
+                language: normalizeLanguage(s.Language),
                 isExternal: s.IsExternal,
                 isDefault: s.IsDefault,
               })),
@@ -474,7 +484,8 @@ export abstract class MediaBrowser<
       isHd: item.IsHd,
       width: item.Width,
       height: item.Height,
-      labels: item.Tags,
+      // Emby 把自定义标签放在 TagItems；Tags 常常不返回
+      labels: item.TagItems?.length ? item.TagItems.map((tag) => tag.Name) : item.Tags,
       taglines: item.Taglines,
       // People 只在详情接口出现，这里限制条数避免 UI 过长
       people: item.People?.slice(0, 12).map((person) => ({

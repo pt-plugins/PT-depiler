@@ -18,6 +18,28 @@ export function getResolutionLabel(width?: number, height?: number): string | un
   return `${shortSide}p`;
 }
 
+/**
+ * 优先采用服务器自己的分辨率说法。
+ *
+ * Emby/Jellyfin 的视频流 `DisplayTitle` 以分辨率开头（`"480p H264"` / `"1080p HEVC"`），
+ * 这比按宽高推算更贴近服务器 UI：例如 848×464 的宽银幕片，服务器叫 **480p**，
+ * 而按短边推算会得到不常见的 `464p`。
+ */
+export function parseResolutionFromTitle(displayTitle?: string): string | undefined {
+  const matched = displayTitle?.trim().match(/^(\d{3,4}p|[248]k)\b/i);
+  if (!matched) return undefined;
+  const token = matched[1];
+  // "4k" → "4K"；"1080p" 保持小写 p
+  return /k$/i.test(token) ? token.toUpperCase() : token.toLowerCase();
+}
+
+/** `und`（undetermined）/ 空值视为未知语言，避免 UI 上出现 "und" */
+export function normalizeLanguage(language?: string): string | undefined {
+  const trimmed = language?.trim();
+  if (!trimmed || /^(und|unknown|zxx)$/i.test(trimmed)) return undefined;
+  return trimmed;
+}
+
 /** 码率（bps）→ 便于阅读的字符串，如 8.2 Mbps */
 export function formatBitrate(bitrate?: number): string | undefined {
   if (!bitrate || bitrate <= 0) return undefined;
