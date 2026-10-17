@@ -173,6 +173,12 @@ interface ProtocolMap extends TMessageMap {
   getSocialInformation(data: { site: TSupportSocialSite$1; sid: string }): ISocialInformation;
   // 判断 URL 命中的社交站点（供 content-script 引导做轻量预筛，避免把 social 包打进引导，见 issue #1467）
   matchSocialPage(url: string): TSupportSocialSite$1 | null;
+
+  /**
+   * content-script 引导用：判断该 URL 命中哪个站点，以及该站点是否允许注入。
+   * 只需 host → siteId 一项判断，因此不再把整份 metadata store 搬到页面上下文。
+   */
+  matchSitePage(url: string): { siteId: TSiteID; allowContentScript: boolean } | null;
   getSocialRecommendations(data?: {
     flush?: boolean;
     enrichment?: "all" | "none" | "visible";
