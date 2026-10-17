@@ -2,7 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { formatBitrate, IMediaServerItem } from "@ptd/mediaServer";
+import { formatBitrate, getPlayedIcon, IMediaServerItem } from "@ptd/mediaServer";
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { sendMessage } from "@/messages.ts";
 
@@ -400,7 +400,7 @@ function secondsToISO8601(seconds: number) {
 
             <div class="d-flex w-100 align-center">
               <v-icon
-                :icon="richItem.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'"
+                :icon="getPlayedIcon(richItem.user?.playedPercentage, richItem.user?.IsPlayed)"
                 color="green"
                 size="36"
               />

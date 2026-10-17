@@ -33,6 +33,23 @@ export function parseResolutionFromTitle(displayTitle?: string): string | undefi
   return /k$/i.test(token) ? token.toUpperCase() : token.toLowerCase();
 }
 
+/**
+ * 播放进度 → 图标名（调研 A6）。
+ *
+ * 0% → `mdi-circle-outline`；按进度取 `mdi-circle-slice-1` … `mdi-circle-slice-7`；
+ * 看完（或服务器标记已播）→ `mdi-check-bold`。
+ *
+ * ⚠️ `mdi-circle-slice-N` 是动态拼接，必须登记在 `vite/utils/mdiIcons.ts` 的 `DYNAMIC_MDI_NAMES`，
+ * 否则子集化后这些图标会静默消失。
+ */
+export function getPlayedIcon(percent?: number, isPlayed?: boolean): string {
+  if (isPlayed || percent === 100) return "mdi-check-bold";
+  if (!percent || percent <= 0) return "mdi-circle-outline";
+
+  const slice = Math.min(7, Math.max(1, Math.ceil((percent / 100) * 7)));
+  return `mdi-circle-slice-${slice}`;
+}
+
 /** `und`（undetermined）/ 空值视为未知语言，避免 UI 上出现 "und" */
 export function normalizeLanguage(language?: string): string | undefined {
   const trimmed = language?.trim();

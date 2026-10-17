@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { isEmpty } from "es-toolkit/compat";
-import { formatBitrate, getMediaServerIcon, type IMediaServerItem } from "@ptd/mediaServer";
+import { formatBitrate, getMediaServerIcon, getPlayedIcon, type IMediaServerItem } from "@ptd/mediaServer";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -151,7 +151,7 @@ onMounted(async () => {
                     label
                     size="x-small"
                   >
-                    <v-icon :icon="item.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'" color="green" />
+                    <v-icon :icon="getPlayedIcon(item.user?.playedPercentage, item.user?.IsPlayed)" color="green" />
                     <v-icon :icon="item.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" />
                   </v-chip>
                 </div>
