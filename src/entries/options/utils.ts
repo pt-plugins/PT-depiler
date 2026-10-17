@@ -11,6 +11,7 @@ import {
   format as dateFormat,
 } from "date-fns";
 import { i18n } from "@/options/plugins/i18n.ts";
+import { sanitizeFilename } from "@ptd/utils/filename.ts";
 
 export function deepToRaw<T extends Record<string, any>>(sourceObj: T): T {
   const objectIterator = (input: any): any => {
@@ -147,9 +148,16 @@ export const simplifyNumber = (num: number | string, spacer: string = ""): strin
  */
 export async function downloadBlob(blob: Blob, filename: string): Promise<number | undefined> {
   const blobUrl = URL.createObjectURL(blob);
+  // chrome.downloads 会**严格校验** filename（非法字符直接 `Invalid filename` 失败），
+  // 而默认导出名带时间「（2026-10-17 08:34:00）」—— 其中的 `:` 在 Windows 上非法，必须先清洗
+  const safeFilename = sanitizeFilename(filename);
 
   try {
-    const downloadId = await chrome.downloads.download({ url: blobUrl, filename, conflictAction: "uniquify" });
+    const downloadId = await chrome.downloads.download({
+      url: blobUrl,
+      filename: safeFilename,
+      conflictAction: "uniquify",
+    });
 
     // downloads.download 返回时只是「已创建下载」，必须等它读完才能回收 object URL，否则下载会中途失败
     const onChanged = (delta: chrome.downloads.DownloadDelta) => {
