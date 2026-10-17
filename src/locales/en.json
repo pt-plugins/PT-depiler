@@ -119,19 +119,33 @@
   },
   "MediaServerEntity": {
     "ItemInformationDialog": {
+      "audio": "Audio: ",
+      "dateCreated": "Added: ",
       "duration": "Duration: ",
+      "externalUrls": "Links: ",
       "mediaInfo": "Media Info: ",
+      "path": "Path: ",
+      "playCountText": "{count} play(s)",
+      "rating": "Rating: ",
       "size": "Size: ",
+      "subtitle": "Subtitle: ",
       "title": "Media Details",
-      "type": "Type: "
+      "type": "Type: ",
+      "video": "Video: ",
+      "watched": "Watched: "
     },
     "detail": "Details",
+    "embedded": "Embedded",
+    "external": "External",
     "loadMore": "Load More",
     "noItems": "No Items, use Search Input or Load More Button to Load",
     "searchPlaceholder": "Search term",
     "serverFilter": {
       "all": "All Servers"
-    }
+    },
+    "unwatched": "Unwatched",
+    "watched": "Watched",
+    "watchedPercent": "{percent}%"
   },
   "MyClient": {
     "action": {

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { IMediaServerItem } from "@ptd/mediaServer";
-import { formatSize } from "@/options/utils.ts";
+import { formatBitrate, IMediaServerItem } from "@ptd/mediaServer";
+import { formatDate, formatSize } from "@/options/utils.ts";
 
 const { t } = useI18n();
 
@@ -24,6 +24,36 @@ const showSteams = [
   { name: "Audio", icon: "mdi-expansion-card" },
   { name: "Subtitle", icon: "mdi-closed-caption" },
 ];
+
+/** 画质摘要（调研 A2）：分辨率 · 编码(档次) · 色域 · 码率 · 帧率 */
+const videoText = computed(() => {
+  const video = item.mediaInfo?.video;
+  if (!video) return "";
+  return [
+    video.resolution,
+    video.codec ? `${video.codec}${video.profile ? ` ${video.profile}` : ""}` : undefined,
+    video.videoRange && !/^sdr$/i.test(video.videoRange) ? video.videoRange.toUpperCase() : undefined,
+    formatBitrate(video.bitrate),
+    video.frameRate ? `${video.frameRate} fps` : undefined,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+});
+
+/** 观看深度（调研 A6）：次数 · 进度 · 最近观看 */
+const watchText = computed(() => {
+  const parts: string[] = [];
+  if (item.user?.playCount) {
+    parts.push(t("MediaServerEntity.ItemInformationDialog.playCountText", { count: item.user.playCount }));
+  }
+  if (typeof item.user?.playedPercentage === "number") {
+    parts.push(`${item.user.playedPercentage}%`);
+  }
+  if (item.user?.lastPlayedDate) {
+    parts.push(formatDate(new Date(item.user.lastPlayedDate).getTime()));
+  }
+  return parts.join(" · ");
+});
 
 function secondsToISO8601(seconds: number) {
   seconds = Math.abs(seconds);
@@ -115,6 +145,104 @@ function secondsToISO8601(seconds: number) {
               <v-chip base-color="deep-purple" class="mr-1" label prepend-icon="mdi-harddisk" size="small">
                 {{ formatSize(item.size ?? 0) }}
               </v-chip>
+            </div>
+            <!-- 评分（调研 A1） -->
+            <div v-if="typeof item.rating === 'number'" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.rating") }}</v-label>
+              <v-chip base-color="amber" class="mr-1" label prepend-icon="mdi-star" size="small">
+                {{ item.rating.toFixed(1) }}
+              </v-chip>
+            </div>
+            <!-- 画质（调研 A2） -->
+            <div v-if="videoText" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.video") }}</v-label>
+              <v-chip base-color="blue" class="mr-1" label prepend-icon="mdi-movie-open" size="small">
+                {{ videoText }}
+              </v-chip>
+            </div>
+            <!-- 音轨（调研 A2） -->
+            <div v-if="item.mediaInfo?.audio?.length" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.audio") }}</v-label>
+              <v-chip-group show-arrows>
+                <v-chip
+                  v-for="(audio, idx) in item.mediaInfo.audio"
+                  :key="idx"
+                  base-color="teal"
+                  label
+                  prepend-icon="mdi-volume-high"
+                  size="small"
+                >
+                  {{
+                    [
+                      audio.language,
+                      audio.codec,
+                      audio.channels ? `${audio.channels}ch` : undefined,
+                      audio.channelLayout,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ") || audio.title
+                  }}
+                </v-chip>
+              </v-chip-group>
+            </div>
+            <!-- 字幕（调研 A2） -->
+            <div v-if="item.mediaInfo?.subtitle?.length" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.subtitle") }}</v-label>
+              <v-chip-group show-arrows>
+                <v-chip
+                  v-for="(subtitle, idx) in item.mediaInfo.subtitle"
+                  :key="idx"
+                  base-color="indigo"
+                  label
+                  prepend-icon="mdi-closed-caption"
+                  size="small"
+                >
+                  {{
+                    [
+                      subtitle.language,
+                      subtitle.codec,
+                      subtitle.isExternal ? t("MediaServerEntity.external") : t("MediaServerEntity.embedded"),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")
+                  }}
+                </v-chip>
+              </v-chip-group>
+            </div>
+            <!-- 观看深度（调研 A6）：次数 · 进度 · 最近观看 -->
+            <div v-if="watchText" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.watched") }}</v-label>
+              <v-chip base-color="green" class="mr-1" label prepend-icon="mdi-play-circle-outline" size="small">
+                {{ watchText }}
+              </v-chip>
+            </div>
+            <!-- 文件路径（调研 A3） -->
+            <div v-if="item.path" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.path") }}</v-label>
+              <span class="text-body-small text-medium-emphasis" style="word-break: break-all">{{ item.path }}</span>
+            </div>
+            <!-- 入库时间（调研 A4） -->
+            <div v-if="item.dateCreated" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.dateCreated") }}</v-label>
+              <v-chip base-color="blue-grey" class="mr-1" label prepend-icon="mdi-calendar-plus" size="small">
+                {{ formatDate(new Date(item.dateCreated).getTime()) }}
+              </v-chip>
+            </div>
+            <!-- 外部链接（调研 A5） -->
+            <div v-if="item.externalUrls?.length" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.externalUrls") }}</v-label>
+              <v-btn
+                v-for="externalUrl in item.externalUrls"
+                :key="externalUrl.url"
+                :href="externalUrl.url"
+                class="mr-1"
+                rel="noopener noreferrer nofollow"
+                size="small"
+                target="_blank"
+                variant="tonal"
+              >
+                {{ externalUrl.name }}
+              </v-btn>
             </div>
             <div v-if="item.streams && item.streams.length > 0" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.mediaInfo") }}</v-label>

@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { isEmpty } from "es-toolkit/compat";
-import { getMediaServerIcon, type IMediaServerItem } from "@ptd/mediaServer";
+import { formatBitrate, getMediaServerIcon, type IMediaServerItem } from "@ptd/mediaServer";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -45,6 +45,29 @@ const filteredSearchResult = computed(() =>
 function showItemInformation(item: IMediaServerItem) {
   showItem.value = item;
   showItemInformationDialog.value = true;
+}
+
+/** 卡片上的画质摘要（调研 A2）：分辨率 · 码率；没有结构化信息时回退到首个视频流标题 */
+function videoSummary(item: IMediaServerItem): string | undefined {
+  const video = item.mediaInfo?.video;
+  const parts = [video?.resolution, formatBitrate(video?.bitrate)].filter(Boolean) as string[];
+  if (parts.length > 0) return parts.join(" · ");
+  return item.streams?.filter((s) => s.type === "Video")[0]?.title;
+}
+
+/** 卡片上的观看状态（调研 A6）：未看 / 百分比 / 已看 */
+function watchState(item: IMediaServerItem): string {
+  const percent = item.user?.playedPercentage;
+  if (item.user?.IsPlayed || percent === 100) return t("MediaServerEntity.watched");
+  if (percent && percent > 0) return t("MediaServerEntity.watchedPercent", { percent });
+  return t("MediaServerEntity.unwatched");
+}
+
+/** 色域角标（调研 A2）：SDR 不显示，其余（HDR10 / DolbyVision…）透出原始值 */
+function videoRangeBadge(item: IMediaServerItem): string | undefined {
+  const range = item.mediaInfo?.video?.videoRange;
+  if (!range || /^sdr$/i.test(range)) return undefined;
+  return range.toUpperCase();
 }
 
 function onScroll() {
@@ -120,7 +143,7 @@ onMounted(async () => {
             >
               <template v-slot:activator="{ props, isActive }">
                 <div class="masonry-right-label">
-                  <!-- 用户状态（观看、喜欢） -->
+                  <!-- 用户状态（观看、喜欢、观看深度，调研 A6） -->
                   <v-chip
                     v-if="item.user"
                     :variant="isActive ? 'tonal' : 'elevated'"
@@ -130,10 +153,11 @@ onMounted(async () => {
                   >
                     <v-icon :icon="item.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'" color="green" />
                     <v-icon :icon="item.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" />
+                    <span class="ml-1">{{ watchState(item) }}</span>
                   </v-chip>
                 </div>
                 <div class="masonry-left-label">
-                  <!-- 封装格式 -->
+                  <!-- 封装格式 + 画质/码率（调研 A2） -->
                   <v-chip
                     v-if="item.format"
                     :variant="isActive ? 'tonal' : 'elevated'"
@@ -143,9 +167,7 @@ onMounted(async () => {
                     size="x-small"
                   >
                     {{ item.format?.toUpperCase() }}
-                    <template v-if="item.streams && item.streams.filter((s) => s.type === 'Video')!.length > 0">
-                      / {{ item.streams.filter((s) => s.type === "Video")[0].title }}
-                    </template>
+                    <template v-if="videoSummary(item)"> / {{ videoSummary(item) }}</template>
                   </v-chip>
                   <br />
                   <!-- 大小 -->
@@ -158,12 +180,45 @@ onMounted(async () => {
                   >
                     {{ formatSize(item.size ?? 0) }}
                   </v-chip>
+                  <!-- 评分（调研 A1） -->
+                  <v-chip
+                    v-if="typeof item.rating === 'number'"
+                    :variant="isActive ? 'tonal' : 'elevated'"
+                    base-color="amber"
+                    label
+                    prepend-icon="mdi-star"
+                    size="x-small"
+                  >
+                    {{ item.rating.toFixed(1) }}
+                  </v-chip>
+                  <!-- 色域（调研 A2） -->
+                  <v-chip
+                    v-if="videoRangeBadge(item)"
+                    :variant="isActive ? 'tonal' : 'elevated'"
+                    base-color="deep-orange"
+                    label
+                    size="x-small"
+                  >
+                    {{ videoRangeBadge(item) }}
+                  </v-chip>
                 </div>
                 <v-img v-bind="props" :src="item.poster" :title="item.name" />
               </template>
 
               <v-btn append-icon="mdi-information-outline" block @click="() => showItemInformation(item)">
                 {{ t("MediaServerEntity.detail") }}
+              </v-btn>
+              <!-- 外部链接（调研 A5：IMDb / TMDb …） -->
+              <v-btn
+                v-for="externalUrl in item.externalUrls ?? []"
+                :key="externalUrl.url"
+                :href="externalUrl.url"
+                append-icon="mdi-open-in-new"
+                block
+                rel="noopener noreferrer nofollow"
+                target="_blank"
+              >
+                {{ externalUrl.name }}
               </v-btn>
               <v-btn
                 :href="item.url"

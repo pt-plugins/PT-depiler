@@ -63,10 +63,67 @@ export interface IMediaServerItem<RAW = any> {
     format: string; // 流格式
   }[];
 
+  /**
+   * 媒体详情：分辨率 / 码率 / 音轨 / 字幕 的**结构化**汇总（调研 A2）。
+   *
+   * 之所以单独成字段而不是让页面去读 `raw`：各服务器的原始结构不同（Emby/Jellyfin 的
+   * `MediaSources[0].MediaStreams`、Plex 的 `Media[0].Part[0]`…），差异应当止步于实体映射层。
+   * 只有 Emby / Jellyfin 会填（其余服务器可以为空，UI 必须容忍缺省）。
+   */
+  mediaInfo?: {
+    video?: {
+      width?: number;
+      height?: number;
+      /** 规范化标签：480p / 720p / 1080p / 1440p / 4K / 8K */
+      resolution?: string;
+      codec?: string;
+      profile?: string;
+      /** 色域：SDR / HDR10 / HDR10+ / DolbyVision（HLG 等按原始值透出） */
+      videoRange?: string;
+      /** 总码率（bps） */
+      bitrate?: number;
+      /** 帧率 */
+      frameRate?: number;
+    };
+    audio?: Array<{
+      title?: string;
+      codec?: string;
+      /** ISO 639-2/3 语言码，如 chi / eng / jpn */
+      language?: string;
+      channels?: number;
+      channelLayout?: string;
+      isDefault?: boolean;
+    }>;
+    subtitle?: Array<{
+      title?: string;
+      codec?: string;
+      language?: string;
+      /** true = 外挂字幕，false/undefined = 内封 */
+      isExternal?: boolean;
+      isDefault?: boolean;
+    }>;
+  };
+
+  /** 文件路径（调研 A3，用于按磁盘/目录聚合） */
+  path?: string;
+  /** 入库时间（调研 A4，ISO 字符串） */
+  dateCreated?: string;
+  /** 外部链接（调研 A5：IMDb / TMDB 等） */
+  externalUrls?: Array<{ name: string; url: string }>;
+
   // 用户对该媒体的情况
   user: {
     IsFavorite?: boolean; // 是否喜欢
     IsPlayed?: boolean; // 是否已播放过
+
+    /** 播放次数（调研 A6） */
+    playCount?: number;
+    /** 已观看秒数（调研 A6，由 PlaybackPositionTicks 换算） */
+    playbackPosition?: number;
+    /** 播放进度百分比 0-100（调研 A6；已看完为 100） */
+    playedPercentage?: number;
+    /** 最近观看时间 ISO（调研 A6） */
+    lastPlayedDate?: string;
   };
 
   // 服务器的原始返回

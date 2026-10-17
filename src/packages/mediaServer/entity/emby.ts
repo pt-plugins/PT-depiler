@@ -10,6 +10,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { toMerged } from "es-toolkit";
 import { EResultParseStatus } from "@ptd/site";
+import { getPlayedPercentage, getResolutionLabel } from "../utils.ts";
 
 export const mediaServerMetaData: IMediaServerMetadata = {
   description: "Emby 是一款家庭媒体库管理软件，能整理服务器上的音视频并流式传输到客户端设备，提供良好的影音体验",
@@ -52,12 +53,32 @@ export interface IEmbyQueryItem {
     Container: string;
     Size: number;
     Name: string;
+    /** 该媒体源的总体码率（bps） */
+    Bitrate?: number;
     MediaStreams: Array<
       {
         Codec: string;
         Title: string;
         DisplayTitle: string;
         IsDefault?: boolean;
+        /** 语言（ISO 639-2/3，如 chi / eng / jpn） */
+        Language?: string;
+        // 视频流
+        Width?: number;
+        Height?: number;
+        BitRate?: number;
+        AverageFrameRate?: number;
+        Profile?: string;
+        /** SDR / HDR10 / HLG … */
+        VideoRange?: string;
+        /** 更细的色域类型，如 DolbyVision */
+        VideoRangeType?: string;
+        // 音频流
+        Channels?: number;
+        ChannelLayout?: string;
+        // 字幕
+        /** 是否外挂字幕 */
+        IsExternal?: boolean;
       } & ({ Type: "Video" } | { Type: "Audio" } | { Type: "Subtitle" })
     >;
   }>;
@@ -75,11 +96,20 @@ export interface IEmbyQueryItem {
     Id: number;
   }>;
   MediaType: string;
+  /** 入库时间 */
+  DateCreated?: string;
+  /** 外部链接（IMDb / TMDb …） */
+  ExternalUrls?: Array<{
+    Name: string;
+    Url: string;
+  }>;
   UserData: {
     IsFavorite: boolean;
     PlayCount: number;
     PlaybackPositionTicks: number;
     Played: boolean;
+    /** 最近观看时间 */
+    LastPlayedDate?: string;
   };
 }
 
@@ -218,6 +248,13 @@ export abstract class MediaBrowser<
 
   /** 把各家的查询条目映射成统一的 `IMediaServerItem`，差异通过上面的挂点注入 */
   protected mapQueryItem(item: TQueryItem): IMediaServerItem<TQueryItem> {
+    const mediaSource = item.MediaSources?.[0];
+    const mediaStreams = mediaSource?.MediaStreams ?? [];
+    const videoStream = mediaStreams.find((s) => s.Type === "Video");
+    const userData = item.UserData;
+
+    const streamTitle = (s: (typeof mediaStreams)[number]) => s.Title ?? s.DisplayTitle;
+
     return {
       server: this.config.id!,
       name: item.Name,
@@ -233,14 +270,62 @@ export abstract class MediaBrowser<
         url: this.getTagWebUrl(tag, item),
       })),
       rating: item.CommunityRating ?? "-",
-      streams: item.MediaSources?.[0]?.MediaStreams?.map((stream) => ({
-        title: stream.Title ?? stream.DisplayTitle,
+      streams: mediaStreams.map((stream) => ({
+        title: streamTitle(stream),
         type: stream.Type,
         format: stream.Codec,
       })),
+      // 调研 A2：把媒体详情结构化透出，页面不必再读 raw
+      mediaInfo: mediaStreams.length
+        ? {
+            video: videoStream
+              ? {
+                  width: videoStream.Width,
+                  height: videoStream.Height,
+                  resolution: getResolutionLabel(videoStream.Width, videoStream.Height),
+                  codec: videoStream.Codec,
+                  profile: videoStream.Profile,
+                  videoRange: videoStream.VideoRangeType ?? videoStream.VideoRange,
+                  bitrate: videoStream.BitRate ?? mediaSource?.Bitrate,
+                  frameRate: videoStream.AverageFrameRate,
+                }
+              : undefined,
+            audio: mediaStreams
+              .filter((s) => s.Type === "Audio")
+              .map((s) => ({
+                title: streamTitle(s),
+                codec: s.Codec,
+                language: s.Language,
+                channels: s.Channels,
+                channelLayout: s.ChannelLayout,
+                isDefault: s.IsDefault,
+              })),
+            subtitle: mediaStreams
+              .filter((s) => s.Type === "Subtitle")
+              .map((s) => ({
+                title: streamTitle(s),
+                codec: s.Codec,
+                language: s.Language,
+                isExternal: s.IsExternal,
+                isDefault: s.IsDefault,
+              })),
+          }
+        : undefined,
+      // 调研 A3 / A4 / A5
+      path: mediaSource?.Path ?? item.Path,
+      dateCreated: item.DateCreated,
+      externalUrls: item.ExternalUrls?.map((externalUrl) => ({
+        name: externalUrl.Name,
+        url: externalUrl.Url,
+      })),
       user: {
-        IsFavorite: item.UserData?.IsFavorite ?? false,
-        IsPlayed: item.UserData?.Played ?? false,
+        IsFavorite: userData?.IsFavorite ?? false,
+        IsPlayed: userData?.Played ?? false,
+        // 调研 A6：观看深度
+        playCount: userData?.PlayCount,
+        playbackPosition: userData?.PlaybackPositionTicks ? userData.PlaybackPositionTicks / 10000000 : undefined,
+        playedPercentage: getPlayedPercentage(userData?.PlaybackPositionTicks, item.RunTimeTicks, userData?.Played),
+        lastPlayedDate: userData?.LastPlayedDate,
       },
       raw: item,
     };

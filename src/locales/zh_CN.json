@@ -119,19 +119,33 @@
   },
   "MediaServerEntity": {
     "ItemInformationDialog": {
+      "audio": "音轨：",
+      "dateCreated": "入库时间：",
       "duration": "时长：",
+      "externalUrls": "外部链接：",
       "mediaInfo": "媒体信息：",
+      "path": "文件路径：",
+      "playCountText": "共 {count} 次",
+      "rating": "评分：",
       "size": "大小：",
+      "subtitle": "字幕：",
       "title": "媒体详情",
-      "type": "类型："
+      "type": "类型：",
+      "video": "画质：",
+      "watched": "观看："
     },
     "detail": "详情",
+    "embedded": "内封",
+    "external": "外挂",
     "loadMore": "加载更多",
     "noItems": "暂无内容，请使用搜索框或点击加载更多按钮",
     "searchPlaceholder": "搜索词",
     "serverFilter": {
       "all": "全部服务器"
-    }
+    },
+    "unwatched": "未看",
+    "watched": "已看",
+    "watchedPercent": "{percent}%"
   },
   "MyClient": {
     "action": {

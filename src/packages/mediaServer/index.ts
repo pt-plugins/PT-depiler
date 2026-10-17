@@ -2,6 +2,7 @@ import { AbstractMediaServer, IMediaServerBaseConfig, IMediaServerMetadata } fro
 import { cloneDeep } from "es-toolkit";
 
 export * from "./types";
+export * from "./utils";
 
 interface MediaServerEntity {
   default: AbstractMediaServer;
