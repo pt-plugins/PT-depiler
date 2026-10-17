@@ -11,6 +11,7 @@ import {
   format as dateFormat,
 } from "date-fns";
 import { i18n } from "@/options/plugins/i18n.ts";
+import { sendMessage } from "@/messages.ts";
 
 export function deepToRaw<T extends Record<string, any>>(sourceObj: T): T {
   const objectIterator = (input: any): any => {
@@ -131,3 +132,38 @@ export const simplifyNumber = (num: number | string, spacer: string = ""): strin
   // 小于1000的数字直接返回
   return numValue.toFixed(2);
 };
+
+/**
+ * 触发一次文件下载（导出用户信息 / 历史数据 / 搜索方案 / 统计图 …）。
+ *
+ * 以前用 `file-saver` 的 `saveAs`（一个 2020 年起不再维护的包），它做的事是在页面里插一个
+ * `<a download>` 再点击。扩展里没必要绕这一圈：把 Blob 变成 object URL 后交给后台的
+ * `chrome.downloads.download`（协议项 `downloadFile`；`offscreen/utils/backup.ts` 导出备份
+ * 早就是这个用法），文件会走浏览器自己的下载链路。
+ *
+ * 失败只记日志不抛（调用点原本也是「触发即不管」），返回 downloadId 便于需要时跟进。
+ */
+export async function downloadBlob(blob: Blob, filename: string): Promise<number | undefined> {
+  const blobUrl = URL.createObjectURL(blob);
+
+  try {
+    const downloadId = await sendMessage("downloadFile", { url: blobUrl, filename, conflictAction: "uniquify" });
+
+    // downloads.download 返回时只是「已创建下载」，必须等它读完才能回收 object URL，否则下载会中途失败
+    const onChanged = (delta: chrome.downloads.DownloadDelta) => {
+      if (delta.id !== downloadId) return;
+      const state = delta.state?.current;
+      if (state === "complete" || state === "interrupted") {
+        chrome.downloads.onChanged.removeListener(onChanged);
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+    chrome.downloads.onChanged.addListener(onChanged);
+
+    return downloadId;
+  } catch (e) {
+    URL.revokeObjectURL(blobUrl);
+    console.error(`[PTD] 下载 ${filename} 失败：`, e);
+    return undefined;
+  }
+}

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { saveAs } from "file-saver";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
@@ -24,7 +23,7 @@ import {
 
 import { NO_IMAGE } from "@ptd/site";
 
-import { formatSize, formatDate } from "@/options/utils.ts";
+import { downloadBlob, formatSize, formatDate } from "@/options/utils.ts";
 import { IStoredUserInfo } from "@/shared/types.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -413,7 +412,7 @@ async function exportStatisticImg() {
 
   // 导出图片
   mainCanvas.toBlob((blob) => {
-    saveAs(
+    void downloadBlob(
       blob!,
       t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png",
     );

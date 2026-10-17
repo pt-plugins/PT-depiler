@@ -1,6 +1,5 @@
 <!--suppress HtmlUnknownTag -->
 <script setup lang="ts">
-import { saveAs } from "file-saver";
 import { computed, nextTick, onMounted, reactive, ref, shallowRef, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -27,7 +26,7 @@ import {
   type VueKonvaRef,
 } from "vue-konva/core";
 
-import { formatDate, formatTimeAgo } from "@/options/utils.ts";
+import { downloadBlob, formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import {
   defaultTimelineBackgroundColor,
@@ -318,12 +317,13 @@ onMounted(async () => {
 
 function exportTimelineImg() {
   const stage = canvasStage.value!.getStage();
-  stage.toDataURL({
+  // 直接用 konva 的 toBlob，省掉 toDataURL 再转一手 base64
+  stage.toBlob({
     mimeType: "image/png",
     pixelRatio: 3,
-    callback: (dataUrl: string) => {
-      saveAs(
-        dataUrl,
+    callback: (blob) => {
+      void downloadBlob(
+        blob,
         t("UserDataTimeline.exportFilename", {
           name: configStore.userName,
           date: formatDate(timelineData.value.createAt),
