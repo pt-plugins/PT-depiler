@@ -8,14 +8,16 @@
  * ⚠️ 约定：**`public/lib/mdi/` 里的文件是完整版，不要子集化**（它们也是本模块的「真值来源」：
  * 图标名与码点都从这里读）。子集化只发生在 **dist 产物** 上，见 `vite/scripts/subsetMdiFont.ts`。
  *
- * 图标有两种使用形态，都要扫：
+ * 图标有三种使用形态，都要保留：
  *  1. `mdi-<name>` 字符串（Vuetify 的 `icon` prop / class）；
  *  2. **字面私有区字符** + `font-family: "Material Design Icons For PTD"`（Konva 画布，见
  *     `views/Overview/MyData/UserDataTimeline/`），例如 `text: `󰖛: ${deadSites}`` —— 这一类
  *     直接按字符查 CSS 的码点表反查名字，不做码点区间猜测。
+ *  3. Vuetify 默认别名（如 `$menu`），包括组件内部使用、不会出现在 src 中的默认图标。
  */
 import fs from "node:fs";
 import path from "node:path";
+import { aliases as vuetifyMdiAliases } from "vuetify/iconsets/mdi";
 
 /** 完整的图标 CSS（构建/校验时的真值来源） */
 export const MDI_CSS_PATH = "public/lib/mdi/icons.css";
@@ -64,7 +66,7 @@ export function parseMdiCss(css: string): IMdiCssTables {
 }
 
 export interface IMdiIconUsage {
-  /** 用到的图标名（含动态取值）→ 使用位置 `文件:行` */
+  /** 用到的图标名（含 Vuetify 默认别名、动态取值）→ 使用位置 `文件:行` */
   used: Map<string, string[]>;
   /** 只通过字面字符用到的图标名 → 使用位置 */
   literalOnly: Map<string, string[]>;
@@ -103,6 +105,13 @@ export function collectMdiIconUsage(tables: IMdiCssTables, root: string = proces
       map.set(name, [where]);
     }
   };
+
+  // 组件内部的默认图标不会出现在项目源码中，跟随当前 Vuetify 版本保留其别名。
+  for (const [alias, icon] of Object.entries(vuetifyMdiAliases)) {
+    if (typeof icon === "string" && icon.startsWith("mdi-")) {
+      record(used, icon.slice(4), `<vuetify/iconsets/mdi: $${alias}>`);
+    }
+  }
 
   for (const file of listSourceFiles(root)) {
     const rel = path.relative(root, file).replace(/\\/g, "/");
@@ -155,7 +164,7 @@ export function planMdiSubset(tables: IMdiCssTables, usage: IMdiIconUsage): IMdi
   const missing: string[] = [];
   const utilities: string[] = [];
 
-  for (const name of usage.used.keys()) {
+  for (const name of new Set([...usage.used.keys(), ...usage.literalOnly.keys()])) {
     const codepoint = tables.codepointByName.get(name);
     if (codepoint !== undefined) {
       names.push(name);
