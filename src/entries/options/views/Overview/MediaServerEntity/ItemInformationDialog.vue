@@ -67,8 +67,13 @@ function socialIcon(name?: string): string | undefined {
 function searchOnSite(field: "imdb" | "tmdb") {
   const value = richItem.value.providerIds?.[field];
   if (!value) return;
+
+  // TMDb 的裸数字 id 分不出电影还是剧集（social/entity/tmdb.ts 的 idMatch 要求 `movie/123` / `tv/123`），
+  // 所以这里按条目类型补上媒体类型前缀；已经带前缀的（如服务器给了 movie/123）保持原样
+  const isTvLike = ["Series", "Season", "Episode", "show", "season", "episode"].includes(richItem.value.type ?? "");
+  const searchValue = field === "tmdb" && !value.includes("/") ? `${isTvLike ? "tv" : "movie"}/${value}` : value;
   showDialog.value = false;
-  router.push({ path: "/search-entity", query: { search: `${field}|${value}`, flush: 1 } });
+  router.push({ path: "/search-entity", query: { search: `${field}|${searchValue}`, flush: 1 } });
 }
 
 /** 画质摘要（调研 A2）：分辨率 · 编码(档次) · 色域 · 码率 · 帧率 */
