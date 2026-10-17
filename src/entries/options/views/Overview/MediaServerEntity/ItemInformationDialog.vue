@@ -167,13 +167,13 @@ function secondsToISO8601(seconds: number) {
                     <template #prepend>
                       <v-img :src="'/icons/social/imdb.png'" class="mr-1" width="18" height="18" />
                     </template>
-                    IMDb {{ richItem.providerIds.imdb }}
+                    {{ richItem.providerIds.imdb }}
                   </v-btn>
                   <v-btn v-if="richItem.providerIds?.tmdb" variant="tonal" @click="searchOnSite('tmdb')">
                     <template #prepend>
                       <v-img :src="'/icons/social/tmdb.png'" class="mr-1" width="18" height="18" />
                     </template>
-                    TMDb {{ richItem.providerIds.tmdb }}
+                    {{ richItem.providerIds.tmdb }}
                   </v-btn>
                 </div>
               </template>
