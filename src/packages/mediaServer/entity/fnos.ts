@@ -178,7 +178,7 @@ interface IFnOSQueryItem {
   Tags?: string[];
   Taglines?: string[];
   /** 演职人员（只在详情接口要，列表不要） */
-  People?: Array<{ Name: string; Role?: string; Type?: string; Id?: string }>;
+  People?: Array<{ Name: string; Role?: string; Type?: string; Id?: string; PrimaryImageTag?: string }>;
   TagItems?: Array<{ Name: string; Id?: string | number }>;
 }
 
@@ -537,6 +537,13 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
         name: person.Name,
         role: person.Role,
         type: person.Type,
+        id: person.Id,
+        // 头像与海报同一个图片端点（fnOS 是 Emby 兼容 API）
+        imageUrl:
+          person.Id && person.PrimaryImageTag
+            ? urlJoin(this.apiBaseUrl, `/Items/${person.Id}/Images/Primary`)
+            : undefined,
+        // fnOS 的 Web 端是自有应用，没有稳定的演员页路径 → 不给链接
       })),
       user: {
         IsFavorite: userData?.IsFavorite ?? false,

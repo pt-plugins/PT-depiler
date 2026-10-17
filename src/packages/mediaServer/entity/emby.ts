@@ -137,7 +137,7 @@ export interface IEmbyQueryItem {
   /** 外部标识：imdb / tmdb / tvdb … */
   ProviderIds?: Record<string, string>;
   /** 演职人员（**只在详情接口要**，列表不要） */
-  People?: Array<{ Name: string; Role?: string; Type?: string; Id?: string }>;
+  People?: Array<{ Name: string; Role?: string; Type?: string; Id?: string; PrimaryImageTag?: string }>;
   UserData: {
     IsFavorite: boolean;
     PlayCount: number;

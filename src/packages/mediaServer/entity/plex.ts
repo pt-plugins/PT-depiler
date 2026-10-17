@@ -146,7 +146,7 @@ interface IPlexSearchItem {
   index?: number;
   parentIndex?: number;
   /** 演职人员（详情接口才有） */
-  Role?: Array<{ tag: string; role?: string }>;
+  Role?: Array<{ tag: string; role?: string; thumb?: string }>;
   Director?: Array<{ tag: string }>;
 }
 
@@ -219,9 +219,19 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
   }
 
   /** 演职人员（只取详情接口返回的 Role / Director，限制条数避免 UI 过长） */
-  private parsePeople(item: IPlexSearchItem): Array<{ name: string; role?: string; type?: string }> | undefined {
+  private parsePeople(
+    item: IPlexSearchItem,
+  ): Array<{ name: string; role?: string; type?: string; imageUrl?: string }> | undefined {
     const people = [
-      ...(item.Role ?? []).map((person) => ({ name: person.tag, role: person.role, type: "Role" })),
+      ...(item.Role ?? []).map((person) => ({
+        name: person.tag,
+        role: person.role,
+        type: "Role",
+        // Plex 的人物头像是相对路径（与海报同款，需要带 token）
+        imageUrl: person.thumb
+          ? urlJoin(this.apiBaseUrl, `${person.thumb}?X-Plex-Token=${this.config.auth.apikey}`)
+          : undefined,
+      })),
       ...(item.Director ?? []).map((person) => ({ name: person.tag, type: "Director" })),
     ];
     return people.length > 0 ? people.slice(0, 12) : undefined;
