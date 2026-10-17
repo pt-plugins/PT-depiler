@@ -1,6 +1,7 @@
 /**
  * 媒体服务器的通用工具（与框架、i18n 无关，实体映射与 UI 都能用）。
  */
+import type { IMediaServerId, IMediaServerItem, IMediaServerOverview } from "./types.ts";
 
 /** 分辨率宽高 → 规范化标签（480p / 720p / 1080p / 1440p / 4K / 8K） */
 export function getResolutionLabel(width?: number, height?: number): string | undefined {
@@ -57,4 +58,106 @@ export function getRootPath(path?: string): string | undefined {
 
   const joined = segments.slice(0, 2).join("/");
   return isWindows ? joined : `/${joined}`;
+}
+
+/**
+ * 媒体库概览的累加器（调研 C14 / C20）。
+ *
+ * 各实体（Emby/Jellyfin 的 `MediaBrowser`、Plex、fnOS）自己负责「怎么翻页」，
+ * 拉到条目后调用 {@link IMediaServerOverviewAccumulator.add}，最后 `build()` 出统计结果 ——
+ * 聚合逻辑只有这一份，避免三家各写一遍。
+ */
+export interface IMediaServerOverviewAccumulator {
+  add(item: IMediaServerItem): void;
+  /** 生成结果；一条都没有加入过时返回 undefined */
+  build(mediaServerId: IMediaServerId, truncated: boolean): IMediaServerOverview | undefined;
+}
+
+export function createOverviewAccumulator(recentDays = 7): IMediaServerOverviewAccumulator {
+  const bucket = new Map<string, Map<string, { count: number; size: number }>>();
+  const group = (name: string, key?: string, size?: number) => {
+    const map = bucket.get(name) ?? new Map<string, { count: number; size: number }>();
+    bucket.set(name, map);
+
+    const label = key?.trim() || "-";
+    const entry = map.get(label) ?? { count: 0, size: 0 };
+    entry.count += 1;
+    entry.size += size ?? 0;
+    map.set(label, entry);
+  };
+
+  const neverWatched: Array<{ name: string; size: number; productionYear?: number }> = [];
+  const recentlyAdded: Array<{ name: string; dateCreated?: string }> = [];
+  const recentThreshold = Date.now() - recentDays * 24 * 3600 * 1000;
+
+  let totalItems = 0;
+  let totalSize = 0;
+  let bitrateSum = 0;
+  let bitrateCount = 0;
+  let watched = 0;
+  let partial = 0;
+  let unwatched = 0;
+  let totalPlays = 0;
+
+  return {
+    add(item) {
+      const size = item.size ?? 0;
+      totalItems += 1;
+      totalSize += size;
+
+      group("resolution", item.mediaInfo?.video?.resolution, size);
+      group("codec", item.mediaInfo?.video?.codec, size);
+      group("container", item.format, size);
+      group("rootPath", getRootPath(item.path), size);
+
+      const bitrate = item.mediaInfo?.video?.bitrate;
+      if (bitrate) {
+        bitrateSum += bitrate;
+        bitrateCount += 1;
+      }
+
+      const percent = item.user?.playedPercentage ?? (item.user?.IsPlayed ? 100 : 0);
+      if (percent >= 100) watched += 1;
+      else if (percent > 0) partial += 1;
+      else unwatched += 1;
+      totalPlays += item.user?.playCount ?? 0;
+
+      if (percent === 0 && size > 0) {
+        neverWatched.push({ name: item.name, size, productionYear: item.productionYear });
+      }
+      if (item.dateCreated && new Date(item.dateCreated).getTime() >= recentThreshold) {
+        recentlyAdded.push({ name: item.name, dateCreated: item.dateCreated });
+      }
+    },
+
+    build(mediaServerId, truncated) {
+      if (totalItems === 0) return undefined;
+
+      const entries = (name: string, limit?: number) => {
+        const list = [...(bucket.get(name) ?? new Map())]
+          .map(([key, value]) => ({ key, count: value.count, size: value.size }))
+          .sort((a, b) => b.size - a.size || b.count - a.count);
+        return limit ? list.slice(0, limit) : list;
+      };
+
+      return {
+        mediaServerId,
+        generatedAt: Date.now(),
+        truncated,
+        totalItems,
+        totalSize,
+        averageBitrate: bitrateCount > 0 ? Math.round(bitrateSum / bitrateCount) : undefined,
+        byResolution: entries("resolution"),
+        byCodec: entries("codec"),
+        byContainer: entries("container"),
+        byRootPath: entries("rootPath", 12),
+        watch: { watched, partial, unwatched, totalPlays },
+        playsPerGb: totalPlays > 0 && totalSize > 0 ? Number((totalPlays / (totalSize / 1e9)).toFixed(2)) : undefined,
+        neverWatched: neverWatched.sort((a, b) => b.size - a.size).slice(0, 10),
+        recentlyAdded: recentlyAdded
+          .sort((a, b) => (b.dateCreated ?? "").localeCompare(a.dateCreated ?? ""))
+          .slice(0, 10),
+      };
+    },
+  };
 }
