@@ -51,7 +51,7 @@ function searchOnSite(field: "imdb" | "tmdb") {
 
 function streamsTextFactory(type: "Video" | "Audio" | "Subtitle") {
   return computed(() =>
-    (item.streams ?? [])
+    (richItem.value.streams ?? [])
       .filter((s) => s.type === type)
       .map((x) => x.title)
       .join(" / "),
@@ -65,7 +65,7 @@ const showSteams = [
 
 /** 画质摘要（调研 A2）：分辨率 · 编码(档次) · 色域 · 码率 · 帧率 */
 const videoText = computed(() => {
-  const video = item.mediaInfo?.video;
+  const video = richItem.value.mediaInfo?.video;
   if (!video) return "";
   return [
     video.resolution,
@@ -81,14 +81,14 @@ const videoText = computed(() => {
 /** 观看深度（调研 A6）：次数 · 进度 · 最近观看 */
 const watchText = computed(() => {
   const parts: string[] = [];
-  if (item.user?.playCount) {
-    parts.push(t("MediaServerEntity.ItemInformationDialog.playCountText", { count: item.user.playCount }));
+  if (richItem.value.user?.playCount) {
+    parts.push(t("MediaServerEntity.ItemInformationDialog.playCountText", { count: richItem.value.user.playCount }));
   }
-  if (typeof item.user?.playedPercentage === "number") {
-    parts.push(`${item.user.playedPercentage}%`);
+  if (typeof richItem.value.user?.playedPercentage === "number") {
+    parts.push(`${richItem.value.user.playedPercentage}%`);
   }
-  if (item.user?.lastPlayedDate) {
-    parts.push(formatDate(new Date(item.user.lastPlayedDate).getTime()));
+  if (richItem.value.user?.lastPlayedDate) {
+    parts.push(formatDate(new Date(richItem.value.user.lastPlayedDate).getTime()));
   }
   return parts.join(" · ");
 });
@@ -140,24 +140,24 @@ function secondsToISO8601(seconds: number) {
       <v-card-text>
         <v-row class="align-center">
           <v-col cols="8" offset="2" offset-sm="0" sm="4">
-            <v-img :src="item.poster" :title="item.name" />
+            <v-img :src="richItem.poster" :title="richItem.name" />
           </v-col>
           <v-col cols="12" sm="8">
             <a
-              :href="item.url"
-              :title="item.name"
+              :href="richItem.url"
+              :title="richItem.name"
               class="w-100 text-headline-small d-inline-block"
               rel="noopener noreferrer nofollow"
               target="_blank"
             >
-              {{ item.name }}
+              {{ richItem.name }}
             </a>
-            <p class="text-body-small">{{ item.description ?? "" }}</p>
-            <div v-if="item.tags && item.tags.length > 0" class="info-label">
+            <p class="text-body-small">{{ richItem.description ?? "" }}</p>
+            <div v-if="richItem.tags && richItem.tags.length > 0" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.type") }}</v-label>
               <v-chip-group show-arrows>
                 <v-chip
-                  v-for="tag in item.tags ?? []"
+                  v-for="tag in richItem.tags ?? []"
                   :key="tag.name"
                   :href="tag.url ?? (false as unknown as undefined)"
                   :target="tag.url ? '_blank' : undefined"
@@ -172,23 +172,23 @@ function secondsToISO8601(seconds: number) {
                 </v-chip>
               </v-chip-group>
             </div>
-            <div v-if="item.duration" class="info-label">
+            <div v-if="richItem.duration" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.duration") }}</v-label>
               <v-chip base-color="green" class="mr-1" label prepend-icon="mdi-clock-time-four" size="small">
-                {{ secondsToISO8601(item.duration ?? 0) }}
+                {{ secondsToISO8601(richItem.duration ?? 0) }}
               </v-chip>
             </div>
-            <div v-if="item.size" class="info-label">
+            <div v-if="richItem.size" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.size") }}</v-label>
               <v-chip base-color="deep-purple" class="mr-1" label prepend-icon="mdi-harddisk" size="small">
-                {{ formatSize(item.size ?? 0) }}
+                {{ formatSize(richItem.size ?? 0) }}
               </v-chip>
             </div>
             <!-- 评分（调研 A1） -->
-            <div v-if="typeof item.rating === 'number'" class="info-label">
+            <div v-if="typeof richItem.rating === 'number'" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.rating") }}</v-label>
               <v-chip base-color="amber" class="mr-1" label prepend-icon="mdi-star" size="small">
-                {{ item.rating.toFixed(1) }}
+                {{ richItem.rating.toFixed(1) }}
               </v-chip>
             </div>
             <!-- 画质（调研 A2） -->
@@ -199,11 +199,11 @@ function secondsToISO8601(seconds: number) {
               </v-chip>
             </div>
             <!-- 音轨（调研 A2） -->
-            <div v-if="item.mediaInfo?.audio?.length" class="info-label">
+            <div v-if="richItem.mediaInfo?.audio?.length" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.audio") }}</v-label>
               <v-chip-group show-arrows>
                 <v-chip
-                  v-for="(audio, idx) in item.mediaInfo.audio"
+                  v-for="(audio, idx) in richItem.mediaInfo.audio"
                   :key="idx"
                   base-color="teal"
                   label
@@ -224,11 +224,11 @@ function secondsToISO8601(seconds: number) {
               </v-chip-group>
             </div>
             <!-- 字幕（调研 A2） -->
-            <div v-if="item.mediaInfo?.subtitle?.length" class="info-label">
+            <div v-if="richItem.mediaInfo?.subtitle?.length" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.subtitle") }}</v-label>
               <v-chip-group show-arrows>
                 <v-chip
-                  v-for="(subtitle, idx) in item.mediaInfo.subtitle"
+                  v-for="(subtitle, idx) in richItem.mediaInfo.subtitle"
                   :key="idx"
                   base-color="indigo"
                   label
@@ -255,22 +255,24 @@ function secondsToISO8601(seconds: number) {
               </v-chip>
             </div>
             <!-- 文件路径（调研 A3） -->
-            <div v-if="item.path" class="info-label">
+            <div v-if="richItem.path" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.path") }}</v-label>
-              <span class="text-body-small text-medium-emphasis" style="word-break: break-all">{{ item.path }}</span>
+              <span class="text-body-small text-medium-emphasis" style="word-break: break-all">{{
+                richItem.path
+              }}</span>
             </div>
             <!-- 入库时间（调研 A4） -->
-            <div v-if="item.dateCreated" class="info-label">
+            <div v-if="richItem.dateCreated" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.dateCreated") }}</v-label>
               <v-chip base-color="blue-grey" class="mr-1" label prepend-icon="mdi-calendar-plus" size="small">
-                {{ formatDate(new Date(item.dateCreated).getTime()) }}
+                {{ formatDate(new Date(richItem.dateCreated).getTime()) }}
               </v-chip>
             </div>
             <!-- 外部链接（调研 A5） -->
-            <div v-if="item.externalUrls?.length" class="info-label">
+            <div v-if="richItem.externalUrls?.length" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.externalUrls") }}</v-label>
               <v-btn
-                v-for="externalUrl in item.externalUrls"
+                v-for="externalUrl in richItem.externalUrls"
                 :key="externalUrl.url"
                 :href="externalUrl.url"
                 class="mr-1"
@@ -282,35 +284,35 @@ function secondsToISO8601(seconds: number) {
                 {{ externalUrl.name }}
               </v-btn>
             </div>
-            <div v-if="item.streams && item.streams.length > 0" class="info-label">
+            <div v-if="richItem.streams && richItem.streams.length > 0" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.mediaInfo") }}</v-label>
               <v-chip-group show-arrows>
-                <v-chip v-if="item.format" base-color="blue" label prepend-icon="mdi-aspect-ratio" size="small">
-                  {{ item.format?.toUpperCase() }}
+                <v-chip v-if="richItem.format" base-color="blue" label prepend-icon="mdi-aspect-ratio" size="small">
+                  {{ richItem.format?.toUpperCase() }}
                 </v-chip>
 
                 <v-chip
-                  v-if="item.streams.filter((s) => s.type === 'Video')!.length > 0"
+                  v-if="richItem.streams.filter((s) => s.type === 'Video')!.length > 0"
                   base-color="blue"
                   label
                   prepend-icon="mdi-movie"
                   size="small"
                 >
-                  {{ item.streams.filter((s) => s.type === "Video")[0].title }}
+                  {{ richItem.streams.filter((s) => s.type === "Video")[0].title }}
                 </v-chip>
 
                 <template v-for="showStream in showSteams" :key="showStream.name">
-                  <v-menu v-if="item.streams.filter((s) => s.type === showStream.name)!.length > 0" open-on-hover>
+                  <v-menu v-if="richItem.streams.filter((s) => s.type === showStream.name)!.length > 0" open-on-hover>
                     <template #activator="{ props }">
                       <v-chip v-bind="props" :prepend-icon="showStream.icon" base-color="blue" label size="small">
-                        {{ item.streams.filter((s) => s.type === showStream.name)!.length }}
+                        {{ richItem.streams.filter((s) => s.type === showStream.name)!.length }}
                       </v-chip>
                     </template>
 
                     <v-card class="pl-2">
                       <v-chip-group direction="vertical">
                         <v-chip
-                          v-for="stream in item.streams.filter((s) => s.type === showStream.name)"
+                          v-for="stream in richItem.streams.filter((s) => s.type === showStream.name)"
                           :prepend-icon="showStream.icon"
                           label
                           size="small"
@@ -324,38 +326,40 @@ function secondsToISO8601(seconds: number) {
               </v-chip-group>
             </div>
             <!-- 年份 / 首播 / 分级 / 影评人评分 / 制片公司（调研 B8） -->
-            <div v-if="item.productionYear || item.premiereDate" class="info-label">
+            <div v-if="richItem.productionYear || richItem.premiereDate" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.year") }}</v-label>
-              <v-chip v-if="item.productionYear" base-color="blue-grey" class="mr-1" label size="small">
-                {{ item.productionYear }}
+              <v-chip v-if="richItem.productionYear" base-color="blue-grey" class="mr-1" label size="small">
+                {{ richItem.productionYear }}
               </v-chip>
-              <v-chip v-if="item.premiereDate" base-color="blue-grey" class="mr-1" label size="small">
-                {{ item.premiereDate.slice(0, 10) }}
+              <v-chip v-if="richItem.premiereDate" base-color="blue-grey" class="mr-1" label size="small">
+                {{ richItem.premiereDate.slice(0, 10) }}
               </v-chip>
             </div>
-            <div v-if="item.officialRating || item.criticRating" class="info-label">
+            <div v-if="richItem.officialRating || richItem.criticRating" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.officialRating") }}</v-label>
-              <v-chip v-if="item.officialRating" base-color="orange" class="mr-1" label size="small">
-                {{ item.officialRating }}
+              <v-chip v-if="richItem.officialRating" base-color="orange" class="mr-1" label size="small">
+                {{ richItem.officialRating }}
               </v-chip>
-              <v-chip v-if="item.criticRating" base-color="amber" class="mr-1" label size="small">
-                {{ t("MediaServerEntity.ItemInformationDialog.criticRating") }} {{ item.criticRating.toFixed(1) }}
+              <v-chip v-if="richItem.criticRating" base-color="amber" class="mr-1" label size="small">
+                {{ t("MediaServerEntity.ItemInformationDialog.criticRating") }} {{ richItem.criticRating.toFixed(1) }}
               </v-chip>
             </div>
             <!-- 剧集信息（调研 B10） -->
-            <div v-if="item.seriesName || item.recursiveItemCount || item.childCount" class="info-label">
+            <div v-if="richItem.seriesName || richItem.recursiveItemCount || richItem.childCount" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.series") }}</v-label>
               <span class="text-body-small text-medium-emphasis">
                 {{
                   [
-                    item.seriesName,
-                    typeof item.parentIndexNumber === "number"
-                      ? `S${String(item.parentIndexNumber).padStart(2, "0")}`
+                    richItem.seriesName,
+                    typeof richItem.parentIndexNumber === "number"
+                      ? `S${String(richItem.parentIndexNumber).padStart(2, "0")}`
                       : undefined,
-                    typeof item.indexNumber === "number" ? `E${String(item.indexNumber).padStart(2, "0")}` : undefined,
-                    item.recursiveItemCount || item.childCount
+                    typeof richItem.indexNumber === "number"
+                      ? `E${String(richItem.indexNumber).padStart(2, "0")}`
+                      : undefined,
+                    richItem.recursiveItemCount || richItem.childCount
                       ? t("MediaServerEntity.ItemInformationDialog.episodeCount", {
-                          count: item.recursiveItemCount ?? item.childCount,
+                          count: richItem.recursiveItemCount ?? richItem.childCount,
                         })
                       : undefined,
                   ]
@@ -365,15 +369,15 @@ function secondsToISO8601(seconds: number) {
               </span>
             </div>
             <!-- 同片多版本 / 制片公司 / 自定义标签 / 宣传语（调研 B9 / B8 / B12） -->
-            <div v-if="(item.mediaSourceCount ?? 0) > 1" class="info-label">
+            <div v-if="(richItem.mediaSourceCount ?? 0) > 1" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.mediaSourceCount") }}</v-label>
               <v-chip base-color="purple" class="mr-1" label size="small">
-                {{ t("MediaServerEntity.versions", { count: item.mediaSourceCount }) }}
+                {{ t("MediaServerEntity.versions", { count: richItem.mediaSourceCount }) }}
               </v-chip>
             </div>
-            <div v-if="item.studios?.length" class="info-label">
+            <div v-if="richItem.studios?.length" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.studios") }}</v-label>
-              <span class="text-body-small text-medium-emphasis">{{ item.studios.join(" / ") }}</span>
+              <span class="text-body-small text-medium-emphasis">{{ richItem.studios.join(" / ") }}</span>
             </div>
             <div v-if="richItem.labels?.length" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.labels") }}</v-label>
@@ -430,11 +434,15 @@ function secondsToISO8601(seconds: number) {
             <v-divider class="my-2" />
 
             <div class="d-flex w-100 align-center">
-              <v-icon :icon="item.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'" color="green" size="36" />
-              <v-icon :icon="item.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" size="36" />
+              <v-icon
+                :icon="richItem.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'"
+                color="green"
+                size="36"
+              />
+              <v-icon :icon="richItem.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" size="36" />
               <v-spacer />
               <v-btn
-                :href="item.url"
+                :href="richItem.url"
                 append-icon="mdi-arrow-top-right-bold-box-outline"
                 class="visit-btn"
                 rel="noopener noreferrer nofollow"
