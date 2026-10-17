@@ -100,19 +100,14 @@ export default class Jellyfin extends MediaBrowser<IJellyfinConfig, IJellyfinQue
     itemId: string,
     fields: string[],
   ): { url: string; requestConfig: AxiosRequestConfig } {
-    const hasUserId = this.config.auth.userId && this.config.auth.userId != "";
-    const params: Record<string, unknown> = { fields: fields.join(",") };
-
-    // Jellyfin 同样以用户维度为准（/Items/{itemId} 在 10.9 已标记废弃）
-    if (hasUserId) {
-      return {
-        url: `/Users/${this.config.auth.userId}/Items/${itemId}`,
-        requestConfig: { params: { ...params, userId: this.config.auth.userId } },
-      };
-    }
-
-    // 没有 userId 时用集合接口按 ids 过滤（官方推荐的替代写法）
-    return { url: "/Items", requestConfig: { params: { ...params, ids: itemId, recursive: true } } };
+    // 源码核对（Jellyfin.Api/Controllers/UserLibraryController.cs）：
+    // `/Items/{itemId}` 是 10.9+ 的现行接口，但**不接受 fields**；
+    // `/Users/{userId}/Items/{itemId}` 反而已标记 [Obsolete]，仅作向后兼容保留。
+    // 所以统一走集合接口按 ids 过滤：全版本可用、支持 fields、没有 userId 也行。
+    return {
+      url: "/Items",
+      requestConfig: { params: { ids: itemId, recursive: true, fields: fields.join(",") } },
+    };
   }
 
   protected override buildOverviewRequest(
@@ -149,7 +144,7 @@ export default class Jellyfin extends MediaBrowser<IJellyfinConfig, IJellyfinQue
   }
 
   protected override getTagWebUrl(tag: IEmbyQueryItem["GenreItems"][number], item: IJellyfinQueryItem): string {
-    return urlJoin(this.baseUrl, `/web/#/list.html?genreId=${tag.Id}&serverId=${item.ServerId}`);
+    return urlJoin(this.baseUrl, `/web/#/list?genreId=${tag.Id}&serverId=${item.ServerId}`);
   }
 
   protected override getPosterUrl(item: IJellyfinQueryItem): string {

@@ -72,8 +72,10 @@ export interface IEmbyQueryItem {
         IsDefault?: boolean;
         /** 语言（ISO 639-2/3，如 chi / eng / jpn） */
         Language?: string;
-        /** 语言的**可读名称**（如 "Chinese Simplified" / "Japanese"），优先展示这个 */
+        /** Emby 的可读语言名（如 "Chinese Simplified"） */
         DisplayLanguage?: string;
+        /** Jellyfin master 的对应字段 */
+        LocalizedLanguage?: string;
         // 视频流
         Width?: number;
         Height?: number;
@@ -127,10 +129,12 @@ export interface IEmbyQueryItem {
   SeriesName?: string;
   IndexNumber?: number;
   ParentIndexNumber?: number;
+  /** Jellyfin 的字段名是 IsHD（大写 D），Emby 是 IsHd —— 两个都声明、都读 */
+  IsHD?: boolean;
   IsHd?: boolean;
   Width?: number;
   Height?: number;
-  /** 自定义标签：Emby 实际放在 `TagItems` 里（`Tags` 通常是字符串数组，可能不返回） */
+  /** 自定义标签：**Emby** 放在 `TagItems` 里，Jellyfin 只有 `Tags`（所以两处都要兜底） */
   TagItems?: Array<{ Name: string; Id?: number }>;
   Tags?: string[];
   Taglines?: string[];
@@ -232,7 +236,7 @@ export abstract class MediaBrowser<
     "SeriesName",
     "IndexNumber",
     "ParentIndexNumber",
-    "IsHd",
+    "IsHD",
     "Width",
     "Height",
     "Tags",
@@ -449,7 +453,7 @@ export abstract class MediaBrowser<
               .map((s) => ({
                 title: streamTitle(s),
                 codec: s.Codec,
-                language: normalizeLanguage(s.DisplayLanguage ?? s.Language),
+                language: normalizeLanguage(s.DisplayLanguage ?? s.LocalizedLanguage ?? s.Language),
                 channels: s.Channels,
                 channelLayout: s.ChannelLayout,
                 isDefault: s.IsDefault,
@@ -459,7 +463,7 @@ export abstract class MediaBrowser<
               .map((s) => ({
                 title: streamTitle(s),
                 codec: s.Codec,
-                language: normalizeLanguage(s.DisplayLanguage ?? s.Language),
+                language: normalizeLanguage(s.DisplayLanguage ?? s.LocalizedLanguage ?? s.Language),
                 isExternal: s.IsExternal,
                 isDefault: s.IsDefault,
               })),
@@ -486,7 +490,7 @@ export abstract class MediaBrowser<
       seriesName: item.SeriesName,
       indexNumber: item.IndexNumber,
       parentIndexNumber: item.ParentIndexNumber,
-      isHd: item.IsHd,
+      isHd: item.IsHD ?? item.IsHd,
       width: item.Width,
       height: item.Height,
       // Emby 把自定义标签放在 TagItems；Tags 常常不返回
