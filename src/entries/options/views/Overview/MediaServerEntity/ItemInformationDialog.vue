@@ -321,14 +321,13 @@ function secondsToISO8601(seconds: number) {
             </div>
             <!-- 外部链接（调研 A5） -->
             <!-- 年份 / 首播 / 分级 / 影评人评分 / 制片公司（调研 B8） -->
-            <div v-if="richItem.productionYear || richItem.premiereDate" class="info-label">
+            <div v-if="richItem.productionYear" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.year") }}</v-label>
-              <v-chip v-if="richItem.productionYear" base-color="blue-grey" class="mr-1" label size="small">
-                {{ richItem.productionYear }}
-              </v-chip>
-              <v-chip v-if="richItem.premiereDate" base-color="blue-grey" class="mr-1" label size="small">
-                {{ richItem.premiereDate.slice(0, 10) }}
-              </v-chip>
+              <v-chip base-color="blue-grey" label size="small">{{ richItem.productionYear }}</v-chip>
+            </div>
+            <div v-if="richItem.premiereDate" class="info-label">
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.premiereDate") }}</v-label>
+              <v-chip base-color="blue-grey" label size="small">{{ richItem.premiereDate.slice(0, 10) }}</v-chip>
             </div>
             <div v-if="richItem.officialRating || richItem.criticRating" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.officialRating") }}</v-label>

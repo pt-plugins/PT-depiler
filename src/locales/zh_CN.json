@@ -119,6 +119,7 @@
   },
   "MediaServerEntity": {
     "ItemInformationDialog": {
+      "premiereDate": "首播：",
       "watched": "观看：",
       "playbackProgress": "播放进度",
       "notWatched": "未观看",

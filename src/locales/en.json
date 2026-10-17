@@ -119,6 +119,7 @@
   },
   "MediaServerEntity": {
     "ItemInformationDialog": {
+      "premiereDate": "Premiered: ",
       "watched": "Watched: ",
       "playbackProgress": "Playback progress",
       "notWatched": "Not watched",
