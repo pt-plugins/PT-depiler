@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
-import { format as dateFormat } from "date-fns";
 
 import { type CAddTorrentOptions } from "@ptd/downloader/types.ts";
+import { datePathTemplateVars, expandPathTemplate } from "@ptd/downloader/utils/pathTemplate.ts";
 import { getHostFromUrl } from "@ptd/site/utils/html.ts"; // 这里不能使用 @ptd/site 的主入口，会导致 sw 无法加载
 import { type ITorrent } from "@ptd/site/types/torrent.ts";
 
@@ -392,28 +392,18 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
           (f) => !EXCLUDE_FOLDER_KEYWORDS.some((keywords) => f.includes(keywords)),
         );
 
-        // 如果没有当前站点，则不显示 $torrent.site$
+        // 展开建议目录里的 $…$ 变量：当前标签页没有站点 / 站点名时，对应目录项直接不显示
+        // （右键菜单里没有 prompt() 可用，遇到解析不了的变量只能整项丢掉）
+        const siteReplaceMap: Record<string, string> = { ...datePathTemplateVars() };
         if (thisTabSiteId) {
-          suggestFolders = suggestFolders.map((f) => f.replace("$torrent.site$", thisTabSiteId));
-        } else {
-          suggestFolders = suggestFolders.filter((f) => !f.includes("$torrent.site$"));
+          siteReplaceMap["torrent.site"] = thisTabSiteId;
         }
-
-        // 如果没有当前站点名称，则不显示 $torrent.siteName$
         if (thisTabSiteName) {
-          suggestFolders = suggestFolders.map((f) => f.replace("$torrent.siteName$", thisTabSiteName));
-        } else {
-          suggestFolders = suggestFolders.filter((f) => !f.includes("$torrent.siteName$"));
+          siteReplaceMap["torrent.siteName"] = thisTabSiteName;
         }
-
-        // 替换 $date:YYYY$ 等日期变量
-        const nowDate = new Date();
-        suggestFolders = suggestFolders.map((f) =>
-          f
-            .replace("$date:YYYY$", dateFormat(nowDate, "yyyy"))
-            .replace("$date:MM$", dateFormat(nowDate, "MM"))
-            .replace("$date:DD$", dateFormat(nowDate, "dd")),
-        );
+        suggestFolders = suggestFolders
+          .map((folder) => expandPathTemplate(folder, siteReplaceMap, { dropUnresolved: true }))
+          .filter((folder): folder is string => folder !== null);
 
         if (suggestFolders.length > 0) {
           // 添加一个空字符串作为默认选项；变量替换后可能出现同名文件夹，去重以避免生成重复的菜单 ID

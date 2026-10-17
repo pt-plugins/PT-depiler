@@ -2,6 +2,7 @@
 import { computed, ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import type { CAddTorrentOptions } from "@ptd/downloader";
+import { datePathTemplateVars, expandPathTemplate } from "@ptd/downloader/utils/pathTemplate.ts";
 
 import type { IKeepUploadTask, TKeepUploadTaskKey } from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
@@ -119,9 +120,7 @@ async function sendTorrentsToDownloader(task: IKeepUploadTask, items: IKeepUploa
         "torrent.category": String(item.category ?? ""),
         "torrent.site": item.site,
         "torrent.siteName": await metadataStore.getSiteName(item.site),
-        "date:YYYY": formatDate(now, "yyyy"),
-        "date:MM": formatDate(now, "MM"),
-        "date:DD": formatDate(now, "dd"),
+        ...datePathTemplateVars(now),
       };
       const addTorrentOptions: CAddTorrentOptions = {
         localDownload: true,
@@ -132,10 +131,9 @@ async function sendTorrentsToDownloader(task: IKeepUploadTask, items: IKeepUploa
       };
 
       for (const key of ["savePath", "label"] as const) {
-        if (!addTorrentOptions[key]) continue;
-        for (const [templateKey, value] of Object.entries(replacements)) {
-          addTorrentOptions[key] = addTorrentOptions[key]!.replaceAll(`$${templateKey}$`, value);
-        }
+        const value = addTorrentOptions[key];
+        if (!value) continue;
+        addTorrentOptions[key] = expandPathTemplate(value, replacements) ?? value;
       }
 
       const result = await sendMessage("downloadTorrent", {
