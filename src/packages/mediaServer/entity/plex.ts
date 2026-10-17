@@ -250,16 +250,27 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
     return people.length > 0 ? people.slice(0, 12) : undefined;
   }
 
-  /** Plex 的观看进度：viewOffset / duration 都是毫秒，换算成 0-100 */
   /**
-   * Plex 的图片地址有两种形态：
-   * - 服务器本地相对路径（`/library/metadata/…`）→ 需要拼接服务器地址并带 token；
-   * - **外部绝对地址**（人物头像常是 `https://metadata-static.plex.tv/…`）→ 直接使用，
-   *   既不能拼服务器地址（会变成 `服务器/https://…`），也不该附 token（会泄露给第三方）。
+   * 图片地址：
+   * - 服务器本地相对路径（`/library/metadata/…`）→ 拼服务器地址并带 token（这就是海报可用的方式）；
+   * - **外部绝对地址**（人物头像常是 `https://metadata-static.plex.tv/…`）→ 浏览器直连会被拦，
+   *   改由 PMS 的 `/photo/:/transcode?url=…` 代理，只与本机服务器通信、token 也不外发。
    */
   private getPlexImageUrl(path?: string): string {
     if (!path) return "";
-    if (/^https?:\/\//i.test(path)) return path;
+
+    if (/^https?:\/\//i.test(path)) {
+      const params = new URLSearchParams({
+        url: path,
+        width: "240",
+        height: "320",
+        minSize: "1",
+        upscale: "1",
+      });
+      params.set("X-Plex-Token", this.config.auth.apikey);
+      return urlJoin(this.apiBaseUrl, `/photo/:/transcode?${params.toString()}`);
+    }
+
     return urlJoin(this.apiBaseUrl, `${path}?X-Plex-Token=${this.config.auth.apikey}`);
   }
 
