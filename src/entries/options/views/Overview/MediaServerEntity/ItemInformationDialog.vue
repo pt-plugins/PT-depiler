@@ -42,6 +42,26 @@ watch(showDialog, async (opened) => {
 const richItem = computed<IMediaServerItem>(() => detail.value ?? item);
 
 /** 调研 B7：用外部标识（imdb / tmdb）一键跳到站点搜索页 */
+/** public/icons/social 下实际存在的 provider 图标（其余一律回退到 mdi 图标） */
+const SOCIAL_ICON_FILES: Record<string, string> = {
+  imdb: "imdb",
+  tmdb: "tmdb",
+  themoviedb: "tmdb",
+  tvdb: "tvdb",
+  thetvdb: "tvdb",
+  douban: "douban",
+  bangumi: "bangumi",
+  anidb: "anidb",
+  tvmaze: "tvmaze",
+};
+
+/** provider 名 → 图标的 URL（没有对应图标时返回 undefined，调用方回退原图标） */
+function socialIcon(name?: string): string | undefined {
+  const key = (name ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const file = SOCIAL_ICON_FILES[key];
+  return file ? `/icons/social/${file}.png` : undefined;
+}
+
 function searchOnSite(field: "imdb" | "tmdb") {
   const value = richItem.value.providerIds?.[field];
   if (!value) return;
@@ -145,7 +165,8 @@ function secondsToISO8601(seconds: number) {
                 <div class="d-flex flex-column ga-1">
                   <v-btn
                     v-if="richItem.providerIds?.imdb"
-                    prepend-icon="mdi-movie-search-outline"
+                    :prepend-avatar="socialIcon('imdb')"
+                    :prepend-icon="socialIcon('imdb') ? undefined : 'mdi-movie-search-outline'"
                     variant="tonal"
                     @click="searchOnSite('imdb')"
                   >
@@ -153,7 +174,8 @@ function secondsToISO8601(seconds: number) {
                   </v-btn>
                   <v-btn
                     v-if="richItem.providerIds?.tmdb"
-                    prepend-icon="mdi-movie-search-outline"
+                    :prepend-avatar="socialIcon('tmdb')"
+                    :prepend-icon="socialIcon('tmdb') ? undefined : 'mdi-movie-search-outline'"
                     variant="tonal"
                     @click="searchOnSite('tmdb')"
                   >
@@ -170,6 +192,7 @@ function secondsToISO8601(seconds: number) {
                     v-for="externalUrl in richItem.externalUrls"
                     :key="externalUrl.url"
                     :href="externalUrl.url"
+                    :prepend-avatar="socialIcon(externalUrl.name)"
                     append-icon="mdi-open-in-new"
                     rel="noopener noreferrer nofollow"
                     target="_blank"
