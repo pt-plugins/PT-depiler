@@ -388,10 +388,26 @@ function secondsToISO8601(seconds: number) {
             <div v-else-if="richItem.people?.length" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.people") }}</v-label>
               <v-chip-group show-arrows>
-                <v-chip v-for="person in richItem.people" :key="person.name + (person.role ?? '')" label size="small">
-                  {{ person.name }}
-                  <template v-if="person.role"> · {{ person.role }}</template>
-                </v-chip>
+                <v-tooltip v-for="person in richItem.people" :key="person.name + (person.role ?? '')" location="top">
+                  <template #activator="{ props }">
+                    <v-chip
+                      v-bind="props"
+                      :href="person.url"
+                      :rel="person.url ? 'noopener noreferrer nofollow' : undefined"
+                      :target="person.url ? '_blank' : undefined"
+                      label
+                      size="small"
+                    >
+                      {{ person.name }}
+                      <template v-if="person.role"> · {{ person.role }}</template>
+                    </v-chip>
+                  </template>
+                  <div class="text-center">
+                    <v-img v-if="person.imageUrl" :src="person.imageUrl" class="mb-1" max-width="160" />
+                    <div>{{ person.name }}</div>
+                    <div v-if="person.role" class="text-caption text-medium-emphasis">{{ person.role }}</div>
+                  </div>
+                </v-tooltip>
               </v-chip-group>
             </div>
             <!-- 调研 B7：外部标识 → 站点搜索 -->
