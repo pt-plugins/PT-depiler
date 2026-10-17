@@ -140,6 +140,10 @@ export default class Jellyfin extends MediaBrowser<IJellyfinConfig, IJellyfinQue
     };
   }
 
+  protected override getPersonWebUrl(personId: string, serverId?: string): string {
+    return urlJoin(this.baseUrl, `/web/#/details?id=${personId}` + (serverId ? `&serverId=${serverId}` : ""));
+  }
+
   protected override getItemWebUrl(item: IJellyfinQueryItem): string {
     return urlJoin(this.baseUrl, `/web/#/details?id=${item.Id}&serverId=${item.ServerId}`);
   }

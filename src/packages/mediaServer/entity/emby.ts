@@ -195,6 +195,9 @@ export abstract class MediaBrowser<
   /** 条目在各自 Web UI 里的详情页地址 */
   protected abstract getItemWebUrl(item: TQueryItem): string;
 
+  /** 演职人员在各自 Web UI 里的页面地址（Emby 与 Jellyfin 路径不同） */
+  protected abstract getPersonWebUrl(personId: string, serverId?: string): string;
+
   /** 条目标签（流派）在 Web UI 里的筛选地址 */
   protected abstract getTagWebUrl(tag: IEmbyQueryItem["GenreItems"][number], item: TQueryItem): string;
 
@@ -494,6 +497,13 @@ export abstract class MediaBrowser<
         name: person.Name,
         role: person.Role,
         type: person.Type,
+        id: person.Id,
+        // 头像走与海报同一个图片端点（Emby / Jellyfin 都有）
+        imageUrl:
+          person.Id && person.PrimaryImageTag
+            ? urlJoin(this.apiBaseUrl, `/Items/${person.Id}/Images/Primary`)
+            : undefined,
+        url: person.Id ? this.getPersonWebUrl(person.Id, item.ServerId) : undefined,
       })),
       user: {
         IsFavorite: userData?.IsFavorite ?? false,
@@ -612,6 +622,10 @@ export default class Emby extends MediaBrowser<IEmbyConfig, IEmbyQueryItem> {
       url: hasUserId ? `/Users/${this.config.auth.userId}/Items` : "/Items",
       requestConfig: toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {}),
     };
+  }
+
+  protected override getPersonWebUrl(personId: string, serverId?: string): string {
+    return this.webBaseUrl + `#!/item?id=${personId}` + (serverId ? `&serverId=${serverId}` : "");
   }
 
   protected override getItemWebUrl(item: IEmbyQueryItem): string {
