@@ -442,9 +442,13 @@ function secondsToISO8601(seconds: number) {
 
 /* 文件路径很长且不含空格：独占整行、按字符换行，避免撑破容器压到相邻行 */
 .info-path {
-  display: block;
-  word-break: break-all;
-  overflow-wrap: anywhere;
+  /* 路径很长且不含空格：作为 flex 项占满剩余宽度、内部换行，续行与值对齐（同「制片公司 / 宣传语」） */
+  span {
+    flex: 1 1 auto;
+    min-width: 0;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+  }
 }
 
 .visit-btn {
