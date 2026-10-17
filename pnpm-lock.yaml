@@ -224,8 +224,8 @@ importers:
         specifier: ^4.0.3
         version: 4.0.3(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3))
       pinia-plugin-state-persistence:
-        specifier: ^1.12.0
-        version: 1.12.0(pinia@4.0.3(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3)))
+        specifier: ^1.12.20
+        version: 1.12.20(pinia@4.0.3(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3)))
       search-query-parser:
         specifier: ^1.6.0
         version: 1.6.0
@@ -2588,8 +2588,8 @@ packages:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
 
-  pinia-plugin-state-persistence@1.12.0:
-    resolution: {integrity: sha512-cvEB2SesrwYJuovvFclSIpQR7AnOpLrSJ71dM8yrrtOUZn3oXdPpwpIVGHDNzXiw1dddofY32O678V1aeVkUDw==}
+  pinia-plugin-state-persistence@1.12.20:
+    resolution: {integrity: sha512-NNUxgEXn+M5Nfgpmt73Ks9FN8QOe6A9gYr6cBpqLoyBW+yyXjU6V5ZrH7LA27ze7fJPCk3aaHdozYEnkryLWxg==}
     peerDependencies:
       pinia: ^2.3.0 || ^3.0.0 || ^4.0.0
 
@@ -5334,7 +5334,7 @@ snapshots:
 
   picomatch@4.0.7: {}
 
-  pinia-plugin-state-persistence@1.12.0(pinia@4.0.3(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3))):
+  pinia-plugin-state-persistence@1.12.20(pinia@4.0.3(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3))):
     dependencies:
       pinia: 4.0.3(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3))
 
