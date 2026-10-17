@@ -144,6 +144,14 @@ interface IPlexSearchItem {
   viewOffset?: number;
   /** 集号 / 季号（剧集用） */
   index?: number;
+  /** 剧集（show）维度字段：季/集条目上才有 */
+  parentYear?: number;
+  parentSummary?: string;
+  parentThumb?: string;
+  parentStudio?: string;
+  /** 集数 / 已看集数（Plex 用 leaf 表示可播放的最小单元） */
+  leafCount?: number;
+  viewedLeafCount?: number;
   parentIndex?: number;
   /** 演职人员（详情接口才有） */
   Role?: Array<{ tag: string; role?: string; thumb?: string }>;
@@ -245,7 +253,23 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
   }
 
   /** Plex 的观看进度：viewOffset / duration 都是毫秒，换算成 0-100 */
+  /** Plex 的海报是相对路径（需要带 token），季条目常常只有 parentThumb */
+  private getPlexPosterUrl(thumb?: string): string {
+    return thumb ? urlJoin(this.apiBaseUrl, `${thumb}?X-Plex-Token=${this.config.auth.apikey}`) : "";
+  }
+
+  /** 制片公司：季/集条目上通常只有 parentStudio */
+  private getPlexStudios(item: IPlexSearchItem): string[] | undefined {
+    const studio = item.studio ?? (item as IPlexRecentlyAddedItem).parentStudio;
+    return studio ? [studio] : undefined;
+  }
+
   private getPlexPlayedPercentage(item: IPlexSearchItem): number | undefined {
+    // 季/剧集：列表里没有 UserData，但 viewedLeafCount/leafCount 就是已看集数占比
+    if (item.leafCount && typeof item.viewedLeafCount === "number") {
+      return Math.min(100, Math.round((item.viewedLeafCount / item.leafCount) * 100));
+    }
+
     if ((item.viewCount ?? 0) > 0 && !item.viewOffset) return 100;
     if (!item.viewOffset || !item.duration) return item.viewCount ? 100 : undefined;
     return Math.min(100, Math.max(0, Math.round((item.viewOffset / item.duration) * 100)));
@@ -296,7 +320,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
           { params: { "X-Plex-Container-Start": startIndex, "X-Plex-Container-Size": limit } },
         );
         const container = response.data?.MediaContainer;
-        const items = (container?.Metadata ?? []).filter((item) => item.type === "movie" || item.type === "show");
+        const items = (container?.Metadata ?? []).filter((item) => ["movie", "show", "season"].includes(item.type));
         if (items.length === 0) break;
 
         for (const item of items) {
@@ -333,12 +357,12 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
       // @ts-ignore
       name: item.parentTitle ? `${item.parentTitle} (${item.title})` : item.title,
       url: `${this.webBaseUrl}#!/server/${serverIdentity}/details?key=${item.key.replace(/\/children$/, "")}`,
-      type: item.type === "movie" ? "Movie" : item.type,
-      description: item.summary,
+      type: item.type.charAt(0).toUpperCase() + item.type.slice(1),
+      description: item.summary || (item as IPlexRecentlyAddedItem).parentSummary || "",
       format: media?.container ?? "",
       size: part?.size ?? 0,
       duration: item.duration ?? 0,
-      poster: item.thumb ? urlJoin(this.apiBaseUrl, `${item.thumb}?X-Plex-Token=${this.config.auth.apikey}`) : "",
+      poster: this.getPlexPosterUrl(item.thumb ?? (item as IPlexRecentlyAddedItem).parentThumb),
       tags: item.Genre?.map((tag) => ({ name: tag.tag, url: "" })) ?? [],
       rating: item.audienceRating ?? "-",
       streams: streams
@@ -401,12 +425,14 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
         : undefined,
       // 调研 B7–B12
       providerIds: this.parseProviderIds(item.Guid),
-      productionYear: item.year,
+      productionYear: item.year ?? (item as IPlexRecentlyAddedItem).parentYear,
       officialRating: item.contentRating,
       criticRating: item.rating,
-      studios: item.studio ? [item.studio] : undefined,
+      studios: this.getPlexStudios(item),
       mediaSourceCount: (item as IPlexSearchItem).Media?.length,
       seriesName: (item as IPlexRecentlyAddedItem).parentTitle,
+      childCount: item.leafCount,
+      recursiveItemCount: item.leafCount,
       indexNumber: item.index,
       parentIndexNumber: item.parentIndex,
       isHd: media?.videoResolution ? media.videoResolution !== "sd" : undefined,
@@ -420,7 +446,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
         IsPlayed: isPlayed,
         playCount: item.viewCount,
         playbackPosition: item.viewOffset ? item.viewOffset / 1000 : undefined,
-        playedPercentage: isPlayed || item.viewOffset ? this.getPlexPlayedPercentage(item) : undefined,
+        playedPercentage: this.getPlexPlayedPercentage(item),
         lastPlayedDate: item.lastViewedAt ? new Date(item.lastViewedAt * 1000).toISOString() : undefined,
       },
       raw: item, // Store the raw data for reference
