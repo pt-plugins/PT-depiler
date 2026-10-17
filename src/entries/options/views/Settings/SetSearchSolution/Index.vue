@@ -9,7 +9,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import { downloadBlob, formatDate, nextPaint } from "@/options/utils.ts";
+import { downloadBlob, formatDate } from "@/options/utils.ts";
 import type { ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
 import EditDialog from "./EditDialog.vue";
@@ -87,11 +87,7 @@ function importSearchSolution(e: Event) {
   }
 }
 
-/** 导出中：工具栏按钮转圈；`exportingId` 用于让「某一行」的导出按钮也转圈 */
-const isExporting = ref(false);
-const exportingId = ref<TSolutionKey | null>(null);
-
-async function exportSearchSolutions(solutionIds: TSolutionKey[]) {
+function exportSearchSolutions(solutionIds: TSolutionKey[]) {
   const exportedSolutions: IExportedSearchSolution[] = [];
   for (const solutionId of solutionIds) {
     exportedSolutions.push(
@@ -100,20 +96,11 @@ async function exportSearchSolutions(solutionIds: TSolutionKey[]) {
   }
 
   if (exportedSolutions.length > 0) {
-    isExporting.value = true;
-    exportingId.value = solutionIds.length === 1 ? solutionIds[0] : null;
-    try {
-      // 先让按钮上的转圈画出来，再做下面这句同步的 JSON.stringify
-      await nextPaint();
-      const exportedSolutionBlob = new Blob([JSON.stringify(exportedSolutions)], { type: "application/json" });
-      await downloadBlob(
-        exportedSolutionBlob,
-        `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`,
-      ); // FIXME filename
-    } finally {
-      isExporting.value = false;
-      exportingId.value = null;
-    }
+    const exportedSolutionBlob = new Blob([JSON.stringify(exportedSolutions)], { type: "application/json" });
+    void downloadBlob(
+      exportedSolutionBlob,
+      `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`,
+    ); // FIXME filename
   } else {
     runtimeStore.showSnakebar("No solutions to export", { color: "error" });
   }
@@ -220,7 +207,6 @@ async function copySearchSolution(solutionId: TSolutionKey) {
           color="info"
           icon="mdi-export"
           :text="t('common.export')"
-          :loading="isExporting"
           @click="() => exportSearchSolutions(tableSelected)"
         />
 
@@ -355,7 +341,6 @@ async function copySearchSolution(solutionId: TSolutionKey) {
             size="small"
             color="info"
             icon="mdi-export"
-            :loading="exportingId === item.id"
             @click="exportSearchSolutions([item.id])"
           />
           <v-btn

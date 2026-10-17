@@ -327,16 +327,29 @@ async function exportTimelineImg() {
       date: formatDate(timelineData.value.createAt),
     }) + ".png";
 
-  try {
-    // 先让按钮上的转圈画出来：konva 的 toBlob 会**同步**按 pixelRatio 新建画布并重绘整棵节点树，
-    // 不先让出一帧的话这一帧会被占满 —— 用户看到的就是「先卡死一下，转圈才出现」
-    await nextPaint();
-    // 直接用 konva 的 toBlob（返回 Promise），省掉 toDataURL 再转一手 base64
-    const blob = await stage.toBlob({ mimeType: "image/png", pixelRatio: 3 });
-    await downloadBlob(blob, filename);
-  } finally {
-    isExporting.value = false;
-  }
+  // 先让按钮上的转圈画出来：konva 的 toBlob 内部有一次**同步**的整树重绘，不先让出一帧的话
+  // 这一帧会被占满，用户看到的是「先卡死、转圈才出现」
+  await nextPaint();
+
+  // 用 callback 形式收尾（konva 的 toBlob 无论 callback 还是 await，内部都是「同步 toCanvas() +
+  // 异步编码」，代价完全一样；用 callback 可以把 loading 的复位直接放在回调里）。
+  // 返回的 Promise 仍然留着 catch，兜住「编码失败 → 回调不会被调用」的情况，避免按钮一直转圈。
+  stage
+    .toBlob({
+      mimeType: "image/png",
+      pixelRatio: 3,
+      callback: async (blob) => {
+        try {
+          await downloadBlob(blob, filename);
+        } finally {
+          isExporting.value = false;
+        }
+      },
+    })
+    .catch((e) => {
+      isExporting.value = false;
+      console.error("[PTD] 导出时间线失败：", e);
+    });
 }
 
 function saveControl() {
