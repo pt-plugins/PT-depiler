@@ -165,20 +165,33 @@ function secondsToISO8601(seconds: number) {
                 <div class="d-flex flex-column ga-1">
                   <v-btn
                     v-if="richItem.providerIds?.imdb"
-                    :prepend-avatar="socialIcon('imdb')"
-                    :prepend-icon="socialIcon('imdb') ? undefined : 'mdi-movie-search-outline'"
+                    :prepend-icon="socialIcon('imdb')"
                     variant="tonal"
                     @click="searchOnSite('imdb')"
                   >
+                    <template #prepend>
+                      <img
+                        v-if="socialIcon('imdb')"
+                        :src="socialIcon('imdb')"
+                        alt=""
+                        class="mr-1"
+                        style="width: 18px; height: 18px"
+                      />
+                      <v-icon v-else icon="mdi-movie-search-outline" />
+                    </template>
                     IMDb {{ richItem.providerIds.imdb }}
                   </v-btn>
-                  <v-btn
-                    v-if="richItem.providerIds?.tmdb"
-                    :prepend-avatar="socialIcon('tmdb')"
-                    :prepend-icon="socialIcon('tmdb') ? undefined : 'mdi-movie-search-outline'"
-                    variant="tonal"
-                    @click="searchOnSite('tmdb')"
-                  >
+                  <v-btn v-if="richItem.providerIds?.tmdb" variant="tonal" @click="searchOnSite('tmdb')">
+                    <template #prepend>
+                      <img
+                        v-if="socialIcon('tmdb')"
+                        :src="socialIcon('tmdb')"
+                        alt=""
+                        class="mr-1"
+                        style="width: 18px; height: 18px"
+                      />
+                      <v-icon v-else icon="mdi-movie-search-outline" />
+                    </template>
                     TMDb {{ richItem.providerIds.tmdb }}
                   </v-btn>
                 </div>
@@ -192,12 +205,20 @@ function secondsToISO8601(seconds: number) {
                     v-for="externalUrl in richItem.externalUrls"
                     :key="externalUrl.url"
                     :href="externalUrl.url"
-                    :prepend-avatar="socialIcon(externalUrl.name)"
                     append-icon="mdi-open-in-new"
                     rel="noopener noreferrer nofollow"
                     target="_blank"
                     variant="tonal"
                   >
+                    <template #prepend>
+                      <img
+                        v-if="socialIcon(externalUrl.name)"
+                        :src="socialIcon(externalUrl.name)"
+                        alt=""
+                        class="mr-1"
+                        style="width: 18px; height: 18px"
+                      />
+                    </template>
                     {{ externalUrl.name }}
                   </v-btn>
                 </div>
