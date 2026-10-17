@@ -28,12 +28,12 @@
   "scripts": {
     "dev": "vite dev",
     "format": "prettier --list-different -w ./",
-    "check": "vue-tsc --noEmit && tsx vite/checkSiteDefinition.ts",
-    "check:site-definition": "tsx vite/checkSiteDefinition.ts",
+    "check": "vue-tsc --noEmit && tsx vite/scripts/checkSiteDefinition.ts",
+    "check:site-definition": "tsx vite/scripts/checkSiteDefinition.ts",
     "build:dist": "vite build",
     "build:dist-firefox": "cross-env TARGET=firefox vite build",
     "build:watch": "vite build --watch --mode development --minify false",
-    "action:upload_telegram": "tsx vite/sendToTgChannel.ts",
+    "action:upload_telegram": "tsx vite/scripts/sendToTgChannel.ts",
     "prepare": "husky"
   },
   "engines": {

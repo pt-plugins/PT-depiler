@@ -9,7 +9,7 @@ import { parseSizeString, createDocument, restoreSecureLink } from "../utils";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 /**
- * tags 含成人标记，站点地址必须 rot13 保存（vite/checkSiteDefinition.ts 会强制校验）。
+ * tags 含成人标记，站点地址必须 rot13 保存（vite/scripts/checkSiteDefinition.ts 会强制校验）。
  * 但 `Origin` / `Referer` 这类请求头不参与 rot13 还原（index.ts:53-59 只还原
  * urls / legacyUrls / trackerUrls），所以这里由同一份 rot13 字面量显式还原出明文，
  * 既保持请求头原值不变，又不让仓库里出现明文域名。

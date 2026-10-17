@@ -35,7 +35,7 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
   但仓库现状与文字约定不一致：引擎类定义普遍写 `1`（2026-09 统计：NexusPHP 164 个定义里 158 个写 `1`、Unit3D 35 个里 31 个、GazelleJSONAPI 14 个里 12 个），模板类站点也常写 `1`。
   实际做法：**跟随同引擎既有文件的取值**（绝大多数是 `1`），同一站点内保持一致；修改既有站点时不要顺手改这个字段（除非该站点本来就用 `YYYYMMDD` 式自定义版本号）。
 - **urls**：第一个是默认使用地址；支持 https 就优先 https；敏感站点网址可写成 rot13（`uggc://` / `uggcf://`，类型见 `types/base.ts:11-21`，还原见 `utils/html.ts:49`）。
-- **成人站点（`tags` 含 `成人` / `XXX` / `Adult`，大小写不敏感）的 `urls` / `legacyUrls` / `trackerUrls` 必须全部写成 rot13**，由 `vite/checkSiteDefinition.ts` 强制（error）。配套约束：
+- **成人站点（`tags` 含 `成人` / `XXX` / `Adult`，大小写不敏感）的 `urls` / `legacyUrls` / `trackerUrls` 必须全部写成 rot13**，由 `vite/scripts/checkSiteDefinition.ts` 强制（error）。配套约束：
   - 这三个字段是**唯一**会被 `restoreSecureLink` 还原的地方，所以 `favicon`（不还原）、`Origin`/`Referer` 请求头、绝对的 `search.requestConfig.url` 等字段里也不得再出现本站域名的明文 —— 改成从 `restoreSecureLink("uggcf://...")` 派生的模块级常量、本地图标（`./x.png`），或者省略该字段（favicon 省略后会由 `utils/favicon.ts` 从首页自动解析）。校验器会按「明文地址的 host 是否命中本站已收录域名」来报错。
   - 站点登录态/请求头需要明文域名时，范例见 `definitions/pussytorrents.ts` 的 `SITE_ORIGIN`。
 - **legacyUrls**：更换域名时**不要**删 `urls` 里的旧地址，把它移入 `legacyUrls`；若该域名曾出现在 ptpp 中而未出现在 `urls` 中，必须补进 `legacyUrls`（`types/site.ts:88-96`）。
@@ -68,7 +68,7 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 
 ## 静态校验
 
-站点定义的结构与正则校验已内置进 `pnpm check`（实现：`vite/checkSiteDefinition.ts`），**不需要单独跑脚本，也不在构建里跑**：
+站点定义的结构与正则校验已内置进 `pnpm check`（实现：`vite/scripts/checkSiteDefinition.ts`），**不需要单独跑脚本，也不在构建里跑**：
 
 ```bash
 pnpm check                                   # = vue-tsc --noEmit && 站点定义全量校验
