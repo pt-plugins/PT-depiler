@@ -49,25 +49,13 @@ function searchOnSite(field: "imdb" | "tmdb") {
   router.push({ path: "/search-entity", query: { search: `${field}|${value}`, flush: 1 } });
 }
 
-function streamsTextFactory(type: "Video" | "Audio" | "Subtitle") {
-  return computed(() =>
-    (richItem.value.streams ?? [])
-      .filter((s) => s.type === type)
-      .map((x) => x.title)
-      .join(" / "),
-  );
-}
-
-const showSteams = [
-  { name: "Audio", icon: "mdi-expansion-card" },
-  { name: "Subtitle", icon: "mdi-closed-caption" },
-];
-
 /** 画质摘要（调研 A2）：分辨率 · 编码(档次) · 色域 · 码率 · 帧率 */
 const videoText = computed(() => {
   const video = richItem.value.mediaInfo?.video;
   if (!video) return "";
   return [
+    // 容器格式（原先由旧版「媒体信息」摘要展示）
+    richItem.value.format ? richItem.value.format.toUpperCase() : undefined,
     video.resolution,
     video.codec ? `${video.codec}${video.profile ? ` ${video.profile}` : ""}` : undefined,
     video.videoRange && !/^sdr$/i.test(video.videoRange) ? video.videoRange.toUpperCase() : undefined,
@@ -145,14 +133,13 @@ function secondsToISO8601(seconds: number) {
             <!-- 站点搜索（内部搜索：拿外部标识去站点搜索页）与外部链接（原链接：打开服务器给出的页面）都是「动作」，放在海报下方比混在信息列表里更容易识别 -->
             <div class="mt-3 text-center">
               <template v-if="richItem.providerIds?.imdb || richItem.providerIds?.tmdb">
-                <div class="text-caption text-medium-emphasis mb-1">
+                <div class="text-body-2 text-medium-emphasis mb-1">
                   {{ t("MediaServerEntity.ItemInformationDialog.searchOnSite") }}
                 </div>
-                <div class="d-flex flex-wrap justify-center ga-1">
+                <div class="d-flex flex-column ga-1">
                   <v-btn
                     v-if="richItem.providerIds?.imdb"
                     prepend-icon="mdi-movie-search-outline"
-                    size="x-small"
                     variant="tonal"
                     @click="searchOnSite('imdb')"
                   >
@@ -161,7 +148,6 @@ function secondsToISO8601(seconds: number) {
                   <v-btn
                     v-if="richItem.providerIds?.tmdb"
                     prepend-icon="mdi-movie-search-outline"
-                    size="x-small"
                     variant="tonal"
                     @click="searchOnSite('tmdb')"
                   >
@@ -170,17 +156,16 @@ function secondsToISO8601(seconds: number) {
                 </div>
               </template>
               <template v-if="richItem.externalUrls?.length">
-                <div class="text-caption text-medium-emphasis mt-2 mb-1">
+                <div class="text-body-2 text-medium-emphasis mt-2 mb-1">
                   {{ t("MediaServerEntity.ItemInformationDialog.externalUrls") }}
                 </div>
-                <div class="d-flex flex-wrap justify-center ga-1">
+                <div class="d-flex flex-column ga-1">
                   <v-btn
                     v-for="externalUrl in richItem.externalUrls"
                     :key="externalUrl.url"
                     :href="externalUrl.url"
                     append-icon="mdi-open-in-new"
                     rel="noopener noreferrer nofollow"
-                    size="x-small"
                     target="_blank"
                     variant="tonal"
                   >
@@ -248,7 +233,9 @@ function secondsToISO8601(seconds: number) {
             </div>
             <!-- 音轨（调研 A2） -->
             <div v-if="richItem.mediaInfo?.audio?.length" class="info-label">
-              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.audio") }}</v-label>
+              <v-label class="pr-3">
+                {{ t("MediaServerEntity.ItemInformationDialog.audio") }} ({{ richItem.mediaInfo.audio.length }})
+              </v-label>
               <v-chip-group show-arrows>
                 <v-chip
                   v-for="(audio, idx) in richItem.mediaInfo.audio"
@@ -273,7 +260,9 @@ function secondsToISO8601(seconds: number) {
             </div>
             <!-- 字幕（调研 A2） -->
             <div v-if="richItem.mediaInfo?.subtitle?.length" class="info-label">
-              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.subtitle") }}</v-label>
+              <v-label class="pr-3">
+                {{ t("MediaServerEntity.ItemInformationDialog.subtitle") }} ({{ richItem.mediaInfo.subtitle.length }})
+              </v-label>
               <v-chip-group show-arrows>
                 <v-chip
                   v-for="(subtitle, idx) in richItem.mediaInfo.subtitle"
@@ -320,47 +309,6 @@ function secondsToISO8601(seconds: number) {
               </v-chip>
             </div>
             <!-- 外部链接（调研 A5） -->
-            <div v-if="richItem.streams && richItem.streams.length > 0" class="info-label">
-              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.mediaInfo") }}</v-label>
-              <v-chip-group show-arrows>
-                <v-chip v-if="richItem.format" base-color="blue" label prepend-icon="mdi-aspect-ratio" size="small">
-                  {{ richItem.format?.toUpperCase() }}
-                </v-chip>
-
-                <v-chip
-                  v-if="richItem.streams.filter((s) => s.type === 'Video')!.length > 0"
-                  base-color="blue"
-                  label
-                  prepend-icon="mdi-movie"
-                  size="small"
-                >
-                  {{ richItem.streams.filter((s) => s.type === "Video")[0].title }}
-                </v-chip>
-
-                <template v-for="showStream in showSteams" :key="showStream.name">
-                  <v-menu v-if="richItem.streams.filter((s) => s.type === showStream.name)!.length > 0" open-on-hover>
-                    <template #activator="{ props }">
-                      <v-chip v-bind="props" :prepend-icon="showStream.icon" base-color="blue" label size="small">
-                        {{ richItem.streams.filter((s) => s.type === showStream.name)!.length }}
-                      </v-chip>
-                    </template>
-
-                    <v-card class="pl-2">
-                      <v-chip-group direction="vertical">
-                        <v-chip
-                          v-for="stream in richItem.streams.filter((s) => s.type === showStream.name)"
-                          :prepend-icon="showStream.icon"
-                          label
-                          size="small"
-                        >
-                          {{ stream.title }}
-                        </v-chip>
-                      </v-chip-group>
-                    </v-card>
-                  </v-menu>
-                </template>
-              </v-chip-group>
-            </div>
             <!-- 年份 / 首播 / 分级 / 影评人评分 / 制片公司（调研 B8） -->
             <div v-if="richItem.productionYear || richItem.premiereDate" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.year") }}</v-label>
