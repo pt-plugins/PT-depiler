@@ -119,9 +119,9 @@ async function saveNexusConfig() {
       nexusSites[id] = { apiUrl: v.apiUrl || undefined, passkey: v.passkey || undefined, enabled: v.enabled };
     }
     await sendMessage("setIyuusConfig", { nexusSites });
-    runtimeStore.showSnakebar(t("SetBase.iyuu.nexusSaved"), { color: "success" });
+    runtimeStore.showSnackbar(t("SetBase.iyuu.nexusSaved"), { color: "success" });
   } catch (e) {
-    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+    runtimeStore.showSnackbar(e instanceof Error ? e.message : String(e), { color: "error" });
   } finally {
     savingNexus.value = false;
   }
@@ -171,21 +171,21 @@ async function saveLocalConfig() {
     localMatchMode: localMatchMode.value,
     localSearchLimit: localSearchLimit.value,
   });
-  runtimeStore.showSnakebar(t("SetBase.iyuu.localSaved"), { color: "success" });
+  runtimeStore.showSnackbar(t("SetBase.iyuu.localSaved"), { color: "success" });
 }
 
 async function saveToken() {
   await sendMessage("setIyuusConfig", { token: token.value.trim() });
-  runtimeStore.showSnakebar(t("SetBase.iyuu.tokenSaved"), { color: "success" });
+  runtimeStore.showSnackbar(t("SetBase.iyuu.tokenSaved"), { color: "success" });
 }
 
 async function fetchSites() {
   loadingSites.value = true;
   try {
     sitesCache.value = await sendMessage("iyuuFetchSites", undefined);
-    runtimeStore.showSnakebar(t("SetBase.iyuu.sitesLoaded", { count: sitesCache.value.length }), { color: "success" });
+    runtimeStore.showSnackbar(t("SetBase.iyuu.sitesLoaded", { count: sitesCache.value.length }), { color: "success" });
   } catch (e) {
-    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+    runtimeStore.showSnackbar(e instanceof Error ? e.message : String(e), { color: "error" });
   } finally {
     loadingSites.value = false;
   }
@@ -213,7 +213,7 @@ async function toggleHeld(row: ISiteRow, checked: boolean) {
   try {
     await sendMessage("setIyuusConfig", { heldSites: heldSites.value });
   } catch (e) {
-    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+    runtimeStore.showSnackbar(e instanceof Error ? e.message : String(e), { color: "error" });
   }
 }
 
@@ -223,7 +223,7 @@ async function removeHeld(id: string) {
   try {
     await sendMessage("setIyuusConfig", { heldSites: heldSites.value });
   } catch (e) {
-    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+    runtimeStore.showSnackbar(e instanceof Error ? e.message : String(e), { color: "error" });
   }
 }
 
@@ -235,12 +235,12 @@ async function deriveHeld() {
     const next = new Set([...(heldSites.value ?? []), ...result.localIds]);
     heldSites.value = [...next];
     await sendMessage("setIyuusConfig", { heldSites: heldSites.value });
-    runtimeStore.showSnakebar(
+    runtimeStore.showSnackbar(
       t("SetBase.iyuu.deriveDone", { count: result.localIds.length, unmatched: result.unmatched.length }),
       { color: "success" },
     );
   } catch (e) {
-    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+    runtimeStore.showSnackbar(e instanceof Error ? e.message : String(e), { color: "error" });
   } finally {
     deriving.value = false;
   }
@@ -250,7 +250,7 @@ async function deriveHeld() {
 async function report() {
   const held = heldSites.value ?? [];
   if (!held.length) {
-    runtimeStore.showSnakebar(t("SetBase.iyuu.noHeldSites"), { color: "warning" });
+    runtimeStore.showSnackbar(t("SetBase.iyuu.noHeldSites"), { color: "warning" });
     return;
   }
   reporting.value = true;
@@ -271,9 +271,9 @@ async function report() {
     const sha1 = await sendMessage("iyuuReportExisting", sidList);
     sidSha1Preview.value = sha1.slice(0, 8);
     sidSha1ExpiredAt.value = Date.now() + 7 * 24 * 60 * 60 * 1000;
-    runtimeStore.showSnakebar(t("SetBase.iyuu.reportDone", { sha1: sidSha1Preview.value }), { color: "success" });
+    runtimeStore.showSnackbar(t("SetBase.iyuu.reportDone", { sha1: sidSha1Preview.value }), { color: "success" });
   } catch (e) {
-    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+    runtimeStore.showSnackbar(e instanceof Error ? e.message : String(e), { color: "error" });
   } finally {
     reporting.value = false;
   }

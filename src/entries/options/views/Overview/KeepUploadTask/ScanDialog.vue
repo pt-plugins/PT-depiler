@@ -89,7 +89,7 @@ async function startScan() {
     // 聚合扫描：按设置页「辅种方案开关」启用 IYUU/NexusPHP/Local 对应源
     candidates.value = await sendMessage("crossSeedScanForReseed", { downloaderId: downloaderId.value });
   } catch (e) {
-    runtimeStore.showSnakebar(
+    runtimeStore.showSnackbar(
       t("KeepUploadTask.iyuu.scanError", { reason: e instanceof Error ? e.message : String(e) }),
       {
         color: "error",
@@ -162,18 +162,18 @@ async function pushReseed() {
     }
 
     if (fail > 0 || skipped > 0) {
-      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.pushPartial", { ok, fail, reason: lastReason, skipped }), {
+      runtimeStore.showSnackbar(t("KeepUploadTask.iyuu.pushPartial", { ok, fail, reason: lastReason, skipped }), {
         color: "warning",
       });
     } else {
-      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.pushSuccess", { count: ok }), { color: "success" });
+      runtimeStore.showSnackbar(t("KeepUploadTask.iyuu.pushSuccess", { count: ok }), { color: "success" });
     }
     // 移除已推送的勾选，保留结果列表便于继续选择其他候选
     for (const c of chosen) {
       toggleCandidate(c, false);
     }
   } catch (e) {
-    runtimeStore.showSnakebar(
+    runtimeStore.showSnackbar(
       t("KeepUploadTask.iyuu.pushError", { reason: e instanceof Error ? e.message : String(e) }),
       {
         color: "error",
@@ -208,11 +208,11 @@ async function createTaskFromScan() {
       else if (!first.sourceSavePath) noPathGroups.push(first.sourceName || first.siteName);
     }
     if (mixedPathGroups.length > 0) {
-      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.pathMismatch", { groups: mixedPathGroups.join(", ") }), {
+      runtimeStore.showSnackbar(t("KeepUploadTask.iyuu.pathMismatch", { groups: mixedPathGroups.join(", ") }), {
         color: "warning",
       });
     } else if (noPathGroups.length > 0) {
-      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.noSourcePath", { groups: noPathGroups.join(", ") }), {
+      runtimeStore.showSnackbar(t("KeepUploadTask.iyuu.noSourcePath", { groups: noPathGroups.join(", ") }), {
         color: "warning",
       });
     }
@@ -241,11 +241,11 @@ async function createTaskFromScan() {
       };
       await sendMessage("createKeepUploadTask", task);
     }
-    runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.createSuccess", { count: groups.size }), { color: "success" });
+    runtimeStore.showSnackbar(t("KeepUploadTask.iyuu.createSuccess", { count: groups.size }), { color: "success" });
     showDialog.value = false;
     emit("created");
   } catch (e) {
-    runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.createError"), { color: "error" });
+    runtimeStore.showSnackbar(t("KeepUploadTask.iyuu.createError"), { color: "error" });
   } finally {
     creating.value = false;
   }

@@ -167,15 +167,15 @@ async function injectReseed() {
     }
 
     if (fail > 0 || skipped > 0) {
-      runtimeStore.showSnakebar(t("MyClient.iyuuScan.injectPartial", { ok, fail, reason: lastReason, skipped }), {
+      runtimeStore.showSnackbar(t("MyClient.iyuuScan.injectPartial", { ok, fail, reason: lastReason, skipped }), {
         color: "warning",
       });
     } else {
-      runtimeStore.showSnakebar(t("MyClient.iyuuScan.injectSuccess", { count: ok }), { color: "success" });
+      runtimeStore.showSnackbar(t("MyClient.iyuuScan.injectSuccess", { count: ok }), { color: "success" });
     }
     showDialog.value = false;
   } catch (e) {
-    runtimeStore.showSnakebar(
+    runtimeStore.showSnackbar(
       t("MyClient.iyuuScan.injectError", { reason: e instanceof Error ? e.message : String(e) }),
       {
         color: "error",

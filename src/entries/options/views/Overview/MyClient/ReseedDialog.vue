@@ -131,14 +131,14 @@ async function injectReseed() {
       });
     }
     if (skipped > 0) {
-      runtimeStore.showSnakebar(t("MyClient.detail.reseedInjectSkipped", { ok, skipped }), { color: "warning" });
+      runtimeStore.showSnackbar(t("MyClient.detail.reseedInjectSkipped", { ok, skipped }), { color: "warning" });
     } else {
-      runtimeStore.showSnakebar(t("MyClient.detail.reseedInjectSuccess"), { color: "success" });
+      runtimeStore.showSnackbar(t("MyClient.detail.reseedInjectSuccess"), { color: "success" });
     }
     showDialog.value = false;
   } catch (e) {
     const reason = e instanceof Error ? e.message : String(e);
-    runtimeStore.showSnakebar(t("MyClient.detail.reseedInjectError", { reason }), { color: "error" });
+    runtimeStore.showSnackbar(t("MyClient.detail.reseedInjectError", { reason }), { color: "error" });
   } finally {
     injecting.value = false;
   }

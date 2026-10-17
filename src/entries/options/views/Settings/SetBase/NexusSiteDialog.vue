@@ -51,13 +51,13 @@ watch(siteId, (id) => {
 
 async function saveExtraSite() {
   if (!siteId.value) {
-    runtimeStore.showSnakebar(t("SetBase.iyuu.nexusDialogChooseSite"), { color: "warning" });
+    runtimeStore.showSnackbar(t("SetBase.iyuu.nexusDialogChooseSite"), { color: "warning" });
     return;
   }
   const targetApi = apiUrl.value.trim() || defaultApiUrl(siteId.value);
   const targetPasskey = passkey.value.trim();
   if (!targetPasskey) {
-    runtimeStore.showSnakebar(t("SetBase.iyuu.nexusDialogPasskeyRequired"), { color: "warning" });
+    runtimeStore.showSnackbar(t("SetBase.iyuu.nexusDialogPasskeyRequired"), { color: "warning" });
     return;
   }
 
@@ -66,7 +66,7 @@ async function saveExtraSite() {
     // 保存前验证接口存在（非 HTTP 404 即视为可达）
     const verify = await sendMessage("nexusValidateApi", { apiUrl: targetApi, passkey: targetPasskey });
     if (!verify.ok) {
-      runtimeStore.showSnakebar(
+      runtimeStore.showSnackbar(
         t("SetBase.iyuu.nexusVerifyFailed", { reason: verify.error ?? String(verify.status ?? "") }),
         {
           color: "error",
@@ -81,11 +81,11 @@ async function saveExtraSite() {
     next[siteId.value] = { apiUrl: targetApi, passkey: targetPasskey, enabled: true };
     await sendMessage("setIyuusConfig", { nexusSites: next });
 
-    runtimeStore.showSnakebar(t("SetBase.iyuu.nexusVerifyOk", { status: verify.status ?? "" }), { color: "success" });
+    runtimeStore.showSnackbar(t("SetBase.iyuu.nexusVerifyOk", { status: verify.status ?? "" }), { color: "success" });
     showDialog.value = false;
     emit("saved");
   } catch (e) {
-    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+    runtimeStore.showSnackbar(e instanceof Error ? e.message : String(e), { color: "error" });
   } finally {
     saving.value = false;
   }
