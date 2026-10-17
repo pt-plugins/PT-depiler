@@ -14,14 +14,24 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
   urls: [
+    "https://ww1-darkfox.officiel.cc/",
+    "https://ww1-vidlox.officiel.cc/",
+    "https://ww1.worldivx.run/",
+    "https://ww1-wikibox.officiel.cc/",
+    "https://ww1-sharkibox.officiel.cc/",
+    "https://ww1.workino.run/",
+    "https://ww1-oxtorrent.officiel.cc/",
+    "https://ww1.torrent911.run/",
+  ],
+
+  // 2026-10-16 Jackett 把其中 5 个镜像从 ww1-*.run 迁到 ww1-*.officiel.cc；
+  // worldivx / workino / torrent911 仍在 .run，未动。旧域名按域名迁移规则留在 legacyUrls。
+  legacyUrls: [
     "https://ww1.darkfox.run/",
     "https://ww1.vidlox.run/",
-    "https://ww1.worldivx.run/",
     "https://ww1.wikibox.run/",
     "https://ww1.sharkibox.run/",
-    "https://ww1.workino.run/",
     "https://ww1.oxtorrent.run/",
-    "https://ww1.torrent911.run/",
   ],
 
   search: {
