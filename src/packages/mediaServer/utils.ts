@@ -117,9 +117,19 @@ export function getRootPath(path?: string): string | undefined {
 export function normalizeProviderIds(providerIds?: Record<string, string>): Record<string, string> | undefined {
   if (!providerIds) return undefined;
 
+  // 各家写法不一：Emby/Jellyfin 可能是 TheMovieDb / TheTVDB，Plex 是 imdb/tmdb（小写）
+  const aliases: Record<string, string> = {
+    themoviedb: "tmdb",
+    "themoviedb id": "tmdb",
+    thetvdb: "tvdb",
+    imdbid: "imdb",
+  };
+
   const normalized: Record<string, string> = {};
-  for (const [key, value] of Object.entries(providerIds)) {
-    if (value) normalized[key.toLowerCase()] = value;
+  for (const [rawKey, value] of Object.entries(providerIds)) {
+    if (!value) continue;
+    const lower = rawKey.toLowerCase();
+    normalized[aliases[lower] ?? lower] = value;
   }
   return Object.keys(normalized).length > 0 ? normalized : undefined;
 }

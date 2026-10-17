@@ -505,7 +505,7 @@ export abstract class MediaBrowser<
         // 头像走与海报同一个图片端点（Emby / Jellyfin 都有）
         imageUrl:
           person.Id && person.PrimaryImageTag
-            ? urlJoin(this.apiBaseUrl, `/Items/${person.Id}/Images/Primary`)
+            ? urlJoin(this.apiBaseUrl, `/Items/${person.Id}/Images/Primary?api_key=${this.config.auth.apikey}`)
             : undefined,
         url: person.Id ? this.getPersonWebUrl(person.Id, item.ServerId) : undefined,
       })),
@@ -641,6 +641,6 @@ export default class Emby extends MediaBrowser<IEmbyConfig, IEmbyQueryItem> {
   }
 
   protected override getPosterUrl(item: IEmbyQueryItem): string {
-    return urlJoin(this.apiBaseUrl, `/Items/${item.Id}/Images/Primary`);
+    return urlJoin(this.apiBaseUrl, `/Items/${item.Id}/Images/Primary?api_key=${this.config.auth.apikey}`);
   }
 }

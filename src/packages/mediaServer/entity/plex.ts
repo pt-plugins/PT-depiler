@@ -218,17 +218,38 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
   }
 
   public override async ping(): Promise<boolean> {
-    const serverIdentity = await this.getServerIdentity();
-    return !!serverIdentity;
+    // 注意：/identity 是 Plex 的**免鉴权**发现端点，token 填错也可能返回 machineIdentifier，
+    // 会让「检查」假成功、随后搜索才 401。这里打一个需要鉴权的库列表接口。
+    try {
+      const response = await this.request<IPlexJsonResponse<{ Directory?: unknown[] }>>("/library/sections");
+      return response.status === 200 && Array.isArray(response.data?.MediaContainer?.Directory);
+    } catch {
+      return false;
+    }
   }
 
-  /** 把 Plex 的 Guid 列表解析成 providerIds（imdb / tmdb / tvdb…） */
+  /**
+   * 把 Plex 的 Guid 列表解析成 providerIds。
+   *
+   * 只认 imdb / tmdb / tvdb（含老 agent 的 `com.plexapp.agents.imdb://tt…` 形式），
+   * `plex://`、`local://`、`hama://` 这类非目标 provider 直接丢弃 —— 否则会污染
+   * providerIds（例如出现一个 `plex` 键）并让站点跳转失效。
+   */
   private parseProviderIds(guids?: Array<{ id: string }>): Record<string, string> | undefined {
     if (!guids?.length) return undefined;
+
+    const patterns: Array<[string, RegExp]> = [
+      ["imdb", /(?:^|\/|:)(?:com\.plexapp\.agents\.)?imdb:\/\/(tt\d+)/i],
+      ["tmdb", /(?:themoviedb|tmdb):\/\/(\d+)/i],
+      ["tvdb", /(?:thetvdb|tvdb):\/\/(\d+)/i],
+    ];
+
     const providerIds: Record<string, string> = {};
     for (const guid of guids) {
-      const [provider, value] = guid.id.split("://");
-      if (provider && value) providerIds[provider.toLowerCase()] = value;
+      for (const [provider, pattern] of patterns) {
+        const matched = guid.id?.match(pattern);
+        if (matched && !providerIds[provider]) providerIds[provider] = matched[1];
+      }
     }
     return Object.keys(providerIds).length > 0 ? providerIds : undefined;
   }
@@ -351,7 +372,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
         const limit = Math.min(pageSize, maxItems);
         const response = await this.request<IPlexJsonResponse<IPlexSearchData>>(
           `/library/sections/${section.key}/all`,
-          { params: { "X-Plex-Container-Start": startIndex, "X-Plex-Container-Size": limit } },
+          { params: { "X-Plex-Container-Start": startIndex, "X-Plex-Container-Size": limit, includeGuids: 1 } },
         );
         const container = response.data?.MediaContainer;
         const items = (container?.Metadata ?? []).filter((item) => ["movie", "show", "season"].includes(item.type));
@@ -390,7 +411,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
       id: item.ratingKey ?? item.key.replace(/\/children$/, ""),
       // @ts-ignore
       name: item.parentTitle ? `${item.parentTitle} (${item.title})` : item.title,
-      url: `${this.webBaseUrl}#!/server/${serverIdentity}/details?key=${item.key.replace(/\/children$/, "")}`,
+      url: `${this.webBaseUrl}#!/server/${serverIdentity}/details?key=${encodeURIComponent(item.key.replace(/\/children$/, ""))}`,
       type: item.type.charAt(0).toUpperCase() + item.type.slice(1),
       description: item.summary || (item as IPlexRecentlyAddedItem).parentSummary || "",
       format: media?.container ?? "",

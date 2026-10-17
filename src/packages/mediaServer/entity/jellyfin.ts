@@ -148,7 +148,7 @@ export default class Jellyfin extends MediaBrowser<IJellyfinConfig, IJellyfinQue
   }
 
   protected override getPosterUrl(item: IJellyfinQueryItem): string {
-    return urlJoin(this.baseUrl, `/Items/${item.Id}/Images/Primary`);
+    return urlJoin(this.baseUrl, `/Items/${item.Id}/Images/Primary?api_key=${this.config.auth.apikey}`);
   }
 
   protected override getItemSize(item: IJellyfinQueryItem): number | undefined {
