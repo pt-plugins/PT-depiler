@@ -4,6 +4,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdstreet",
   name: "高清街",
+  tags: ["影视"],
   description: "高清街专注于华语影视俱乐部",
   collaborator: ["wyl219"],
 

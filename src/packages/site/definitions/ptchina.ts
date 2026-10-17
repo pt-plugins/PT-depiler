@@ -11,6 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ptchina",
   name: "PTChina",
+  tags: ["影视", "原盘"],
   aka: ["铂金学院"],
   description: "PT新手的梦想之家，PT老鸟的黄埔军校",
   timezoneOffset: "+0800",

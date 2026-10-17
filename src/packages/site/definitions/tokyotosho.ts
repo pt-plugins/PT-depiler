@@ -26,6 +26,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "tokyotosho",
   version: 1,
   name: "Tokyo Toshokan",
+  tags: ["动漫", "漫画", "音乐", "成人"],
   aka: ["東京 図書館"],
   description: "Tokyo Toshokan is a Public BitTorrent Library for JAPANESE Media",
 

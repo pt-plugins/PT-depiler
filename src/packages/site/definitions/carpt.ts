@@ -13,6 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "carpt",
   name: "CarPT",
+  tags: ["影视", "音乐"],
   aka: ["车PT", "车站"],
   description: "=链接@分享=",
   timezoneOffset: "+0800",

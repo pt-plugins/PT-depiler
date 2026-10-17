@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "acgrip",
   name: "ACG.RIP",
+  tags: ["动漫"],
   description: "与动漫花园类似的日漫资源站点",
 
   type: "public",

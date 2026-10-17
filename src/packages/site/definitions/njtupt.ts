@@ -16,6 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "njtupt",
   name: "浦园",
+  tags: ["综合", "影视", "音乐", "游戏"],
   collaborator: ["koal"],
   type: "private",
   schema: "NexusPHP",

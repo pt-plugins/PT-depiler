@@ -10,6 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdbao",
   name: "HDBao",
+  tags: ["影视", "音乐", "体育"],
   collaborator: ["koal"],
   type: "private",
   schema: "NexusPHP",

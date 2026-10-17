@@ -11,6 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdvideo",
   name: "HDVideo",
+  tags: ["影视", "综合"],
 
   collaborator: ["koal"],
 

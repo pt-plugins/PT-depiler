@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "npupt",
   name: "NPUBits",
+  tags: ["教育网", "综合"],
   aka: ["蒲公英"],
   description: "界面独具一格的教育网站点",
   collaborator: ["Rhilip", "xfl03"],

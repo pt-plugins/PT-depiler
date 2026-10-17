@@ -8,6 +8,8 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "gfxpeers",
   name: "GFXPeers",
+  // tags 取自上游 PT-Plugin-Plus 的 resource/sites/gfxpeers.net/config.json
+  tags: ["设计", "素材"],
 
   collaborator: ["bimzcy"],
 

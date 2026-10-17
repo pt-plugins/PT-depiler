@@ -8,6 +8,8 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "torrentseeds",
   name: "TorrentSeeds",
+  // tags 取自上游 PT-Plugin-Plus 的 resource/sites/www.torrentseeds.org/config.json
+  tags: ["综合"],
   favicon: "./_default_unit3d.ico",
 
   collaborator: ["ian"],

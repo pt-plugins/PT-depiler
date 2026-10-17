@@ -8,6 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "dmhy",
   version: 1,
   name: "動漫花園資源網",
+  tags: ["动漫", "漫画", "音乐", "游戏"],
   aka: ["動漫花園", "DMHY"],
   description:
     "動漫花園資訊網是一個動漫愛好者交流的平台,提供最及時,最全面的動畫,漫畫,動漫音樂,動漫下載,BT,ED,動漫遊戲,資訊,分享,交流,讨论.",

@@ -16,6 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 2,
   id: "cdfile",
   name: "CD File",
+  tags: ["原盘", "影视", "音乐"],
   description: "专注于Blu-Ray、DVD、CD等高品质光盘镜像资源，致力于打造光盘档案室",
   collaborator: ["koal"],
   type: "private",

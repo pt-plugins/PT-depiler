@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "torrentscsv",
   name: "Torrents-CSV",
+  tags: ["综合"],
   aka: ["TorrentsCSV"],
   description: "Torrents.csv is a self-hostable, open source torrent search engine and database",
 

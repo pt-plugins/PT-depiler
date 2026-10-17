@@ -4,6 +4,8 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ptmsg",
   name: "PTMSG",
+  // 定义内无分类可判；tags 取外部站点评测的共识口径（偏重高清电影、电视剧）
+  tags: ["影视"],
   aka: ["马杀鸡"],
   description: "The Ultimate File Sharing Experience",
   collaborator: ["bjgetite"],

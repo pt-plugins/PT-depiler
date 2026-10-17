@@ -83,6 +83,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "1337x",
   name: "1337x",
+  tags: ["综合", "影视", "游戏", "音乐", "成人"],
   description: "1337X is a Public torrent site that offers verified torrent downloads",
   type: "public",
   urls: [

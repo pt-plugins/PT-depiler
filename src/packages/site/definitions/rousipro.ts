@@ -92,6 +92,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 4,
   id: "rousipro",
   name: "Rousi Pro",
+  tags: ["综合", "影视", "音乐", "电子书"],
   aka: ["Rousi", "肉丝"],
 
   type: "private",

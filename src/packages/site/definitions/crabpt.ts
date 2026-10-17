@@ -17,6 +17,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "crabpt",
   name: "CrabPt",
+  tags: ["影视", "音乐"],
   aka: ["蟹黄堡"],
   description: "",
   timezoneOffset: "+0800",

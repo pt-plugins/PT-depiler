@@ -12,6 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "okpt",
   name: "OKPT",
+  tags: ["综合", "影视", "音乐", "电子书", "游戏"],
   description: "做你最好的新手村",
   timezoneOffset: "+0800",
 
