@@ -53,6 +53,8 @@ const SOCIAL_ICON_FILES: Record<string, string> = {
   bangumi: "bangumi",
   anidb: "anidb",
   tvmaze: "tvmaze",
+  trakt: "trakt",
+  metatube: "metatube",
 };
 
 /** provider 名 → 图标的 URL（没有对应图标时返回 undefined，调用方回退原图标） */
