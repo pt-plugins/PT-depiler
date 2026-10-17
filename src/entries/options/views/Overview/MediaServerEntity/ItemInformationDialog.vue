@@ -41,6 +41,16 @@ watch(showDialog, async (opened) => {
 /** 详情拉取成功就用详情覆盖，否则退回列表里那条 */
 const richItem = computed<IMediaServerItem>(() => detail.value ?? item);
 
+/** 已有对应「站点搜索」按钮的（IMDb / TMDb）不再在外链里重复展示，其余（Trakt / MetaTube…）保留 */
+const extraExternalUrls = computed(() =>
+  (richItem.value.externalUrls ?? []).filter((externalUrl) => {
+    const name = (externalUrl.name ?? "").toLowerCase().replace(/[^a-z]/g, "");
+    if (name.includes("imdb") && richItem.value.providerIds?.["imdb"]) return false;
+    if ((name.includes("tmdb") || name.includes("themoviedb")) && richItem.value.providerIds?.["tmdb"]) return false;
+    return true;
+  }),
+);
+
 /** 调研 B7：用外部标识（imdb / tmdb）一键跳到站点搜索页 */
 function searchOnSite(field: "imdb" | "tmdb") {
   const value = richItem.value.providerIds?.[field];
@@ -257,9 +267,12 @@ function secondsToISO8601(seconds: number) {
             <!-- 文件路径（调研 A3） -->
             <div v-if="richItem.path" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.path") }}</v-label>
-              <span class="text-body-small text-medium-emphasis" style="word-break: break-all">{{
-                richItem.path
-              }}</span>
+              <span
+                class="text-body-small text-medium-emphasis"
+                style="flex: 1 1 auto; min-width: 0; word-break: break-all; overflow-wrap: anywhere"
+              >
+                {{ richItem.path }}
+              </span>
             </div>
             <!-- 入库时间（调研 A4） -->
             <div v-if="richItem.dateCreated" class="info-label">
@@ -269,10 +282,10 @@ function secondsToISO8601(seconds: number) {
               </v-chip>
             </div>
             <!-- 外部链接（调研 A5） -->
-            <div v-if="richItem.externalUrls?.length" class="info-label">
+            <div v-if="extraExternalUrls.length > 0" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.externalUrls") }}</v-label>
               <v-btn
-                v-for="externalUrl in richItem.externalUrls"
+                v-for="externalUrl in extraExternalUrls"
                 :key="externalUrl.url"
                 :href="externalUrl.url"
                 class="mr-1"
