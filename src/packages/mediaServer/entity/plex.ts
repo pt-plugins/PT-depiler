@@ -154,8 +154,8 @@ interface IPlexSearchItem {
   viewedLeafCount?: number;
   parentIndex?: number;
   /** 演职人员（详情接口才有） */
-  Role?: Array<{ tag: string; role?: string; thumb?: string }>;
-  Director?: Array<{ tag: string }>;
+  Role?: Array<{ tag: string; role?: string; thumb?: string; tagKey?: string }>;
+  Director?: Array<{ tag: string; thumb?: string; tagKey?: string }>;
 }
 
 interface IPlexRecentlyAddedItem extends Omit<IPlexSearchItem, "Media"> {
@@ -236,18 +236,36 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
   /** 演职人员（只取详情接口返回的 Role / Director，限制条数避免 UI 过长） */
   private parsePeople(
     item: IPlexSearchItem,
-  ): Array<{ name: string; role?: string; type?: string; imageUrl?: string }> | undefined {
+  ): Array<{ name: string; role?: string; type?: string; imageUrl?: string; url?: string }> | undefined {
     const people = [
       ...(item.Role ?? []).map((person) => ({
         name: person.tag,
         role: person.role,
         type: "Role",
-        // Plex 的人物头像是相对路径（与海报同款，需要带 token）
         imageUrl: this.getPlexImageUrl(person.thumb) || undefined,
+        url: this.getPlexPersonWebUrl(person.tagKey),
       })),
-      ...(item.Director ?? []).map((person) => ({ name: person.tag, type: "Director" })),
+      ...(item.Director ?? []).map((person) => ({
+        name: person.tag,
+        type: "Director",
+        imageUrl: this.getPlexImageUrl(person.thumb) || undefined,
+        url: this.getPlexPersonWebUrl(person.tagKey),
+      })),
     ];
     return people.length > 0 ? people.slice(0, 12) : undefined;
+  }
+
+  /**
+   * Plex 演员（人物）的页面地址。
+   *
+   * 人物不是普通 item，页面形式为
+   * `{webBaseUrl}#!/provider/tv.plex.provider.discover/details?key=%2Flibrary%2Fpeople%2F{tagKey}`；
+   * `tagKey` 缺失（旧刮削器 / 本地人物）时返回 undefined —— chip 变成不可点，而不是给一个死链。
+   */
+  private getPlexPersonWebUrl(tagKey?: string): string | undefined {
+    if (!tagKey) return undefined;
+    const key = encodeURIComponent(`/library/people/${tagKey}`);
+    return `${this.webBaseUrl}#!/provider/tv.plex.provider.discover/details?key=${key}`;
   }
 
   /**
