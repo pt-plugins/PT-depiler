@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { saveAs } from "file-saver";
 
 import type { IUserInfo, TSiteID } from "@ptd/site";
 
-import { formatDate } from "@/options/utils.ts";
+import { downloadBlob, formatDate } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { sendMessage } from "@/messages.ts";
@@ -125,7 +124,7 @@ async function doExport() {
     const mime = exportFormat.value === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8";
     const content = exportFormat.value === "csv" ? convertToCSV(merged) : convertToJSON(merged);
     const blob = new Blob(exportFormat.value === "csv" ? ["\ufeff", content] : [content], { type: mime });
-    saveAs(blob, `userinfo-${timestamp}.${ext}`);
+    await downloadBlob(blob, `userinfo-${timestamp}.${ext}`);
     showDialog.value = false;
   } finally {
     isLoading.value = false;

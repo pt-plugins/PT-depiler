@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { saveAs } from "file-saver";
 import { EResultParseStatus, type IUserInfo, type TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
-import { formatSize, formatDate } from "@/options/utils.ts";
+import { downloadBlob, formatSize, formatDate } from "@/options/utils.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 import { formatRatio } from "./utils/format.ts";
 import { loadSiteHistoryData } from "./utils/lastUserData.ts";
@@ -71,7 +70,7 @@ function exportSiteHistoryData() {
   }
 
   const exportedSolutionBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-  saveAs(exportedSolutionBlob, `site-history-data-${siteId}.json`); // FIXME filename
+  void downloadBlob(exportedSolutionBlob, `site-history-data-${siteId}.json`); // FIXME filename
 }
 
 function afterEnter() {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { saveAs } from "file-saver";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
@@ -24,7 +23,7 @@ import {
 
 import { NO_IMAGE } from "@ptd/site";
 
-import { formatSize, formatDate } from "@/options/utils.ts";
+import { downloadBlob, formatSize, formatDate } from "@/options/utils.ts";
 import { IStoredUserInfo } from "@/shared/types.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -381,7 +380,7 @@ onMounted(async () => {
   }
 });
 
-async function exportStatisticImg() {
+function exportStatisticImg() {
   const createdAt = formatDate(new Date());
   const mainCanvas = document.createElement("canvas");
   const chartsCanvas = document.querySelectorAll("#chartContainer canvas");
@@ -411,12 +410,14 @@ async function exportStatisticImg() {
   const textY = yIndex;
   ctx.fillText("Created By PT-Depiler (" + __EXT_VERSION__ + ") at " + createdAt, textX, textY);
 
-  // 导出图片
+  // 导出图片：这个导出很快（只是把已有图表 canvas 拼起来 + 编码），不加 loading，免得按钮白闪一下
   mainCanvas.toBlob((blob) => {
-    saveAs(
-      blob!,
-      t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png",
-    );
+    if (blob) {
+      void downloadBlob(
+        blob,
+        t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png",
+      );
+    }
   });
 }
 

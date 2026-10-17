@@ -2,7 +2,6 @@
 import { ref, useTemplateRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { cloneDeep, omit } from "es-toolkit";
-import { saveAs } from "file-saver";
 import { nanoid } from "nanoid";
 import type { DataTableHeader } from "vuetify";
 
@@ -10,7 +9,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import { formatDate } from "@/options/utils.ts";
+import { downloadBlob, formatDate } from "@/options/utils.ts";
 import type { ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
 import EditDialog from "./EditDialog.vue";
@@ -98,7 +97,10 @@ function exportSearchSolutions(solutionIds: TSolutionKey[]) {
 
   if (exportedSolutions.length > 0) {
     const exportedSolutionBlob = new Blob([JSON.stringify(exportedSolutions)], { type: "application/json" });
-    saveAs(exportedSolutionBlob, `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`); // FIXME filename
+    void downloadBlob(
+      exportedSolutionBlob,
+      `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`,
+    ); // FIXME filename
   } else {
     runtimeStore.showSnakebar("No solutions to export", { color: "error" });
   }

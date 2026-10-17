@@ -1,6 +1,5 @@
 <!--suppress HtmlUnknownTag -->
 <script setup lang="ts">
-import { saveAs } from "file-saver";
 import { computed, nextTick, onMounted, reactive, ref, shallowRef, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -27,7 +26,7 @@ import {
   type VueKonvaRef,
 } from "vue-konva/core";
 
-import { formatDate, formatTimeAgo } from "@/options/utils.ts";
+import { downloadBlob, formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import {
   defaultTimelineBackgroundColor,
@@ -316,21 +315,25 @@ onMounted(async () => {
   console.debug(fixedLastUserInfo);
 });
 
-function exportTimelineImg() {
+/** 导出中：按钮转圈（konva 编码 PNG + 触发下载都算在内） */
+const isExporting = ref(false);
+
+async function exportTimelineImg() {
+  isExporting.value = true;
   const stage = canvasStage.value!.getStage();
-  stage.toDataURL({
-    mimeType: "image/png",
-    pixelRatio: 3,
-    callback: (dataUrl: string) => {
-      saveAs(
-        dataUrl,
-        t("UserDataTimeline.exportFilename", {
-          name: configStore.userName,
-          date: formatDate(timelineData.value.createAt),
-        }) + ".png",
-      );
-    },
-  });
+  const filename =
+    t("UserDataTimeline.exportFilename", {
+      name: configStore.userName,
+      date: formatDate(timelineData.value.createAt),
+    }) + ".png";
+
+  try {
+    // pixelRatio 2 已经是 2 倍图（retina 够用）；用 3 时像素数是 9 倍，整棵树重绘会明显卡住
+    const blob = await stage.toBlob({ mimeType: "image/png", pixelRatio: 2 });
+    await downloadBlob(blob, filename);
+  } finally {
+    isExporting.value = false;
+  }
 }
 
 function saveControl() {
@@ -636,6 +639,7 @@ function saveControl() {
               color="info"
               icon="mdi-file-export-outline"
               :text="t('common.exportImage')"
+              :loading="isExporting"
               @click="exportTimelineImg"
             />
             <NavButton color="green" icon="mdi-content-save" :text="t('common.saveSettings')" @click="saveControl" />
