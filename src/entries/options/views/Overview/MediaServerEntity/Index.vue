@@ -55,14 +55,6 @@ function videoSummary(item: IMediaServerItem): string | undefined {
   return item.streams?.filter((s) => s.type === "Video")[0]?.title;
 }
 
-/** 卡片上的观看状态（调研 A6）：未看 / 百分比 / 已看 */
-function watchState(item: IMediaServerItem): string {
-  const percent = item.user?.playedPercentage;
-  if (item.user?.IsPlayed || percent === 100) return t("MediaServerEntity.watched");
-  if (percent && percent > 0) return t("MediaServerEntity.watchedPercent", { percent });
-  return t("MediaServerEntity.unwatched");
-}
-
 /** 色域角标（调研 A2）：SDR 不显示，其余（HDR10 / DolbyVision…）透出原始值 */
 function videoRangeBadge(item: IMediaServerItem): string | undefined {
   const range = item.mediaInfo?.video?.videoRange;
@@ -161,7 +153,6 @@ onMounted(async () => {
                   >
                     <v-icon :icon="item.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'" color="green" />
                     <v-icon :icon="item.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" />
-                    <span class="ml-1">{{ watchState(item) }}</span>
                   </v-chip>
                 </div>
                 <div class="masonry-left-label">
@@ -177,7 +168,7 @@ onMounted(async () => {
                     {{ item.format?.toUpperCase() }}
                     <template v-if="videoSummary(item)"> / {{ videoSummary(item) }}</template>
                   </v-chip>
-                  <br />
+                  <br v-if="item.format" />
                   <!-- 大小 -->
                   <v-chip
                     v-if="item.size"

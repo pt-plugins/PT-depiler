@@ -142,7 +142,6 @@
       "title": "媒体详情",
       "type": "类型：",
       "video": "画质：",
-      "watched": "观看：",
       "year": "年份："
     },
     "detail": "详情",
@@ -154,10 +153,7 @@
     "serverFilter": {
       "all": "全部服务器"
     },
-    "unwatched": "未看",
-    "versions": "{count} 个版本",
-    "watched": "已看",
-    "watchedPercent": "{percent}%"
+    "versions": "{count} 个版本"
   },
   "MyClient": {
     "action": {
@@ -890,15 +886,13 @@
       "truncated": "达到条目上限（已统计 {count} 条），结果只覆盖部分媒体库",
       "unknownKey": "未知",
       "unsupported": "该媒体服务器暂不支持概览统计（或未配置认证信息）",
-      "unwatched": "未观看",
       "warningCancel": "取消",
       "warningConfirm": "我已了解风险，开始遍历",
       "warningLine1": "生成概览需要逐页拉取你媒体库中的全部条目（电影 / 剧集），属于高负载操作。",
       "warningLine2": "绝大多数公开媒体服务器并不允许这种整库遍历，可能被判定为滥用，导致账号被限速、甚至封禁。请只在你自建或有明确授权的服务器上使用。",
       "warningLine3": "确认后才会开始遍历与聚合；中途关闭弹窗只能停止后续请求，已发出的请求无法撤回。",
       "warningTitle": "开始前请确认：整库遍历可能违反服务器规则",
-      "watch": "观看情况",
-      "watched": "已看完"
+      "watch": "观看情况"
     },
     "add": {
       "title": "添加媒体服务器"
