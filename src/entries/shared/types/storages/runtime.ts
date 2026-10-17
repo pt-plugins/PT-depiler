@@ -74,5 +74,5 @@ export interface IRuntimePiniaStorageSchema {
     searchStatus: Record<TMediaServerKey, Omit<IMediaServerSearchResult, "items"> & { canLoadMore?: boolean }>; // 搜索状态
     searchResult: IMediaServerItem[];
   };
-  uiGlobalSnakebar: SnackbarMessageOptions[]; // https://vuetifyjs.com/en/components/snackbar-queue/#props-model-value
+  uiGlobalSnackbar: SnackbarMessageOptions[]; // https://vuetifyjs.com/en/components/snackbar-queue/#props-model-value
 }

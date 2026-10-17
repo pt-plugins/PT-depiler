@@ -155,13 +155,13 @@ async function multiFlush() {
   let flushSiteIds: TSiteID[] = tableSelected.value;
   if (flushSiteIds.length === 0) {
     flushSiteIds = tableData.value.map((item) => item.site);
-    runtimeStore.showSnakebar(t("MyData.index.noSiteSelectedRefreshAll"), { color: "info" });
+    runtimeStore.showSnackbar(t("MyData.index.noSiteSelectedRefreshAll"), { color: "info" });
   }
 
   if (flushSiteIds.length > 0) {
     flushSiteLastUserInfo(flushSiteIds);
   } else {
-    runtimeStore.showSnakebar(t("MyData.index.noSiteSelectedCancelRefresh"), { color: "warning" });
+    runtimeStore.showSnackbar(t("MyData.index.noSiteSelectedCancelRefresh"), { color: "warning" });
   }
 }
 

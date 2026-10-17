@@ -26,7 +26,7 @@ function dialogEnter() {
 async function confirmSetLabel() {
   const label = labelInput.value.trim();
   if (!label) {
-    runtimeStore.showSnakebar(t("MyClient.label.emptyLabel"), { color: "warning" });
+    runtimeStore.showSnackbar(t("MyClient.label.emptyLabel"), { color: "warning" });
     return;
   }
 
@@ -40,7 +40,7 @@ async function confirmSetLabel() {
     ),
   );
   const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
-  runtimeStore.showSnakebar(t("MyClient.label.success", { count: succeeded }), {
+  runtimeStore.showSnackbar(t("MyClient.label.success", { count: succeeded }), {
     color: succeeded > 0 ? "success" : "error",
   });
   showDialog.value = false;

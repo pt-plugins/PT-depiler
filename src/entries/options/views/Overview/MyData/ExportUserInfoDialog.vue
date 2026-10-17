@@ -115,7 +115,7 @@ async function doExport() {
     merged.sort((a, b) => b.date.localeCompare(a.date));
 
     if (merged.length === 0) {
-      runtimeStore.showSnakebar(t("common.noData"), { color: "warning" });
+      runtimeStore.showSnackbar(t("common.noData"), { color: "warning" });
       return;
     }
 

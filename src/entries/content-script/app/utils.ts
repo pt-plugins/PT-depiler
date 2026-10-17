@@ -92,7 +92,7 @@ export function doKeywordSearch(keywords: string, plan = "default") {
     }).catch();
   } else {
     const runtimeStore = useRuntimeStore();
-    runtimeStore.showSnakebar("搜索关键词不能为空", { color: "error" });
+    runtimeStore.showSnackbar("搜索关键词不能为空", { color: "error" });
   }
 }
 

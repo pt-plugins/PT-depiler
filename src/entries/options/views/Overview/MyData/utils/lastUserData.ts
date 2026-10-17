@@ -88,7 +88,7 @@ export function flushSiteLastUserInfo(sites: TSiteID[]) {
       .catch((e) => {
         // 首先检查是否还在刷新，如果没有，则说明队列已经取消了，此时不报错
         if (!runtimeStore.userInfo.flushPlan[site]) {
-          runtimeStore.showSnakebar(`获取站点 [${site}] 用户信息失败`, { color: "error" });
+          runtimeStore.showSnackbar(`获取站点 [${site}] 用户信息失败`, { color: "error" });
           console.error(e);
         }
       })
@@ -106,7 +106,7 @@ export async function cancelFlushSiteLastUserInfo() {
 
   await sendMessage("cancelUserInfoQueue", undefined);
 
-  runtimeStore.showSnakebar(`用户信息刷新队列已取消`, { color: "error" });
+  runtimeStore.showSnackbar(`用户信息刷新队列已取消`, { color: "error" });
 }
 
 export async function loadSiteHistoryData(siteId: TSiteID): Promise<Array<IUserInfo & { date: string }>> {

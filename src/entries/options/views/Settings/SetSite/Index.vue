@@ -116,7 +116,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   for (const id of siteIds) {
     await sendMessage("getSiteFavicon", { site: id, flush: true });
   }
-  runtimeStore.showSnakebar(t("SetSite.index.flushFaviconFinish"), { color: "success" });
+  runtimeStore.showSnackbar(t("SetSite.index.flushFaviconFinish"), { color: "success" });
 }
 
 // 站点 id 列表（按优先级降序排列，与表格中按 userConfig.sortIndex 排序时的顺序一致）
@@ -156,7 +156,7 @@ function canMoveSiteSortIndex(siteId: TSiteID, direction: "up" | "down") {
 async function moveSiteSortIndex(siteId: TSiteID, position: "up" | "down" | "top" | "bottom") {
   const isRedistributed = await metadataStore.moveSiteSortIndex(siteId, resolveSortIndexPosition(position));
   if (isRedistributed) {
-    runtimeStore.showSnakebar(t("SetSite.index.sortIndexRedistributed"), { color: "info" });
+    runtimeStore.showSnackbar(t("SetSite.index.sortIndexRedistributed"), { color: "info" });
   }
 }
 

@@ -170,7 +170,7 @@ async function doAutoImport() {
   // 所有导入完成，重构 site{Host, Name}Map
   await metadataStore.buildSiteMapCache(true);
 
-  runtimeStore.showSnakebar(
+  runtimeStore.showSnackbar(
     t("SetSite.oneClickImportDialog.importComplete", { count: importStatus.value.success.length }),
     { color: "success" },
   );

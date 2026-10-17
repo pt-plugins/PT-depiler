@@ -68,7 +68,7 @@ function addSolution(addSolution: ISearchSolution) {
       );
     })
   ) {
-    runtimeStore.showSnakebar(t("SetSearchSolution.edit.cantAddByDuplicateNote"), { color: "error" });
+    runtimeStore.showSnackbar(t("SetSearchSolution.edit.cantAddByDuplicateNote"), { color: "error" });
     return;
   }
 

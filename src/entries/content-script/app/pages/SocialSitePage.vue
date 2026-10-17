@@ -54,13 +54,13 @@ async function handleSearch() {
             return doKeywordSearch(parseResult.titles[0] ?? "");
           }
         } else {
-          runtimeStore.showSnakebar(t("contentScript.parseResultEmpty"), { color: "error" });
+          runtimeStore.showSnackbar(t("contentScript.parseResultEmpty"), { color: "error" });
         }
       }
     }
   } catch (e) {
     console.error("页面解析失败", e);
-    runtimeStore.showSnakebar(t("contentScript.parsePageFailed"), { color: "error" });
+    runtimeStore.showSnackbar(t("contentScript.parsePageFailed"), { color: "error" });
     return;
   }
 }

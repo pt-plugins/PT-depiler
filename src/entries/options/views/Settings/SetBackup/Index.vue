@@ -72,14 +72,14 @@ async function doBackup(backupServerId: TBackupServerKey | symbol) {
     if (backupStatus) {
       // 备份成功后的保留策略清理由 exportBackupData 内部完成，此处仅对启用了保留策略的服务器加以提示
       const hasRetention = hasBackupRetentionToApply(serverConfig?.retention);
-      runtimeStore.showSnakebar(
+      runtimeStore.showSnackbar(
         t(hasRetention ? "SetBackup.snackbar.successWithRetention" : "SetBackup.snackbar.success"),
         {
           color: "success",
         },
       );
     } else {
-      runtimeStore.showSnakebar(t("SetBackup.snackbar.failure"), { color: "error" });
+      runtimeStore.showSnackbar(t("SetBackup.snackbar.failure"), { color: "error" });
     }
   } else if (backupServerId == localBackup) {
     showLocalExportConfirmDialog.value = true;

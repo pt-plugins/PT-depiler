@@ -32,7 +32,7 @@ async function parseListPage(showNoTorrentError = true) {
   }
 
   if (showNoTorrentError && errorMessage) {
-    runtimeStore.showSnakebar(errorMessage, { color: "error" });
+    runtimeStore.showSnackbar(errorMessage, { color: "error" });
   }
 
   // 更新搜索状态，方便 SentToDownloaderDialog 中替换
@@ -70,11 +70,11 @@ function handleLinkCopyMulti() {
         }
 
         const copied = await copyTextToClipboard(downloadUrls.join("\n").trim());
-        runtimeStore.showSnakebar(copied ? t("contentScript.copyLinkSuccess") : t("contentScript.copyLinkFailed"), {
+        runtimeStore.showSnackbar(copied ? t("contentScript.copyLinkSuccess") : t("contentScript.copyLinkFailed"), {
           color: copied ? "success" : "error",
         });
       } catch (e) {
-        runtimeStore.showSnakebar(t("contentScript.copyLinkFailed"), { color: "error" });
+        runtimeStore.showSnackbar(t("contentScript.copyLinkFailed"), { color: "error" });
       }
     })
     .finally(() => {

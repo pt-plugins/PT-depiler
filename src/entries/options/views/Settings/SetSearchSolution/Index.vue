@@ -76,11 +76,11 @@ function importSearchSolution(e: Event) {
             }
           }
         } catch (error) {
-          runtimeStore.showSnakebar("Invalid JSON format when import search solution", { color: "error" });
+          runtimeStore.showSnackbar("Invalid JSON format when import search solution", { color: "error" });
         }
       };
       r.onerror = () => {
-        runtimeStore.showSnakebar("Invalid JSON format when load import file", { color: "error" });
+        runtimeStore.showSnackbar("Invalid JSON format when load import file", { color: "error" });
       };
       r.readAsText(file);
     }
@@ -102,7 +102,7 @@ function exportSearchSolutions(solutionIds: TSolutionKey[]) {
       `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`,
     ); // FIXME filename
   } else {
-    runtimeStore.showSnakebar("No solutions to export", { color: "error" });
+    runtimeStore.showSnackbar("No solutions to export", { color: "error" });
   }
 }
 

@@ -424,7 +424,7 @@ function exportStatisticImg() {
 function saveControl() {
   configStore.userStatisticControl.selectedSites = selectedSites.value;
   configStore.$save();
-  useRuntimeStore().showSnakebar(t("common.saveSuccess"), { color: "success" });
+  useRuntimeStore().showSnackbar(t("common.saveSuccess"), { color: "success" });
 }
 </script>
 

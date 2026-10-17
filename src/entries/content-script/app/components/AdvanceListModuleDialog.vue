@@ -70,9 +70,9 @@ async function handleLinkCopyMulti() {
     }
 
     await navigator.clipboard.writeText(downloadUrls.join("\n").trim());
-    runtimeStore.showSnakebar(t("contentScript.copyLinkSuccess"), { color: "success" });
+    runtimeStore.showSnackbar(t("contentScript.copyLinkSuccess"), { color: "success" });
   } catch (e) {
-    runtimeStore.showSnakebar(t("contentScript.copyLinkFailed"), { color: "error" });
+    runtimeStore.showSnackbar(t("contentScript.copyLinkFailed"), { color: "error" });
   } finally {
     linkCopyMultiStatus.value = false;
   }

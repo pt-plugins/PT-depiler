@@ -145,7 +145,7 @@ function transferUserInfo(userInfo: IPtppUserInfo) {
 async function doImport() {
   if (isEmpty(metadataStore.sites)) {
     if (!confirm(t("ptppSettings.RestorePtppUserDataDialog.noSiteWarning"))) {
-      runtimeStore.showSnakebar(t("ptppSettings.RestorePtppUserDataDialog.importCancelled"), { color: "warning" });
+      runtimeStore.showSnackbar(t("ptppSettings.RestorePtppUserDataDialog.importCancelled"), { color: "warning" });
       return;
     }
   }
@@ -192,12 +192,12 @@ async function doImport() {
     await sendMessage("setExtStorage", { key: "userInfo", value: userInfoStorage });
     await metadataStore.$save();
 
-    runtimeStore.showSnakebar(t("ptppSettings.RestorePtppUserDataDialog.importSuccess"));
+    runtimeStore.showSnackbar(t("ptppSettings.RestorePtppUserDataDialog.importSuccess"));
 
     setTimeout(() => (showDialog.value = false), 5e3);
   } catch (e) {
     console.error("导入失败", e);
-    runtimeStore.showSnakebar(t("ptppSettings.RestorePtppUserDataDialog.importFailure"), { color: "error" });
+    runtimeStore.showSnackbar(t("ptppSettings.RestorePtppUserDataDialog.importFailure"), { color: "error" });
   } finally {
     // 恢复自动刷新的状态
     configStore.userInfo.autoReflush.enabled = autoReflushStatus;

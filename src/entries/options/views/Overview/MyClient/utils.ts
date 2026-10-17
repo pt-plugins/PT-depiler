@@ -69,7 +69,7 @@ export function useClientRefresh() {
       if (next >= 3) {
         suspendedDownloaders.value.add(id);
         clearDownloaderTimer(id);
-        runtimeStore.showSnakebar(
+        runtimeStore.showSnackbar(
           t("MyClient.autoRefresh.clientSuspended", { name: metadataStore.downloaders[id]?.name ?? id }),
           { color: "error", timeout: 8000 },
         );

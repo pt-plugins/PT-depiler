@@ -276,7 +276,7 @@ async function createKeepUploadTask() {
 
   const verifiedList = Array.from(verifiedItems.value.values()).filter((item) => item.verified);
   if (verifiedList.length === 0) {
-    runtimeStore.showSnakebar(t("SearchEntity.KeepUploadDialog.noVerifiedItem"), { color: "error" });
+    runtimeStore.showSnackbar(t("SearchEntity.KeepUploadDialog.noVerifiedItem"), { color: "error" });
     return;
   }
 
@@ -321,10 +321,10 @@ async function createKeepUploadTask() {
       };
       await metadataStore.$save();
     }
-    runtimeStore.showSnakebar(t("SearchEntity.KeepUploadDialog.createSuccess"), { color: "success" });
+    runtimeStore.showSnackbar(t("SearchEntity.KeepUploadDialog.createSuccess"), { color: "success" });
     closeDialog();
   } catch (e) {
-    runtimeStore.showSnakebar(t("SearchEntity.KeepUploadDialog.createError"), { color: "error" });
+    runtimeStore.showSnackbar(t("SearchEntity.KeepUploadDialog.createError"), { color: "error" });
   } finally {
     creating.value = false;
   }

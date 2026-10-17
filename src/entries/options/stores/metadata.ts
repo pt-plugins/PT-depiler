@@ -304,7 +304,7 @@ export const useMetadataStore = defineStore("metadata", {
           return await sendMessage("getSearchResultSnapshotData", id);
         } else {
           const runtimeStorage = useRuntimeStore();
-          runtimeStorage.showSnakebar("未找到该搜索快照...", { color: "error" });
+          runtimeStorage.showSnackbar("未找到该搜索快照...", { color: "error" });
           return;
         }
       };
@@ -527,7 +527,7 @@ export const useMetadataStore = defineStore("metadata", {
       const searchSnapshotData = runtimeStorage.search;
 
       if (searchSnapshotData.isSearching) {
-        runtimeStorage.showSnakebar("你不能创建一个正在搜索中的快照...", { color: "error" });
+        runtimeStorage.showSnackbar("你不能创建一个正在搜索中的快照...", { color: "error" });
         return;
       }
 

@@ -81,7 +81,7 @@ async function loadClientFolders() {
       suggestFolderInput.value += "\n" + path;
     }
   } catch (e) {
-    runtimeStore.showSnakebar(t("SetDownloader.PathAndTag.downloadPath.autoImportFail"), { color: "error" });
+    runtimeStore.showSnackbar(t("SetDownloader.PathAndTag.downloadPath.autoImportFail"), { color: "error" });
   }
 
   isLoadingClientFolders.value = false;
@@ -108,7 +108,7 @@ async function loadClientLabels() {
       suggestTagInput.value += "\n" + label;
     }
   } catch (e) {
-    runtimeStore.showSnakebar(t("SetDownloader.PathAndTag.tags.autoImportFail"), { color: "error" });
+    runtimeStore.showSnackbar(t("SetDownloader.PathAndTag.tags.autoImportFail"), { color: "error" });
   }
 
   isLoadingClientLabels.value = false;

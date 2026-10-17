@@ -212,7 +212,7 @@ async function pauseTorrents(torrents: CTorrent[]) {
     torrents.map((t) => sendMessage("pauseClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
   const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
-  runtimeStore.showSnakebar(t("MyClient.action.pauseSelectedSuccess", { count: succeeded }), { color: "success" });
+  runtimeStore.showSnackbar(t("MyClient.action.pauseSelectedSuccess", { count: succeeded }), { color: "success" });
   const affectedIds = [...new Set(torrents.map((t) => t.clientId))];
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
 }
@@ -223,7 +223,7 @@ async function resumeTorrents(torrents: CTorrent[]) {
     torrents.map((t) => sendMessage("resumeClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
   const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
-  runtimeStore.showSnakebar(t("MyClient.action.resumeSelectedSuccess", { count: succeeded }), { color: "success" });
+  runtimeStore.showSnackbar(t("MyClient.action.resumeSelectedSuccess", { count: succeeded }), { color: "success" });
   const affectedIds = [...new Set(torrents.map((t) => t.clientId))];
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
 }
@@ -251,7 +251,7 @@ async function recheckTorrents() {
     torrentList.map((t) => sendMessage("recheckClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
   const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
-  runtimeStore.showSnakebar(t("MyClient.action.recheckSelectedSuccess", { count: succeeded }), {
+  runtimeStore.showSnackbar(t("MyClient.action.recheckSelectedSuccess", { count: succeeded }), {
     color: succeeded > 0 ? "success" : "error",
   });
   const affectedIds = [...new Set(torrentList.map((t) => t.clientId))];
@@ -264,7 +264,7 @@ async function moveTorrentsInQueue(torrentList: CTorrent[], direction: TorrentQu
     torrentList.map((t) => sendMessage("moveClientTorrentInQueue", { downloaderId: t.clientId, id: t.id, direction })),
   );
   const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
-  runtimeStore.showSnakebar(t("MyClient.action.moveQueueSuccess", { count: succeeded }), {
+  runtimeStore.showSnackbar(t("MyClient.action.moveQueueSuccess", { count: succeeded }), {
     color: succeeded > 0 ? "success" : "error",
   });
   const affectedIds = [...new Set(torrentList.map((t) => t.clientId))];

@@ -229,7 +229,7 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
   const searchSolution = await metadataStore.getSearchSolution(runtimeStore.search.searchPlanKey);
 
   if (!searchSolution) {
-    runtimeStore.showSnakebar(`搜索方案 [${searchPlanKey}] 不存在`, { color: "error" });
+    runtimeStore.showSnackbar(`搜索方案 [${searchPlanKey}] 不存在`, { color: "error" });
     return;
   }
 
@@ -237,7 +237,7 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
   console.log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
 
   if (searchSolution.solutions.length === 0) {
-    runtimeStore.showSnakebar("请至少添加一个站点进行搜索", { color: "error" });
+    runtimeStore.showSnackbar("请至少添加一个站点进行搜索", { color: "error" });
     return;
   }
 
@@ -256,7 +256,7 @@ export async function retrySearch(retryStatus: EResultParseStatus[] = defaultErr
     retryStatus.includes(plan.status),
   );
   if (shouldRetrySearchPlan.length === 0) {
-    runtimeStore.showSnakebar("没有需要重试的搜索计划", { color: "info" });
+    runtimeStore.showSnackbar("没有需要重试的搜索计划", { color: "info" });
     return;
   }
   console.log("Retrying search plans: ", shouldRetrySearchPlan);

@@ -26,7 +26,7 @@ onMounted(() => {
   const link = route?.query?.link;
 
   if (!link || typeof link !== "string") {
-    runtimeStore.showSnakebar(t("ContextMenuLinkPush.invalidLink"), { color: "error" });
+    runtimeStore.showSnackbar(t("ContextMenuLinkPush.invalidLink"), { color: "error" });
     onCancel();
     return;
   }
@@ -42,7 +42,7 @@ onMounted(() => {
   }
 
   torrentItems.value = [torrent];
-  runtimeStore.showSnakebar(t("ContextMenuLinkPush.keywordWarning"), { color: "warning" });
+  runtimeStore.showSnackbar(t("ContextMenuLinkPush.keywordWarning"), { color: "warning" });
   showDialog.value = true;
 });
 

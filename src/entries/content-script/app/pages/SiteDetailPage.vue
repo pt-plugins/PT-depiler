@@ -24,7 +24,7 @@ async function parseDetailPage() {
   const parsedResult = await siteInstance.value?.transformDetailPage(document);
 
   if (typeof parsedResult?.link === "undefined") {
-    runtimeStore.showSnakebar(t("contentScript.cannotParseDetailLink"), { color: "error" });
+    runtimeStore.showSnackbar(t("contentScript.cannotParseDetailLink"), { color: "error" });
     throw new Error("无法解析当前页面种子链接");
   }
 
@@ -42,7 +42,7 @@ function handleLinkCopy() {
     const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
 
     const copied = await copyTextToClipboard(downloadUrl);
-    runtimeStore.showSnakebar(copied ? t("contentScript.copyLinkSuccess") : t("contentScript.copyLinkFailed"), {
+    runtimeStore.showSnackbar(copied ? t("contentScript.copyLinkSuccess") : t("contentScript.copyLinkFailed"), {
       color: copied ? "success" : "error",
     });
   });

@@ -72,7 +72,7 @@ configStore.$onReady(() => {
 
   <ReleaseNoteDialog v-model="showReleaseNoteDialog" />
 
-  <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable />
+  <v-snackbar-queue v-model="runtimeStore.uiGlobalSnackbar" closable />
 </template>
 
 <style scoped></style>

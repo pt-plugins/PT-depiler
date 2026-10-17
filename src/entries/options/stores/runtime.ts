@@ -37,7 +37,7 @@ export const useRuntimeStore = defineStore("runtime", {
       flushPlan: {},
     },
     mediaServerSearch: initialMediaServerSearchData(),
-    uiGlobalSnakebar: [],
+    uiGlobalSnackbar: [],
   }),
 
   getters: {
@@ -72,9 +72,9 @@ export const useRuntimeStore = defineStore("runtime", {
       this.mediaServerSearch = initialMediaServerSearchData();
     },
 
-    showSnakebar(text: string, options: SnackbarMessageOptions = {}) {
+    showSnackbar(text: string, options: SnackbarMessageOptions = {}) {
       // @ts-ignore
-      this.uiGlobalSnakebar.push({ text, ...options });
+      this.uiGlobalSnackbar.push({ text, ...options });
     },
   },
 });

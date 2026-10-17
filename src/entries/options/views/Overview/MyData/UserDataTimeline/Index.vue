@@ -339,7 +339,7 @@ async function exportTimelineImg() {
 function saveControl() {
   configStore.userDataTimelineControl.selectedSites = selectedSites.value;
   configStore.$save();
-  useRuntimeStore().showSnakebar(t("common.saveSuccess"), { color: "success" });
+  useRuntimeStore().showSnackbar(t("common.saveSuccess"), { color: "success" });
 }
 </script>
 

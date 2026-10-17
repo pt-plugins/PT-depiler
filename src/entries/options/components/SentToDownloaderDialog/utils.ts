@@ -77,7 +77,7 @@ export function sendTorrentToDownloader(
           downloaderId: downloaderId,
           addTorrentOptions: realAddTorrentOptions as CAddTorrentOptions,
         }).catch((x) => {
-          runtimeStore.showSnakebar(`[${torrent.title}] 发送到下载器失败！错误信息： ${x}`, { color: "error" });
+          runtimeStore.showSnackbar(`[${torrent.title}] 发送到下载器失败！错误信息： ${x}`, { color: "error" });
         }),
       );
     }
@@ -89,18 +89,18 @@ export function sendTorrentToDownloader(
           const failedCount = status.filter((x) => x?.downloadStatus === "failed").length;
           const color = failedCount > 0 ? "warning" : "success";
 
-          runtimeStore.showSnakebar(
+          runtimeStore.showSnackbar(
             `成功发送 ${status.length - failedCount} 个任务到下载器` +
               (pendingCount > 0 ? `（${pendingCount}在下载队列中）` : "") +
               (failedCount > 0 ? `，有 ${failedCount} 个任务发送失败` : ""),
             { color },
           );
         } else {
-          runtimeStore.showSnakebar("似乎并没有任务发送到下载器", { color: "warning" });
+          runtimeStore.showSnackbar("似乎并没有任务发送到下载器", { color: "warning" });
         }
       })
       .catch((x) => {
-        runtimeStore.showSnakebar("有任务发送到下载器失败，请在下载历史页面重试", { color: "error" });
+        runtimeStore.showSnackbar("有任务发送到下载器失败，请在下载历史页面重试", { color: "error" });
       })
       .finally(() => {
         resolve();

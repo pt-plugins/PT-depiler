@@ -83,7 +83,7 @@ export async function doSearch(option: { searchKey?: string; loadMore?: boolean 
           searchResult.status === EResultParseStatus.needLogin
             ? "请检查认证信息"
             : (searchResult.errorMessage ?? "未知错误");
-        runtimeStore.showSnakebar(
+        runtimeStore.showSnackbar(
           `媒体服务器 ${mediaServerDetail.name} [${mediaServerDetail.address}] 更新失败：${failReason}`,
           {
             color: "error",

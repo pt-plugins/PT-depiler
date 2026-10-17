@@ -51,9 +51,9 @@ async function copyTorrentDownloadLink() {
         .join("\n")
         .trim(),
     );
-    runtimeStore.showSnakebar(t("SearchEntity.ActionTd.copyLinkSuccess"), { color: "success" });
+    runtimeStore.showSnackbar(t("SearchEntity.ActionTd.copyLinkSuccess"), { color: "success" });
   } catch (e) {
-    runtimeStore.showSnakebar(t("SearchEntity.ActionTd.copyLinkFailed"), { color: "error" });
+    runtimeStore.showSnackbar(t("SearchEntity.ActionTd.copyLinkFailed"), { color: "error" });
   }
 
   copyTorrentDownloadLinkBtnStatus.value = false;

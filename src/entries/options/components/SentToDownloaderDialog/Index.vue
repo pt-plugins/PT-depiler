@@ -81,7 +81,7 @@ watch(selectedDownloader, (value) => {
 
 async function sendToDownloader() {
   if (!selectedDownloader.value?.id) {
-    runtimeStore.showSnakebar(t("SentToDownloaderDialog.selectDownloaderFirst"), { color: "error" });
+    runtimeStore.showSnackbar(t("SentToDownloaderDialog.selectDownloaderFirst"), { color: "error" });
     return;
   }
 

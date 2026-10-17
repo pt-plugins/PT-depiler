@@ -116,7 +116,7 @@ function deleteDownloader(downloaderId: TDownloaderKey[]) {
   // 多选删除时若有默认下载器被跳过，需要明确告知用户，否则会出现「选了 N 个只删掉 N-1 个」的静默行为
   if (toDeleteIds.value.length !== downloaderId.length) {
     const skippedName = metadataStore.downloaders?.[defaultDownloaderId!]?.name ?? defaultDownloaderId!;
-    runtimeStore.showSnakebar(t("SetDownloader.index.remove.defaultNotDeleted", [skippedName]), { color: "warning" });
+    runtimeStore.showSnackbar(t("SetDownloader.index.remove.defaultNotDeleted", [skippedName]), { color: "warning" });
   }
 
   showDeleteDialog.value = true;
