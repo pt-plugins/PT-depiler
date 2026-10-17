@@ -164,20 +164,27 @@ interface IPlexSearchData<T = IPlexSearchItem> {
 }
 
 export default class Plex extends AbstractMediaServer<IPlexConfig> {
+  /**
+   * 服务器根地址。
+   *
+   * 用户常常直接把 Plex Web 的地址粘进来，可能是这几种形态：
+   * `http://host:32400`、`http://host:32400/`、`http://host:32400/web`、
+   * `http://host:32400/web/index.html`、以及带片段的 `http://host:32400/web/index.html#!/…`。
+   * 这些都要归一到 `http://host:32400` —— 否则 API 会被拼成 `.../web/index.html/identity`。
+   */
+  private get serverRoot(): string {
+    return this.config.address
+      .trim()
+      .replace(/\/web(?:\/index\.html)?(?:#.*)?$/i, "")
+      .replace(/\/+$/, "");
+  }
+
   get apiBaseUrl(): string {
-    let serverAddress = this.config.address;
-    if (serverAddress.includes("/web/index.html")) {
-      serverAddress = serverAddress.replace(/\/web\/index.html#.+/, "");
-    }
-    return serverAddress;
+    return this.serverRoot;
   }
 
   get webBaseUrl(): string {
-    let serverAddress = this.config.address;
-    if (serverAddress.includes("/web/index.html")) {
-      serverAddress = serverAddress.replace(/\/web\/index.html#.+/, "");
-    }
-    return serverAddress.replace(/\/$/, "") + "/web/index.html";
+    return `${this.serverRoot}/web/index.html`;
   }
 
   protected async request<T = any, D = any>(
