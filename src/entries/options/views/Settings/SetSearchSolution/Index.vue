@@ -87,7 +87,11 @@ function importSearchSolution(e: Event) {
   }
 }
 
-function exportSearchSolutions(solutionIds: TSolutionKey[]) {
+/** 导出中：工具栏按钮转圈；`exportingId` 用于让「某一行」的导出按钮也转圈 */
+const isExporting = ref(false);
+const exportingId = ref<TSolutionKey | null>(null);
+
+async function exportSearchSolutions(solutionIds: TSolutionKey[]) {
   const exportedSolutions: IExportedSearchSolution[] = [];
   for (const solutionId of solutionIds) {
     exportedSolutions.push(
@@ -97,10 +101,17 @@ function exportSearchSolutions(solutionIds: TSolutionKey[]) {
 
   if (exportedSolutions.length > 0) {
     const exportedSolutionBlob = new Blob([JSON.stringify(exportedSolutions)], { type: "application/json" });
-    void downloadBlob(
-      exportedSolutionBlob,
-      `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`,
-    ); // FIXME filename
+    isExporting.value = true;
+    exportingId.value = solutionIds.length === 1 ? solutionIds[0] : null;
+    try {
+      await downloadBlob(
+        exportedSolutionBlob,
+        `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`,
+      ); // FIXME filename
+    } finally {
+      isExporting.value = false;
+      exportingId.value = null;
+    }
   } else {
     runtimeStore.showSnakebar("No solutions to export", { color: "error" });
   }
@@ -207,6 +218,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
           color="info"
           icon="mdi-export"
           :text="t('common.export')"
+          :loading="isExporting"
           @click="() => exportSearchSolutions(tableSelected)"
         />
 
@@ -341,6 +353,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
             size="small"
             color="info"
             icon="mdi-export"
+            :loading="exportingId === item.id"
             @click="exportSearchSolutions([item.id])"
           />
           <v-btn

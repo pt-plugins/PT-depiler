@@ -124,7 +124,7 @@ async function doExport() {
     const mime = exportFormat.value === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8";
     const content = exportFormat.value === "csv" ? convertToCSV(merged) : convertToJSON(merged);
     const blob = new Blob(exportFormat.value === "csv" ? ["\ufeff", content] : [content], { type: mime });
-    void downloadBlob(blob, `userinfo-${timestamp}.${ext}`);
+    await downloadBlob(blob, `userinfo-${timestamp}.${ext}`);
     showDialog.value = false;
   } finally {
     isLoading.value = false;

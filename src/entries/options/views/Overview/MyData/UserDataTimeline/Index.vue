@@ -315,22 +315,25 @@ onMounted(async () => {
   console.debug(fixedLastUserInfo);
 });
 
-function exportTimelineImg() {
+/** 导出中：按钮转圈（konva 编码 PNG + 触发下载都算在内） */
+const isExporting = ref(false);
+
+async function exportTimelineImg() {
   const stage = canvasStage.value!.getStage();
-  // 直接用 konva 的 toBlob，省掉 toDataURL 再转一手 base64
-  stage.toBlob({
-    mimeType: "image/png",
-    pixelRatio: 3,
-    callback: (blob) => {
-      void downloadBlob(
-        blob,
-        t("UserDataTimeline.exportFilename", {
-          name: configStore.userName,
-          date: formatDate(timelineData.value.createAt),
-        }) + ".png",
-      );
-    },
-  });
+  const filename =
+    t("UserDataTimeline.exportFilename", {
+      name: configStore.userName,
+      date: formatDate(timelineData.value.createAt),
+    }) + ".png";
+
+  isExporting.value = true;
+  try {
+    // 直接用 konva 的 toBlob（返回 Promise），省掉 toDataURL 再转一手 base64
+    const blob = await stage.toBlob({ mimeType: "image/png", pixelRatio: 3 });
+    await downloadBlob(blob, filename);
+  } finally {
+    isExporting.value = false;
+  }
 }
 
 function saveControl() {
@@ -636,6 +639,7 @@ function saveControl() {
               color="info"
               icon="mdi-file-export-outline"
               :text="t('common.exportImage')"
+              :loading="isExporting"
               @click="exportTimelineImg"
             />
             <NavButton color="green" icon="mdi-content-save" :text="t('common.saveSettings')" @click="saveControl" />

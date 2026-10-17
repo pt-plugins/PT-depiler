@@ -63,14 +63,22 @@ function viewStoreData(data: IShowUserInfo) {
   showStoreDataDialog.value = true;
 }
 
-function exportSiteHistoryData() {
+/** 导出中：按钮转圈（组装 JSON + 触发下载都算在内） */
+const isExporting = ref(false);
+
+async function exportSiteHistoryData() {
   let exportData = siteHistoryData.value;
   if (tableSelected.value.length > 0) {
     exportData = siteHistoryData.value.filter((item) => tableSelected.value.includes(item.date));
   }
 
   const exportedSolutionBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-  void downloadBlob(exportedSolutionBlob, `site-history-data-${siteId}.json`); // FIXME filename
+  isExporting.value = true;
+  try {
+    await downloadBlob(exportedSolutionBlob, `site-history-data-${siteId}.json`); // FIXME filename
+  } finally {
+    isExporting.value = false;
+  }
 }
 
 function afterEnter() {
@@ -214,7 +222,13 @@ function afterEnter() {
               :text="t('common.remove')"
               @click="deleteSiteUserInfo(tableSelected)"
             />
-            <NavButton color="info" icon="mdi-export" :text="t('common.export')" @click="exportSiteHistoryData" />
+            <NavButton
+              color="info"
+              icon="mdi-export"
+              :text="t('common.export')"
+              :loading="isExporting"
+              @click="exportSiteHistoryData"
+            />
             <v-spacer />
           </template>
         </v-data-table>

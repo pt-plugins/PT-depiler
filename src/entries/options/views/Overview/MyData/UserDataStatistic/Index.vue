@@ -380,6 +380,9 @@ onMounted(async () => {
   }
 });
 
+/** 导出中：按钮转圈（合成 canvas + 编码 PNG + 触发下载都算在内） */
+const isExporting = ref(false);
+
 async function exportStatisticImg() {
   const createdAt = formatDate(new Date());
   const mainCanvas = document.createElement("canvas");
@@ -410,13 +413,19 @@ async function exportStatisticImg() {
   const textY = yIndex;
   ctx.fillText("Created By PT-Depiler (" + __EXT_VERSION__ + ") at " + createdAt, textX, textY);
 
-  // 导出图片
-  mainCanvas.toBlob((blob) => {
-    void downloadBlob(
-      blob!,
-      t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png",
-    );
-  });
+  // 导出图片（canvas.toBlob 是回调式，这里包一层 Promise 以便配合按钮 loading）
+  isExporting.value = true;
+  try {
+    const blob = await new Promise<Blob | null>((resolve) => mainCanvas.toBlob(resolve));
+    if (blob) {
+      await downloadBlob(
+        blob,
+        t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png",
+      );
+    }
+  } finally {
+    isExporting.value = false;
+  }
 }
 
 function saveControl() {
@@ -485,6 +494,7 @@ function saveControl() {
               color="info"
               icon="mdi-file-export-outline"
               :text="t('common.exportImage')"
+              :loading="isExporting"
               @click="exportStatisticImg"
             />
             <NavButton color="green" icon="mdi-content-save" :text="t('common.saveSettings')" @click="saveControl" />
