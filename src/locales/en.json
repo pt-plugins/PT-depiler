@@ -161,6 +161,37 @@
     },
     "versions": "{count} version(s)"
   },
+  "MyCollection": {
+    "alert": "Favorites are stored locally; push them to your downloader in bulk when a site-wide freeleech starts.",
+    "clearAll": "Clear all",
+    "clearConfirm": "Clear all torrent favorites?",
+    "deleteSuccess": "Deleted",
+    "dialog": {
+      "alreadyFavorited": "In favorites",
+      "alreadyFavoritedNotice": "{0} of them are already in favorites — this will update their category and comment.",
+      "comment": "Comment",
+      "editTitle": "Edit favorite",
+      "favCategory": "Category",
+      "favCategoryHint": "Type a new category name (like a folder); leave empty for uncategorized",
+      "saveError": "Failed to add to favorites",
+      "saveSuccess": "Added {0} torrent(s) to favorites",
+      "title": "Add {0} torrent(s) to favorites",
+      "totalSize": "Total {0}"
+    },
+    "emptyNotice": "No favorites yet. Use the favorite button on the search results page, a torrent list page, or a torrent detail page.",
+    "filterAll": "All categories",
+    "filterLabel": "Filter favorites",
+    "loadError": "Failed to load torrent favorites",
+    "table": {
+      "category": "Category",
+      "createdAt": "Favorited at",
+      "favCategory": "Fav. category",
+      "size": "Size",
+      "time": "Published at",
+      "title": "Title",
+      "unclassified": "Uncategorized"
+    }
+  },
   "MyClient": {
     "action": {
       "delete": "Delete",
@@ -401,6 +432,7 @@
       "copyLink": "Copy Download Link",
       "copyLinkFailed": "Failed to copy download link",
       "copyLinkSuccess": "Download link copied to clipboard",
+      "favorite": "Add to favorites",
       "localDownload": "Download Torrent File Locally",
       "sendToDefault": "Send to Default Downloader",
       "sendToDownloader": "Send to Downloader"
@@ -624,6 +656,7 @@
       "keepUploadTask": "Reseed tasks (keepUploadTask)",
       "metadata": "Site and service configuration (metadata)",
       "searchResultSnapshot": "Search result snapshots (searchResultSnapshot)",
+      "torrentFavorite": "Torrent favorites (torrentFavorite)",
       "userInfo": "User information (userInfo)"
     },
     "localExport": "Local Export",
@@ -1275,6 +1308,8 @@
     "copyLink": "Copy Link",
     "copyLinkFailed": "Failed to copy download link",
     "copyLinkSuccess": "Download link copied to clipboard",
+    "favoriteTorrent": "Add this torrent to favorites",
+    "favoriteTorrents": "Add torrents to favorites",
     "noTorrentParsed": "No torrents found on this page",
     "openPTD": "Open PTD",
     "parsePageFailed": "Page parsing failed",

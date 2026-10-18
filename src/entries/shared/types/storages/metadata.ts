@@ -80,6 +80,7 @@ export const BackupFields = [
   "userInfo", // 备份插件历史获取的用户信息
   "searchResultSnapshot", // 备份搜索结果快照
   "keepUploadTask", // 备份辅种任务
+  "torrentFavorite", // 备份种子收藏
   "downloadHistory", // 备份下载历史
 ] as const;
 export type TBackupFields = (typeof BackupFields)[number];

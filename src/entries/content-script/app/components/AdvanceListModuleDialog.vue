@@ -25,6 +25,10 @@ const { torrentItems } = defineProps<{
   torrentItems: ITorrent[];
 }>();
 
+const emits = defineEmits<{
+  (e: "favorite", torrents: ITorrent[]): void;
+}>();
+
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
@@ -84,6 +88,11 @@ function handleRemoteDownloadMulti(isDefaultSend = false) {
   remoteDownloadDialogData.torrents = selectedTorrents.value;
   remoteDownloadDialogData.isDefaultSend = isDefaultSend;
   remoteDownloadDialogData.show = true;
+}
+
+// 收藏勾选的种子（由外层 SiteListPage 打开收藏对话框，避免对话框嵌套）
+function handleFavoriteMulti() {
+  emits("favorite", selectedTorrents.value);
 }
 
 function handleSelectSeeders() {
@@ -202,6 +211,14 @@ function enterDialog() {
           icon="mdi-download"
           :text="t('contentScript.pushToDefault')"
           @click="() => handleRemoteDownloadMulti(true)"
+        />
+
+        <NavButton
+          :disabled="!hasSelectedTorrent"
+          color="amber"
+          icon="mdi-star-plus"
+          :text="t('contentScript.favoriteTorrents')"
+          @click="handleFavoriteMulti"
         />
       </v-card-actions>
     </v-card>

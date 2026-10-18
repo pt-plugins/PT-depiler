@@ -51,6 +51,10 @@ const ALLOWED_METHODS = new Set([
   "updateKeepUploadTask",
   "deleteKeepUploadTask",
   "clearKeepUploadTasks",
+  // Torrent favorites
+  "getTorrentFavorites",
+  "createTorrentFavorites",
+  "deleteTorrentFavorites",
 ]);
 
 // ── Module-scoped state ──────────────────────────────────────────────

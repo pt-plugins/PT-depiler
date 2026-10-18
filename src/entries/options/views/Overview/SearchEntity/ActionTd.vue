@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import type { ITorrent } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
-import type { ISearchResultTorrent } from "@/shared/types.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
+import TorrentFavoriteDialog from "@/options/components/TorrentFavoriteDialog.vue";
 import KeepUploadDialog from "./KeepUploadDialog.vue";
 
 const {
@@ -15,7 +16,7 @@ const {
   density = "default",
   showKeepUploadBtn = true,
 } = defineProps<{
-  torrentItems: ISearchResultTorrent[];
+  torrentItems: ITorrent[];
   density?: "compact" | "default";
   showKeepUploadBtn?: boolean;
 }>();
@@ -81,6 +82,8 @@ const showKeepUploadDialog = ref(false);
 function openKeepUploadDialog() {
   showKeepUploadDialog.value = true;
 }
+
+const showFavoriteDialog = ref(false);
 </script>
 
 <template>
@@ -129,6 +132,14 @@ function openKeepUploadDialog() {
       :title="t('SearchEntity.KeepUploadDialog.keepUpload')"
       @click="openKeepUploadDialog"
     />
+    <!-- 收藏 -->
+    <v-btn
+      :disabled="torrentItems.length == 0"
+      :size="btnSize"
+      icon="mdi-star-plus"
+      :title="t('SearchEntity.ActionTd.favorite')"
+      @click="showFavoriteDialog = true"
+    />
   </v-btn-group>
 
   <!-- 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->
@@ -140,6 +151,9 @@ function openKeepUploadDialog() {
 
   <!-- 辅种检测对话框 -->
   <KeepUploadDialog v-if="showKeepUploadBtn" v-model="showKeepUploadDialog" :torrent-items="torrentItems" />
+
+  <!-- 收藏对话框 -->
+  <TorrentFavoriteDialog v-model="showFavoriteDialog" :torrent-items="torrentItems" />
 </template>
 
 <style scoped lang="scss"></style>

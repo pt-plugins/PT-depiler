@@ -161,6 +161,37 @@
     },
     "versions": "{count} 个版本"
   },
+  "MyCollection": {
+    "alert": "收藏的种子保存在本地，可等到站免等活动时集中推送到下载器。",
+    "clearAll": "清空全部",
+    "clearConfirm": "确认清空全部种子收藏吗？",
+    "deleteSuccess": "删除成功",
+    "dialog": {
+      "alreadyFavorited": "已收藏",
+      "alreadyFavoritedNotice": "其中 {0} 个种子已被收藏，本次操作会更新它们的收藏分类与备注。",
+      "comment": "备注",
+      "editTitle": "编辑收藏",
+      "favCategory": "收藏分类",
+      "favCategoryHint": "可输入新的分类名（类似文件夹），留空表示未分类",
+      "saveError": "收藏失败",
+      "saveSuccess": "已收藏 {0} 个种子",
+      "title": "收藏 {0} 个种子",
+      "totalSize": "共 {0}"
+    },
+    "emptyNotice": "暂无种子收藏，可在搜索结果页、种子列表页或种子详情页中点击收藏按钮添加",
+    "filterAll": "全部分类",
+    "filterLabel": "过滤收藏",
+    "loadError": "获取种子收藏失败",
+    "table": {
+      "category": "分类",
+      "createdAt": "收藏时间",
+      "favCategory": "收藏分类",
+      "size": "大小",
+      "time": "发布时间",
+      "title": "标题",
+      "unclassified": "未分类"
+    }
+  },
   "MyClient": {
     "action": {
       "delete": "删除",
@@ -401,6 +432,7 @@
       "copyLink": "复制下载链接",
       "copyLinkFailed": "复制下载链接失败",
       "copyLinkSuccess": "下载链接已复制到剪贴板",
+      "favorite": "收藏",
       "localDownload": "下载种子文件到本地",
       "sendToDefault": "发送到默认下载器",
       "sendToDownloader": "发送到下载器"
@@ -624,6 +656,7 @@
       "keepUploadTask": "辅种任务（keepUploadTask）",
       "metadata": "站点与服务配置（metadata）",
       "searchResultSnapshot": "搜索结果快照（searchResultSnapshot）",
+      "torrentFavorite": "种子收藏（torrentFavorite）",
       "userInfo": "用户信息（userInfo）"
     },
     "localExport": "本地导出",
@@ -1272,6 +1305,8 @@
     "copyLink": "复制链接",
     "copyLinkFailed": "复制下载链接失败",
     "copyLinkSuccess": "下载链接已复制到剪贴板",
+    "favoriteTorrent": "收藏当前种子",
+    "favoriteTorrents": "收藏种子",
     "noTorrentParsed": "未解析到当前页面种子",
     "openPTD": "打开PTD",
     "parsePageFailed": "页面解析失败",

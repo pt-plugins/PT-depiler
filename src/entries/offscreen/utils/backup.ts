@@ -24,6 +24,7 @@ export const storageKey = [
   "userInfo",
   "searchResultSnapshot",
   "keepUploadTask",
+  "torrentFavorite",
 ] as TExtensionStorageKey[];
 
 export async function createBackupData(backupFields: TBackupFields[] = []): Promise<IBackupData> {
