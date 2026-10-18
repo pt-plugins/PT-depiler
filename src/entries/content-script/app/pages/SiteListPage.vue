@@ -136,6 +136,14 @@ function handleFavoriteSelected(torrents: ITorrent[]) {
 </script>
 
 <template>
+  <!-- SpeedDial 中越靠前的按钮越靠近主按钮（视觉上越靠下），收藏放在最下面 -->
+  <SpeedDialBtn
+    key="favorite"
+    color="amber"
+    icon="mdi-star-plus"
+    :title="t('contentScript.favoriteTorrents')"
+    @click="handleFavoriteMulti"
+  />
   <SpeedDialBtn
     key="save"
     :loading="localDownloadMultiStatus"
@@ -151,13 +159,6 @@ function handleFavoriteSelected(torrents: ITorrent[]) {
     icon="mdi-content-copy"
     :title="t('contentScript.copyLink')"
     @click="wrapperConfirmFn(handleLinkCopyMulti)"
-  />
-  <SpeedDialBtn
-    key="favorite"
-    color="amber"
-    icon="mdi-star-plus"
-    :title="t('contentScript.favoriteTorrents')"
-    @click="handleFavoriteMulti"
   />
   <SpeedDialBtn
     key="download"

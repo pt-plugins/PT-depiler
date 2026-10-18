@@ -9,7 +9,7 @@ export type TTorrentFavoriteKey = string;
 
 export interface ITorrentFavoriteItem extends ITorrent {
   key: TTorrentFavoriteKey;
-  favCategory?: string; // 收藏分类（用户自设，类似文件夹），为空表示未分类
+  favCategories?: string[]; // 收藏分类（用户自设，类似文件夹，同一种子可同时归入多个），为空表示未分类
   comment?: string; // 备注
   createdAt: number; // 收藏时间（毫秒时间戳）
 }
@@ -26,23 +26,28 @@ export function getTorrentFavoriteKey(torrent: Pick<ITorrent, "site" | "id" | "l
   return `${torrent.site}-${torrent.id || torrent.link || torrent.url || ""}`;
 }
 
+/** 归一化收藏分类：去掉首尾空白与空项、去重（保持原顺序） */
+export function normalizeFavCategories(categories?: string[]): string[] {
+  return [...new Set((categories ?? []).map((category) => category.trim()).filter(Boolean))];
+}
+
 /**
  * 生成一条收藏项（同一种子重复收藏时在原有条目上更新）
  *
  * - 保留原有的收藏时间，便于按「收藏时间」排序时不被重复收藏打乱；
- * - `favCategory` / `comment` 传入空字符串表示清空该项，缺省（undefined）表示保持原值。
+ * - `favCategories` / `comment` 缺省（undefined）表示保持原值，传入（含空数组 / 空字符串）则整体覆盖。
  */
 export function buildTorrentFavorite(
   torrent: ITorrent,
   exist: ITorrentFavoriteItem | undefined,
-  { favCategory, comment }: { favCategory?: string; comment?: string } = {},
+  { favCategories, comment }: { favCategories?: string[]; comment?: string } = {},
   now: number = Date.now(),
 ): ITorrentFavoriteItem {
   return {
     ...exist,
     ...torrent,
     key: getTorrentFavoriteKey(torrent),
-    favCategory: favCategory ?? exist?.favCategory,
+    favCategories: favCategories === undefined ? exist?.favCategories : normalizeFavCategories(favCategories),
     comment: comment ?? exist?.comment,
     createdAt: exist?.createdAt ?? now,
   };

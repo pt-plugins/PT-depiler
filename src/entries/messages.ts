@@ -218,7 +218,7 @@ interface ProtocolMap extends TMessageMap {
 
   // 2.8 种子收藏 ( utils/torrentFavorite )
   getTorrentFavorites(): ITorrentFavoriteItem[];
-  createTorrentFavorites(data: { torrents: ITorrent[]; favCategory?: string; comment?: string }): number;
+  createTorrentFavorites(data: { torrents: ITorrent[]; favCategories?: string[]; comment?: string }): number;
   deleteTorrentFavorites(keys: TTorrentFavoriteKey[]): void;
 
   // 2.9 Lightweight list queries (for CLI discovery)

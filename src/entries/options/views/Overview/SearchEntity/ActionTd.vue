@@ -15,10 +15,13 @@ const {
   torrentItems,
   density = "default",
   showKeepUploadBtn = true,
+  favoriteBtnTitle,
 } = defineProps<{
   torrentItems: ITorrent[];
   density?: "compact" | "default";
   showKeepUploadBtn?: boolean;
+  /** 收藏按钮的提示文案（例如收藏列表页中它承担的是「编辑收藏」），缺省使用通用文案 */
+  favoriteBtnTitle?: string;
 }>();
 
 const btnSize = computed(() => {
@@ -28,6 +31,10 @@ const btnSize = computed(() => {
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
+
+const emits = defineEmits<{
+  (e: "favoriteSaved"): void;
+}>();
 
 async function getTorrentDownloadLinks() {
   const downloadUrls = [];
@@ -137,9 +144,11 @@ const showFavoriteDialog = ref(false);
       :disabled="torrentItems.length == 0"
       :size="btnSize"
       icon="mdi-star-plus"
-      :title="t('SearchEntity.ActionTd.favorite')"
+      :title="favoriteBtnTitle ?? t('SearchEntity.ActionTd.favorite')"
       @click="showFavoriteDialog = true"
     />
+    <!-- 调用方可追加与上方同组的按钮（如收藏列表页的删除） -->
+    <slot name="append" />
   </v-btn-group>
 
   <!-- 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->
@@ -153,7 +162,7 @@ const showFavoriteDialog = ref(false);
   <KeepUploadDialog v-if="showKeepUploadBtn" v-model="showKeepUploadDialog" :torrent-items="torrentItems" />
 
   <!-- 收藏对话框 -->
-  <TorrentFavoriteDialog v-model="showFavoriteDialog" :torrent-items="torrentItems" />
+  <TorrentFavoriteDialog v-model="showFavoriteDialog" :torrent-items="torrentItems" @saved="emits('favoriteSaved')" />
 </template>
 
 <style scoped lang="scss"></style>

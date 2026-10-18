@@ -171,8 +171,10 @@
       "alreadyFavoritedNotice": "{0} of them are already in favorites — this will update their category and comment.",
       "comment": "Comment",
       "editTitle": "Edit favorite",
-      "favCategory": "Category",
-      "favCategoryHint": "Type a new category name (like a folder); leave empty for uncategorized",
+      "editSuccess": "Updated {0} favorite(s)",
+      "favCategories": "Categories",
+      "favCategoriesHint": "Pick existing categories or type a new one and press Enter; a torrent can belong to several categories, leave empty for uncategorized",
+      "saveAndEditSuccess": "Added {0} torrent(s) and updated {1} favorite(s)",
       "saveError": "Failed to add to favorites",
       "saveSuccess": "Added {0} torrent(s) to favorites",
       "title": "Add {0} torrent(s) to favorites",
@@ -183,9 +185,12 @@
     "filterLabel": "Filter favorites",
     "loadError": "Failed to load torrent favorites",
     "table": {
+      "action": {
+        "edit": "Edit categories and comment"
+      },
       "category": "Category",
       "createdAt": "Favorited at",
-      "favCategory": "Fav. category",
+      "favCategories": "Fav. categories",
       "size": "Size",
       "time": "Published at",
       "title": "Title",

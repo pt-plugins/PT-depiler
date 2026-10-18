@@ -171,8 +171,10 @@
       "alreadyFavoritedNotice": "其中 {0} 个种子已被收藏，本次操作会更新它们的收藏分类与备注。",
       "comment": "备注",
       "editTitle": "编辑收藏",
-      "favCategory": "收藏分类",
-      "favCategoryHint": "可输入新的分类名（类似文件夹），留空表示未分类",
+      "editSuccess": "已更新 {0} 个收藏的分类与备注",
+      "favCategories": "收藏分类",
+      "favCategoriesHint": "可多选已有分类，也可输入新分类后回车创建；同一种子可归入多个分类，留空表示未分类",
+      "saveAndEditSuccess": "已收藏 {0} 个种子，并更新 {1} 个收藏",
       "saveError": "收藏失败",
       "saveSuccess": "已收藏 {0} 个种子",
       "title": "收藏 {0} 个种子",
@@ -183,9 +185,12 @@
     "filterLabel": "过滤收藏",
     "loadError": "获取种子收藏失败",
     "table": {
+      "action": {
+        "edit": "编辑收藏分类与备注"
+      },
       "category": "分类",
       "createdAt": "收藏时间",
-      "favCategory": "收藏分类",
+      "favCategories": "收藏分类",
       "size": "大小",
       "time": "发布时间",
       "title": "标题",

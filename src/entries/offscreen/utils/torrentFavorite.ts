@@ -33,11 +33,11 @@ onMessage("getTorrentFavorites", getTorrentFavorites);
  * 批量添加种子收藏
  *
  * 同一种子重复收藏时视为更新其分类与备注（保留原收藏时间）；
- * `favCategory` / `comment` 传入空字符串表示清空，缺省（undefined）表示保持原值。
+ * `favCategories` / `comment` 传入空值表示清空，缺省（undefined）表示保持原值。
  */
 export async function createTorrentFavorites(data: {
   torrents: ITorrent[];
-  favCategory?: string;
+  favCategories?: string[];
   comment?: string;
 }): Promise<number> {
   const favorites = await getStoredFavorites();

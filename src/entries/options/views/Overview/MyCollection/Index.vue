@@ -16,7 +16,6 @@ import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import SiteName from "@/options/components/SiteName.vue";
-import TorrentFavoriteDialog from "@/options/components/TorrentFavoriteDialog.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
 
 const { t } = useI18n();
@@ -25,7 +24,7 @@ const runtimeStore = useRuntimeStore();
 
 const favorites = ref<ITorrentFavoriteItem[]>([]);
 const selectedKeys = ref<TTorrentFavoriteKey[]>([]);
-const favCategoryFilter = ref<string | null>(null); // null 表示全部分类，"" 表示未分类
+const favCategoryFilter = ref<string[]>([]); // 空数组表示全部分类，"" 表示未分类，其余为分类名（可多选）
 const loading = ref(false);
 
 const tableWaitFilter = ref("");
@@ -33,31 +32,56 @@ const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词
 
 const tableHeader = computed(() =>
   useTableActionColumn([
-    { title: t("common.site"), key: "site", align: "center", sortable: false, width: 90 },
-    { title: t("MyCollection.table.title"), key: "title", align: "start", minWidth: "25rem" },
-    { title: t("MyCollection.table.category"), key: "category", align: "center" },
-    { title: t("MyCollection.table.favCategory"), key: "favCategory", align: "center" },
-    { title: t("MyCollection.table.size"), key: "size", align: "end" },
-    { title: t("MyCollection.table.time"), key: "time", align: "center" },
-    { title: t("MyCollection.table.createdAt"), key: "createdAt", align: "center" },
-    { title: t("common.action"), key: "action", align: "center", sortable: false },
+    { title: t("common.site"), key: "site", align: "center", sortable: false, width: 80 },
+    // 与搜索结果页一致：标题列限宽（长标题截断），其余列给固定宽度，避免标题被挤成一两行文字
+    { title: t("MyCollection.table.title"), key: "title", align: "start", minWidth: "18rem", maxWidth: "30vw" },
+    { title: t("MyCollection.table.category"), key: "category", align: "center", width: 90 },
+    { title: t("MyCollection.table.favCategories"), key: "favCategories", align: "center", width: 140 },
+    { title: t("MyCollection.table.size"), key: "size", align: "end", width: 100 },
+    { title: t("MyCollection.table.time"), key: "time", align: "center", width: 150 },
+    { title: t("MyCollection.table.createdAt"), key: "createdAt", align: "center", width: 160 },
+    { title: t("common.action"), key: "action", align: "center", width: 150, minWidth: 150, sortable: false },
   ] as DataTableHeader[]),
 );
 
 // 已有收藏分类（不含未分类），既用于筛选也用于表格中的分类 chip
-const favCategories = computed(() => [...new Set(favorites.value.map((x) => x.favCategory ?? "").filter(Boolean))]);
+const favCategories = computed(() => [...new Set(favorites.value.flatMap((x) => x.favCategories ?? []))]);
+
+// 未分类 / 各分类的收藏数量（展示在下拉项右侧）
+const favCategoryCounts = computed(() => {
+  const counts = new Map<string, number>([["", 0]]);
+  for (const favorite of favorites.value) {
+    const categories = favorite.favCategories ?? [];
+    if (categories.length === 0) {
+      counts.set("", (counts.get("") ?? 0) + 1);
+    }
+    for (const category of categories) {
+      counts.set(category, (counts.get(category) ?? 0) + 1);
+    }
+  }
+  return counts;
+});
 
 const favCategoryFilterItems = computed(() => [
-  { title: t("MyCollection.filterAll"), value: null },
-  { title: t("MyCollection.table.unclassified"), value: "" },
-  ...favCategories.value.map((category) => ({ title: category, value: category })),
+  { title: t("MyCollection.table.unclassified"), value: "", count: favCategoryCounts.value.get("") ?? 0 },
+  { type: "divider" }, // 未分类与用户分类之间用横线分隔
+  ...favCategories.value.map((category) => ({
+    title: category,
+    value: category,
+    count: favCategoryCounts.value.get(category) ?? 0,
+  })),
 ]);
 
+// 空数组表示全部分类；"" 表示未分类；其余为分类名（可多选，命中任一即展示）
 const filteredFavorites = computed(() => {
-  if (favCategoryFilter.value === null) {
+  const filters = favCategoryFilter.value;
+  if (filters.length === 0) {
     return favorites.value;
   }
-  return favorites.value.filter((x) => (x.favCategory ?? "") === favCategoryFilter.value);
+  return favorites.value.filter((favorite) => {
+    const categories = favorite.favCategories ?? [];
+    return filters.some((filter) => (filter === "" ? categories.length === 0 : categories.includes(filter)));
+  });
 });
 
 const selectedFavorites = computed(() => filteredFavorites.value.filter((x) => selectedKeys.value.includes(x.key)));
@@ -110,14 +134,6 @@ async function clearAll() {
   selectedKeys.value = [];
   runtimeStore.showSnackbar(t("MyCollection.deleteSuccess"), { color: "success" });
 }
-
-const showEditDialog = ref(false);
-const toEditFavorite = ref<ITorrentFavoriteItem | null>(null);
-
-function editFavorite(favorite: ITorrentFavoriteItem) {
-  toEditFavorite.value = favorite;
-  showEditDialog.value = true;
-}
 </script>
 
 <template>
@@ -145,21 +161,39 @@ function editFavorite(favorite: ITorrentFavoriteItem) {
 
         <v-divider vertical class="mx-2" />
 
-        <!-- 集中下载收藏的种子（例如等到站免时批量推送到下载器） -->
-        <ActionTd :torrent-items="selectedFavorites" />
+        <!-- 集中下载收藏的种子（例如等到站免时批量推送到下载器）；星标可批量为选中的收藏改分类/备注 -->
+        <ActionTd :torrent-items="selectedFavorites" @favorite-saved="loadFavorites" />
 
         <v-spacer />
 
         <v-select
           v-model="favCategoryFilter"
           :items="favCategoryFilterItems"
+          :label="t('MyCollection.table.favCategories')"
+          :placeholder="t('MyCollection.filterAll')"
+          chips
+          clearable
+          closable-chips
           class="table-header-filter-clear"
           density="compact"
           hide-details
-          :label="t('MyCollection.table.favCategory')"
-          max-width="200"
+          max-width="240"
+          multiple
+          persistent-placeholder
           prepend-inner-icon="mdi-folder-outline"
-        />
+        >
+          <!-- 自定义下拉项：右侧显示该分类的收藏数量（而非默认的选中勾选框） -->
+          <template #item="{ props, item }">
+            <v-list-item v-bind="props" role="option">
+              <template #prepend="{ isSelected }">
+                <v-checkbox-btn :model-value="isSelected" tabindex="-1" @click.prevent />
+              </template>
+              <template #append>
+                <span class="text-grey text-body-small">{{ item.count }}</span>
+              </template>
+            </v-list-item>
+          </template>
+        </v-select>
 
         <v-text-field
           v-model="tableWaitFilter"
@@ -206,16 +240,20 @@ function editFavorite(favorite: ITorrentFavoriteItem) {
         </div>
       </template>
 
-      <template #item.favCategory="{ item }">
-        <v-chip
-          v-if="item.favCategory"
-          color="amber"
-          size="small"
-          variant="tonal"
-          @click="favCategoryFilter = item.favCategory"
-        >
-          {{ item.favCategory }}
-        </v-chip>
+      <template #item.favCategories="{ item }">
+        <template v-if="(item.favCategories ?? []).length > 0">
+          <v-chip
+            v-for="category in item.favCategories"
+            :key="category"
+            class="ma-1"
+            color="amber"
+            size="small"
+            variant="tonal"
+            @click="favCategoryFilter = [category]"
+          >
+            {{ category }}
+          </v-chip>
+        </template>
         <span v-else class="text-grey">{{ t("MyCollection.table.unclassified") }}</span>
       </template>
 
@@ -232,23 +270,24 @@ function editFavorite(favorite: ITorrentFavoriteItem) {
       </template>
 
       <template #item.action="{ item }">
-        <ActionTd :torrent-items="[item]" density="compact" :show-keep-upload-btn="false" />
-        <v-btn
-          color="blue"
-          icon="mdi-pencil"
-          size="small"
-          :title="t('common.edit')"
-          variant="text"
-          @click="editFavorite(item)"
-        />
-        <v-btn
-          color="error"
-          icon="mdi-delete"
-          size="small"
-          :title="t('common.remove')"
-          variant="text"
-          @click="tryToDelete([item.key])"
-        />
+        <!-- 行内「操作」与「编辑收藏」是同一套动作：星标即编辑该收藏的分类与备注，删除与其同组以保证格式一致 -->
+        <ActionTd
+          :favorite-btn-title="t('MyCollection.table.action.edit')"
+          :torrent-items="[item]"
+          density="compact"
+          :show-keep-upload-btn="false"
+          @favorite-saved="loadFavorites"
+        >
+          <template #append>
+            <v-btn
+              color="error"
+              :size="'small'"
+              icon="mdi-delete"
+              :title="t('common.remove')"
+              @click="tryToDelete([item.key])"
+            />
+          </template>
+        </ActionTd>
       </template>
 
       <template #no-data>
@@ -264,12 +303,6 @@ function editFavorite(favorite: ITorrentFavoriteItem) {
     :confirm-delete="confirmDelete"
     :to-delete-ids="toDeleteKeys"
     @all-delete="afterDelete"
-  />
-  <TorrentFavoriteDialog
-    v-model="showEditDialog"
-    :edit-favorite="toEditFavorite"
-    :torrent-items="toEditFavorite ? [toEditFavorite] : []"
-    @saved="loadFavorites"
   />
 </template>
 

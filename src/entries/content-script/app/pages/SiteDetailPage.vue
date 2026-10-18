@@ -77,6 +77,14 @@ function handleFavorite() {
 </script>
 
 <template>
+  <!-- 与种子列表页一致：收藏放在最下面（SpeedDial 中越靠前越靠近主按钮） -->
+  <SpeedDialBtn
+    key="favorite"
+    color="amber"
+    icon="mdi-star-plus"
+    :title="t('contentScript.favoriteTorrent')"
+    @click="handleFavorite"
+  />
   <SpeedDialBtn
     key="copy"
     color="light-blue"
@@ -100,13 +108,6 @@ function handleFavorite() {
     icon="mdi-download"
     :title="t('contentScript.pushToDefault')"
     @click="handleRemoteDownload(true)"
-  />
-  <SpeedDialBtn
-    key="favorite"
-    color="amber"
-    icon="mdi-star-plus"
-    :title="t('contentScript.favoriteTorrent')"
-    @click="handleFavorite"
   />
   <SpeedDialBtn
     key="search"
