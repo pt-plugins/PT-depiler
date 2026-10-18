@@ -30,69 +30,75 @@ onMessage("cancelUserInfoQueue", () => {
   flushQueue.clear();
 });
 
+/**
+ * p-queue 10 起 `clear()`（用户取消刷新）会以 AbortError 结束被移除的排队任务。
+ * AbortError 是 DOMException，跨 `sendMessage` 边界序列化后无法可靠识别，
+ * 这里统一归一化成稳定的错误信息，调用方用 `isUserInfoQueueCancelledError()` 判定。
+ */
+function normalizeUserInfoQueueCancellation<T>(task: Promise<T>): Promise<T> {
+  return task.catch((error: unknown) => {
+    if ((error as Error | undefined)?.name === "AbortError") {
+      throw new Error(USER_INFO_QUEUE_CANCELLED);
+    }
+    throw error;
+  });
+}
+
 export async function getSiteUserInfoResult(siteId: string) {
-  return (await flushQueue
-    .add(async () => {
-      logger({ msg: `getSiteUserInfoResult for ${siteId}` });
+  const task = flushQueue.add(async () => {
+    logger({ msg: `getSiteUserInfoResult for ${siteId}` });
 
-      // 获取站点实例和配置信息
-      const site = await getSiteInstance<"private">(siteId);
+    // 获取站点实例和配置信息
+    const site = await getSiteInstance<"private">(siteId);
 
-      // 尝试延长cookies
-      try {
-        await sendMessage("checkAndExtendCookies", site.url);
-      } catch (error) {
-        // 静默处理错误，不影响用户信息获取流程
-        logger({ msg: `Failed to extend cookies for site ${siteId}`, level: "debug" });
-      }
+    // 尝试延长cookies
+    try {
+      await sendMessage("checkAndExtendCookies", site.url);
+    } catch (error) {
+      // 静默处理错误，不影响用户信息获取流程
+      logger({ msg: `Failed to extend cookies for site ${siteId}`, level: "debug" });
+    }
 
-      // 获取历史信息
-      const metadataStoreRaw = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-      const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
-      let lastUserInfo = metadataStoreRaw?.lastUserInfo?.[siteId as string] ?? {};
-      if (
-        !(configStoreRaw.userInfo.alwaysPickLastUserInfo ?? true) ||
-        (lastUserInfo as IUserInfo).status !== EResultParseStatus.success
-      ) {
-        lastUserInfo = {} as IUserInfo;
-      }
+    // 获取历史信息
+    const metadataStoreRaw = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+    const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
+    let lastUserInfo = metadataStoreRaw?.lastUserInfo?.[siteId as string] ?? {};
+    if (
+      !(configStoreRaw.userInfo.alwaysPickLastUserInfo ?? true) ||
+      (lastUserInfo as IUserInfo).status !== EResultParseStatus.success
+    ) {
+      lastUserInfo = {} as IUserInfo;
+    }
 
-      let userInfo = lastUserInfo;
-      if (site.allowQueryUserInfo) {
-        // 调用站点实例获取用户信息
-        userInfo = await site.getUserInfoResult(userInfo);
-      } else if (site.metadata.type === "private" && !site.isOnline && isEmpty(lastUserInfo)) {
-        // 如果 private 站点不允许查询用户信息（），则尝试从 userInfo 中获取最近一次的用户信息（回退），以避免 metadata.lastUserInfo 为 undefined 的情况
-        const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
-        const userInfoSite = userInfoStore?.[siteId] ?? {};
+    let userInfo = lastUserInfo;
+    if (site.allowQueryUserInfo) {
+      // 调用站点实例获取用户信息
+      userInfo = await site.getUserInfoResult(userInfo);
+    } else if (site.metadata.type === "private" && !site.isOnline && isEmpty(lastUserInfo)) {
+      // 如果 private 站点不允许查询用户信息（），则尝试从 userInfo 中获取最近一次的用户信息（回退），以避免 metadata.lastUserInfo 为 undefined 的情况
+      const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
+      const userInfoSite = userInfoStore?.[siteId] ?? {};
 
-        let maxDate = null;
-        for (const date in userInfoSite) {
-          if (
-            userInfoSite[date].status === EResultParseStatus.success && // 如果是 PTPP 导入，可能存在 status 为 unknownError 的情况
-            (!maxDate || new Date(date) > new Date(maxDate))
-          ) {
-            maxDate = date;
-          }
-        }
-
-        if (maxDate) {
-          userInfo = userInfoSite[maxDate];
+      let maxDate = null;
+      for (const date in userInfoSite) {
+        if (
+          userInfoSite[date].status === EResultParseStatus.success && // 如果是 PTPP 导入，可能存在 status 为 unknownError 的情况
+          (!maxDate || new Date(date) > new Date(maxDate))
+        ) {
+          maxDate = date;
         }
       }
 
-      await setSiteLastUserInfo(userInfo);
-      return userInfo!;
-    })
-    .catch((error: unknown) => {
-      // p-queue 10 起 clear()（用户取消刷新）会以 AbortError 结束被移除的排队任务。
-      // AbortError 是 DOMException，跨 sendMessage 边界序列化后无法可靠识别，
-      // 这里统一归一化成稳定的错误信息，调用方用 isUserInfoQueueCancelledError() 判定。
-      if ((error as Error | undefined)?.name === "AbortError") {
-        throw new Error(USER_INFO_QUEUE_CANCELLED);
+      if (maxDate) {
+        userInfo = userInfoSite[maxDate];
       }
-      throw error;
-    }))!;
+    }
+
+    await setSiteLastUserInfo(userInfo);
+    return userInfo!;
+  });
+
+  return (await normalizeUserInfoQueueCancellation(task))!;
 }
 
 onMessage("getSiteUserInfoResult", async ({ data: siteId }) => await getSiteUserInfoResult(siteId));
