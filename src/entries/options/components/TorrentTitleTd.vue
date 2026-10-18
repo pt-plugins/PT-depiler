@@ -100,7 +100,13 @@ function canAdvanceSearch(site: TSupportSocialSite) {
       <div class="ml-2 flex-0-0">
         <template v-if="showSocial && configStore.searchEntifyControl.showSocialInformation">
           <template v-for="(meta, key) in socialBuildUrlMap" :key="key">
-            <v-menu v-if="item[`ext_${key}`]" open-on-hover>
+            <!--
+              不要移除 close-delay：卡片里是可点击的（搜索 / 访问），而激活它的头像只有 24px，
+              指针移向卡片的过程中必然先离开头像（VMenu 默认 closeDelay 仅 250ms，斜向稍慢移动就会超时），
+              一旦关闭，浮层内容会被置为 inert（Vuetify 4 起，见 #1454），再也无法重新进入（#1580 / #1582 同类问题）。
+              这里留出 800ms 关闭延迟，指针进入卡片后即可取消关闭。
+            -->
+            <v-menu v-if="item[`ext_${key}`]" :close-delay="800" open-on-hover>
               <template v-slot:activator="{ props }">
                 <v-avatar
                   v-bind="props"
