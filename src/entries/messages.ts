@@ -283,3 +283,15 @@ export const { sendMessage, onMessage } = createMessageWrapper(
     logger: __BROWSER__ == "firefox" || isDebug ? console : undefined,
   }),
 );
+
+/**
+ * 用户信息刷新队列被主动取消（`cancelUserInfoQueue` → p-queue 的 `clear()`）时抛出的稳定错误信息。
+ *
+ * p-queue 10 起 `clear()` 会以 AbortError 结束被移除的排队任务，但 AbortError 是 DOMException，
+ * 经 `sendMessage` 跨上下文序列化后无法可靠识别，因此 offscreen 侧统一归一化成这个信息再抛给调用方。
+ */
+export const USER_INFO_QUEUE_CANCELLED = "USER_INFO_QUEUE_CANCELLED";
+
+export function isUserInfoQueueCancelledError(error: unknown): boolean {
+  return (error as Error | undefined)?.message === USER_INFO_QUEUE_CANCELLED;
+}

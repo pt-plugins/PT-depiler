@@ -22,7 +22,7 @@ export const searchQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1�
 // 模块级别的 Set，用于跟踪已存在的搜索结果 ID，避免并发时的重复
 const globalExistingIds = new Set<string>();
 
-searchQueue.on("active", () => {
+searchQueue.addEventListener("active", () => {
   runtimeStore.mediaServerSearch.isSearching = true;
   // 启动后，根据 configStore 的值，自动更新 searchQueue 的并发数
   if (searchQueue.concurrency != configStore.mediaServerEntity.queueConcurrency) {
@@ -35,7 +35,7 @@ searchQueue.on("active", () => {
   runtimeStore.mediaServerSearch.searchResult.forEach((r) => globalExistingIds.add(r.url));
 });
 
-searchQueue.on("idle", () => {
+searchQueue.addEventListener("idle", () => {
   runtimeStore.mediaServerSearch.isSearching = false;
 
   // 队列空闲时，清空全局 Set
