@@ -234,7 +234,8 @@ async function clearAll() {
 
       <template #item.title="{ item }">
         <TorrentTitleTd :item="item" />
-        <div v-if="item.comment" class="text-body-small text-grey" :title="item.comment">
+        <!-- 备注：与正文同号展示（不加 text-body-small），否则太不显眼 -->
+        <div v-if="item.comment" class="text-grey" :title="item.comment">
           <v-icon icon="mdi-comment-text-outline" size="x-small" />
           {{ item.comment }}
         </div>
