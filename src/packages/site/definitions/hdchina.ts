@@ -361,6 +361,24 @@ export const siteMetadata: ISiteMetadata = {
         selector: "td.t_completed",
         filters: [{ name: "parseNumber" }],
       },
+      ext_imdb: {
+        // 站点开启 IMDb 显示后，标题链接的 onmouseover 会带上
+        // get_ext_info_ajax('torrent_x','<imdbId>','0','xxx')：
+        // 第二个参数是 IMDb 编号，但不带 tt 前缀、且去掉了前导零（66319 → tt0066319），
+        // 这里统一补成 tt + 7 位（超过 7 位的不截断）。
+        selector: ["td.t_name h3 a[onmouseover*='get_ext_info_ajax']", "span[data-imdbid]", "a[href*='imdb.com']"],
+        text: "",
+        elementProcess: (element) => {
+          const raw =
+            (element.getAttribute("onmouseover") || "").match(/get_ext_info_ajax\(\s*'[^']*'\s*,\s*'(\d+)'/)?.[1] ??
+            element.getAttribute("data-imdbid") ??
+            element.getAttribute("href") ??
+            "";
+
+          const imdbId = raw.match(/tt\d+|\d+/)?.[0];
+          return imdbId ? `tt${imdbId.replace(/^tt/, "").padStart(7, "0")}` : "";
+        },
+      },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
         // 分享规则：/pic/share_rule_1.gif 即「禁止转载」；站点另有 share_rule_2/3/255 三种规则，此处只标最严格的一档
