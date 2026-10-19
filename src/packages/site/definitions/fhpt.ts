@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "fhpt",
   name: "凤凰PT",
-  aka: ["FengHuang PT", "521best"],
+  aka: ["FengHuang PT", "521best", "PhoenixPT"],
   description: "个人站，定位小体积压制、WEB-DL 电影资源，全站 Free",
   tags: ["影视", "电影", "压制"],
   timezoneOffset: "+0800",
