@@ -1,5 +1,5 @@
-name: 站点问题反馈
-description: 反馈某个已支持站点的数据获取、搜索、下载、等级、时魔等异常（请逐项填写，不接受一句话描述）
+name: 站点问题反馈 / Site issue
+description: 反馈某个已支持站点的数据获取、搜索、下载、等级、时魔等异常（请逐项填写，不接受一句话描述）/ Report problems with an already supported site — data fetching, search, download, user class, seeding bonus … (fill in every item; one-line reports are not accepted)
 title: "[站点问题] "
 type: bug
 labels: ["adapter/site"]
@@ -8,6 +8,10 @@ body:
     attributes:
       value: |
         ## 请先读完这一段（30 秒）
+
+        > 🌐 **English submissions are welcome.** You may write the title and every answer in English — required fields and checkboxes are unchanged.
+        >
+        > 本模板以中文撰写，但**允许使用英文提交**：标题与各项正文都可以用英文填写，必填项与勾选项要求不变。
 
         PT 站点是**私有站点**，且各站实现差异极大：NexusPHP / Unit3D / Gazelle / AvistazNetwork 等不同架构、不同的 CDN 与 CloudFlare 策略、
         不同的账号等级与权限、站点还会不定期改版。
@@ -32,24 +36,24 @@ body:
   - type: checkboxes
     id: precheck
     attributes:
-      label: 提交前确认（请全部勾选）
+      label: 提交前确认（请全部勾选） / Pre-submission checklist (tick all)
       options:
-        - label: 我已确认该站点在 [站点支持状态](https://pt-plugins.github.io/monitor/) 中属于**已支持**的站点
+        - label: 我已确认该站点在 [站点支持状态](https://pt-plugins.github.io/monitor/) 中属于**已支持**的站点 / The site is listed as **supported** in the [support status page](https://pt-plugins.github.io/monitor/).
           required: true
-        - label: 我已确认站点本身可以正常访问，且插件中该站点处于**已登录**状态（不是「需要登录！」/ CF 拦截 / 账号被封）
+        - label: 我已确认站点本身可以正常访问，且插件中该站点处于**已登录**状态（不是「需要登录！」/ CF 拦截 / 账号被封） — The site itself loads fine and the extension shows it as **logged in** (not "Login required!", CF-blocked or banned).
           required: true
-        - label: 我使用的是**最新版本**（或最新 master 构建），并已在该版本上复现
+        - label: 我使用的是**最新版本**（或最新 master 构建），并已在该版本上复现 / I am on the latest version (or latest master build) and reproduced it there.
           required: true
-        - label: 我已搜索过现有 issue，确认没有重复
+        - label: 我已搜索过现有 issue，确认没有重复 / I searched existing issues and this is not a duplicate.
           required: true
-        - label: 我理解：缺少站点名称、站点地址、复现条件或日志的 issue 会被直接关闭
+        - label: 我理解：缺少站点名称、站点地址、复现条件或日志的 issue 会被直接关闭 / I understand reports missing the site name, URL, reproduction details or logs will be closed.
           required: true
 
   - type: input
     id: site_name
     attributes:
-      label: 站点名称 / 站点定义名称（必填）
-      description: 请使用插件中显示的站点定义名称（英文 id 或界面显示名），**不要使用俗称**，例如「憨憨」「馒头」这类叫法开发者无法定位
+      label: 站点名称 / 站点定义名称（必填） — Site name or site-definition name (required)
+      description: 请使用插件中显示的站点定义名称（英文 id 或界面显示名），**不要使用俗称**，例如「憨憨」「馒头」这类叫法开发者无法定位 / Use the site-definition name shown by the extension (its English id or display name) — **no nicknames**; a developer cannot map "憨憨" or "馒头" to a site.
       placeholder: 例如 HDFans（或 hdfans）
     validations:
       required: true
@@ -58,8 +62,8 @@ body:
   - type: input
     id: site_url
     attributes:
-      label: 站点地址（必填）
-      description: 请填写你实际访问的完整域名（很多站点有多个域名/镜像/备用域名，域名不同结论可能完全不同）
+      label: 站点地址（必填） / Site URL (required)
+      description: 请填写你实际访问的完整域名（很多站点有多个域名/镜像/备用域名，域名不同结论可能完全不同） / The exact full domain you are using — many sites have several mirrors/aliases and the result can differ completely.
       placeholder: 例如 https://hdfans.org/
     validations:
       required: true
@@ -68,8 +72,8 @@ body:
   - type: dropdown
     id: engine
     attributes:
-      label: 站点架构（必填）
-      description: 不确定就选「不清楚」，开发者可以据此缩小范围
+      label: 站点架构（必填） / Site engine (required)
+      description: 不确定就选「不清楚」，开发者可以据此缩小范围 / Pick "Unknown" if unsure — it still helps narrow things down.
       options:
         - NexusPHP
         - Unit3D
@@ -79,38 +83,39 @@ body:
         - Luminance
         - Rartracker
         - TCG
-        - 不清楚 / 其他
+        - 不清楚 / 其他 — unknown / other
     validations:
       required: true
 
   - type: dropdown
     id: feature
     attributes:
-      label: 出问题的功能 / 页面（必填，可多选）
+      label: 出问题的功能 / 页面（必填，可多选） — Affected feature or page (required, can select several)
       multiple: true
       options:
-        - 我的数据（用户信息、上传/下载量、分享率）
-        - 我的数据（等级、升级条件、时魔）
-        - 我的数据（H&R、做种数、发种数等统计）
-        - 搜索结果（搜索无结果 / 结果缺项 / 促销与免费标记错误）
-        - 搜索结果（分类、IMDb、关键字等查询参数）
-        - 下载种子 / 推送到下载器
-        - 收藏、消息、签到等其它接口
-        - content-script（站点页面内注入的浮窗按钮）
-        - Cookie / 自动延长 Cookie / 登录状态
-        - 其他（请在下方说明）
+        - 我的数据（用户信息、上传/下载量、分享率） / My data — profile, upload/download totals, ratio
+        - 我的数据（等级、升级条件、时魔） / My data — user class, promotion requirements, seeding bonus
+        - 我的数据（H&R、做种数、发种数等统计） / My data — H&R, seeding / upload statistics
+        - 搜索结果（搜索无结果 / 结果缺项 / 促销与免费标记错误） / Search — no results, missing results, wrong promo/free flags
+        - 搜索结果（分类、IMDb、关键字等查询参数） / Search — query parameters such as category, IMDb id, keywords
+        - 下载种子 / 推送到下载器 — Downloading a torrent or pushing it to a downloader
+        - 收藏、消息、签到等其它接口 / Other endpoints — favourites, messages, check-in, etc.
+        - content-script（站点页面内注入的浮窗按钮） / Content script — the floating button injected into site pages
+        - Cookie / 自动延长 Cookie / 登录状态 — Cookie handling, cookie auto-extension, login state
+        - 其他（请在下方说明） / Other (please explain below)
     validations:
       required: true
 
   - type: textarea
     id: symptom
     attributes:
-      label: 实际现象（必填）
-      description: 请写清界面上显示的**状态文字**（如「获取成功但数据为 0」「解析错误！」「CloudFlare 错误！」「需要登录！」「无结果！」）、以及涉及的具体数值/字段
+      label: 实际现象（必填） / What actually happens (required)
+      description: 请写清界面上显示的**状态文字**（如「获取成功但数据为 0」「解析错误！」「CloudFlare 错误！」「需要登录！」「无结果！」）、以及涉及的具体数值/字段 / Quote the **status text** shown in the UI (e.g. "Parsing error!", "CloudFlare error!", "Login required!", "No results!") and the concrete values/fields involved.
       placeholder: |
         页面显示的状态：例如「解析错误！」
         具体表现：例如「我的数据」中该站点上传量/等级为空，其它站点正常；
         或：搜索「关键字 xxx」返回 0 条，但站点网页上手动搜索有结果
+        (You may also answer in English, e.g. "status shows Parsing error; upload total and user class are empty for this site while other sites are fine")
     validations:
       required: true
       min_length: 30
@@ -118,8 +123,8 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: 期望结果（必填）
-      description: 对照站点网页上的真实数据，说明插件应该显示成什么样
+      label: 期望结果（必填） / Expected result (required)
+      description: 对照站点网页上的真实数据，说明插件应该显示成什么样 / Compare with the real data on the site and describe what the extension should show instead.
       placeholder: 例如：站点个人页显示上传量 1.23 TB、等级 Power User，插件应一致
     validations:
       required: true
@@ -128,8 +133,8 @@ body:
   - type: textarea
     id: steps
     attributes:
-      label: 复现步骤（必填）
-      description: 请按顺序写清每一步，便于开发者照着操作复现
+      label: 复现步骤（必填） / Steps to reproduce (required)
+      description: 请按顺序写清每一步，便于开发者照着操作复现 / List every step in order so a developer can follow and reproduce it.
       placeholder: |
         1. 打开插件「我的数据」页面
         2. 点击刷新 / 仅刷新该站点
@@ -141,8 +146,8 @@ body:
   - type: textarea
     id: account_env
     attributes:
-      label: 账号状态与运行环境（必填）
-      description: 这些信息直接决定问题归属——很多「插件 Bug」其实是等级/权限/网络环境导致的
+      label: 账号状态与运行环境（必填） / Account state and environment (required)
+      description: 这些信息直接决定问题归属——很多「插件 Bug」其实是等级/权限/网络环境导致的 / These decide who owns the bug — many apparent extension bugs are actually caused by user class, permissions or the network path.
       placeholder: |
         - 浏览器及版本：例如 Edge 141.0.7390.55
         - PT-depiler 版本 / 构建来源：例如 0.3.1 商店版 / master@d590a3df
@@ -158,8 +163,8 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: 日志与错误信息（必填）
-      description: 打开「关于 → 插件运行日志」，找到出问题时段的记录，点「详情」复制内容粘贴到此处（F12 Console 中的红色报错也请一并附上）
+      label: 日志与错误信息（必填） / Logs and errors (required)
+      description: 打开「关于 → 插件运行日志」，找到出问题时段的记录，点「详情」复制内容粘贴到此处（F12 Console 中的红色报错也请一并附上） / Open "About → Extension logs", find the entries from when the problem occurred, click "Details" and paste them here; include red console errors from F12 as well.
       render: shell
     validations:
       required: true
@@ -168,8 +173,8 @@ body:
   - type: input
     id: search_query
     attributes:
-      label: 搜索类问题专用：查询条件
-      description: 仅搜索相关问题时填写，请写明关键字、分类、搜索方案（最好附上站点网页上同样条件能搜到结果的链接）
+      label: 搜索类问题专用：查询条件 / Search issues only — the query used
+      description: 仅搜索相关问题时填写，请写明关键字、分类、搜索方案（最好附上站点网页上同样条件能搜到结果的链接） / Only for search issues. Give the keywords, category and search profile, ideally with a site URL that returns results for the same query.
       placeholder: 例如 关键字「示例」，分类「电影」，搜索方案「默认」
     validations:
       required: false
@@ -177,8 +182,8 @@ body:
   - type: textarea
     id: screenshots
     attributes:
-      label: 相关截图
-      description: 直接把图片拖拽到本输入框即可上传。建议同时提供「站点网页真实数据」与「插件显示结果」两张截图，并注意**遮挡个人信息**
+      label: 相关截图 / Screenshots
+      description: 直接把图片拖拽到本输入框即可上传。建议同时提供「站点网页真实数据」与「插件显示结果」两张截图，并注意**遮挡个人信息** / Drag images into the box to upload. One screenshot of the real site data plus one of the extension's result is ideal — **mask personal information**.
       placeholder: 拖拽图片到此处上传，或粘贴图片链接
     validations:
       required: false
@@ -186,7 +191,7 @@ body:
   - type: textarea
     id: extra
     attributes:
-      label: 其他补充信息
+      label: 其他补充信息 / Anything else
       placeholder: 例如仅在批量刷新时出现、只在开启某选项后出现、历史版本是否正常等
     validations:
       required: false

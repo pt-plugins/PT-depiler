@@ -1,5 +1,5 @@
-name: Bug 反馈
-description: 反馈一个与具体 PT 站点无关的通用 Bug（站点相关问题请改用「站点问题反馈」模板）
+name: Bug 反馈 / Bug report
+description: 反馈一个与具体 PT 站点无关的通用 Bug（站点相关问题请改用「站点问题反馈」模板）/ Report a general bug that is not tied to one PT site (for site-specific problems use the "Site issue" template)
 title: "[Bug] "
 type: bug
 body:
@@ -7,6 +7,10 @@ body:
     attributes:
       value: |
         ## 先读这里：为什么每一项都要求填满
+
+        > 🌐 **English submissions are welcome.** You may write the title and every answer in English — required fields and checkboxes are unchanged.
+        >
+        > 本模板以中文撰写，但**允许使用英文提交**：标题与各项正文都可以用英文填写，必填项与勾选项要求不变。
 
         PT 站点的特殊性决定了「一句话报错」没有意义：站点是私有的、架构各异（NexusPHP / Unit3D / Gazelle …）、
         还会各自改版、各自有 CF 防护与等级权限限制。缺少版本、复现步骤和日志的描述，开发者既无法复现，也无法判断是插件问题还是站点问题。
@@ -20,34 +24,34 @@ body:
   - type: checkboxes
     id: precheck
     attributes:
-      label: 提交前确认（请全部勾选）
+      label: 提交前确认（请全部勾选） / Pre-submission checklist (tick all)
       options:
-        - label: 我已使用**最新版本**（或最新 master 构建）复现，排除了旧版本历史问题
+        - label: 我已使用**最新版本**（或最新 master 构建）复现，排除了旧版本历史问题 / I reproduced this on the latest version (or the latest master build).
           required: true
-        - label: 我已搜索过现有 issue，确认没有重复
+        - label: 我已搜索过现有 issue，确认没有重复 / I searched existing issues and this is not a duplicate.
           required: true
-        - label: 该问题与**具体 PT 站点无关**（若与站点有关，我会返回选择「站点问题反馈」模板）
+        - label: 该问题与**具体 PT 站点无关**（若与站点有关，我会返回选择「站点问题反馈」模板） / This is not specific to one PT site (otherwise I would use the "Site issue" template).
           required: true
-        - label: 我理解：信息不足（缺少版本、复现步骤、截图或日志）的 issue 会被直接关闭
+        - label: 我理解：信息不足（缺少版本、复现步骤、截图或日志）的 issue 会被直接关闭 / I understand that reports missing version, steps, logs or screenshots will be closed.
           required: true
 
   - type: dropdown
     id: browser
     attributes:
-      label: 浏览器（必填）
+      label: 浏览器（必填） / Browser (required)
       options:
         - Chrome
         - Edge
         - Firefox
-        - 其他（请在下方说明）
+        - 其他（请在下方说明） / Other (please explain below)
     validations:
       required: true
 
   - type: input
     id: browser_version
     attributes:
-      label: 浏览器版本（必填）
-      description: 在浏览器「关于」页面或地址栏输入 chrome://version 查看
+      label: 浏览器版本（必填） / Browser version (required)
+      description: 在浏览器「关于」页面或地址栏输入 chrome://version 查看 / Check the browser's "About" page, or open chrome://version.
       placeholder: 例如 141.0.7390.55
     validations:
       required: true
@@ -56,8 +60,8 @@ body:
   - type: input
     id: ptd_version
     attributes:
-      label: PT-depiler 版本 / 构建来源（必填）
-      description: 在扩展管理页（chrome://extensions）或「设置 → 关于」中查看；自行构建的请写明 commit
+      label: PT-depiler 版本 / 构建来源（必填） — PT-depiler version or build (required)
+      description: 在扩展管理页（chrome://extensions）或「设置 → 关于」中查看；自行构建的请写明 commit / See the extension manager (chrome://extensions) or "Settings → About"; for self-built versions, include the commit.
       placeholder: 例如 0.3.1 商店版 / master@d590a3df
     validations:
       required: true
@@ -66,8 +70,8 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: 问题描述（必填）
-      description: 请同时写清「预期发生什么」和「实际发生什么」，涉及界面元素请给出页面与按钮名称
+      label: 问题描述（必填） / Problem description (required)
+      description: 请同时写清「预期发生什么」和「实际发生什么」，涉及界面元素请给出页面与按钮名称 / State both what you expected and what actually happened; for UI issues, name the page and the button.
       placeholder: |
         预期：...
         实际：...
@@ -78,8 +82,8 @@ body:
   - type: textarea
     id: steps
     attributes:
-      label: 复现步骤（必填）
-      description: 请按顺序写清每一步，确保开发者能照着操作复现
+      label: 复现步骤（必填） / Steps to reproduce (required)
+      description: 请按顺序写清每一步，确保开发者能照着操作复现 / List every step in order so a developer can follow and reproduce it.
       placeholder: |
         1. 打开插件「...」页面
         2. 点击「...」
@@ -91,8 +95,8 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: 错误信息 / 日志（必填）
-      description: 打开「关于 → 插件运行日志」，找到出问题时段的记录，点「详情」复制内容粘贴到这里；浏览器 F12 Console 的红色报错也请一并附上
+      label: 错误信息 / 日志（必填） — Errors and logs (required)
+      description: 打开「关于 → 插件运行日志」，找到出问题时段的记录，点「详情」复制内容粘贴到这里；浏览器 F12 Console 的红色报错也请一并附上 / Open "About → Extension logs", find the entries from when the problem occurred, click "Details" and paste the content here; also include the red console errors from F12.
       render: shell
     validations:
       required: true
@@ -101,8 +105,8 @@ body:
   - type: textarea
     id: screenshots
     attributes:
-      label: 相关截图
-      description: 直接把图片拖拽到本输入框即可上传；请遮挡账号等个人信息
+      label: 相关截图 / Screenshots
+      description: 直接把图片拖拽到本输入框即可上传；请遮挡账号等个人信息 / Drag images into this box to upload; please mask account names and other personal data.
       placeholder: 拖拽图片到此处上传，或粘贴图片链接
     validations:
       required: false
@@ -110,7 +114,7 @@ body:
   - type: textarea
     id: extra
     attributes:
-      label: 其他补充信息
+      label: 其他补充信息 / Anything else
       description: 例如仅在特定设置、特定网络环境（代理 / 直连）、特定操作顺序下才出现
     validations:
       required: false
