@@ -2,9 +2,8 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/generationfree-api.yml
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { get } from "es-toolkit/compat";
 
-import Unit3D, { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
+import Unit3D, { CategoryFree, pick, pickAttr, SchemaMetadata } from "../schemas/Unit3D.ts";
 import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 import { buildCategoryOptionsFromDict } from "../utils.ts";
 
@@ -48,35 +47,6 @@ interface IGenerationFreeRawTorrent {
   featured?: boolean;
   internal?: boolean;
   [key: string]: unknown;
-}
-
-/** 行内字段既可能挂在 attributes 下，也可能被拍平，两种都取 */
-function pick<T>(row: IGenerationFreeRawTorrent, key: string, fallback?: T): T {
-  const value = get(row, `attributes.${key}`);
-  if (value !== undefined && value !== null && value !== "") {
-    return value as T;
-  }
-
-  const flat = get(row, key);
-  if (flat !== undefined && flat !== null && flat !== "") {
-    return flat as T;
-  }
-
-  return fallback as T;
-}
-
-/**
- * 仅从 attributes 取值。
- * 顶层还挂着 JSON:API 的 `type`（恒为 "torrents"）、`id` 等元字段，
- * 若像 pick 那样回落顶层，会把资源的 type 误当成种子的媒介类型。
- */
-function pickAttr<T>(row: IGenerationFreeRawTorrent, key: string, fallback?: T): T {
-  const value = get(row, `attributes.${key}`);
-  if (value !== undefined && value !== null && value !== "") {
-    return value as T;
-  }
-
-  return fallback as T;
 }
 
 export const siteMetadata: ISiteMetadata = {
@@ -155,25 +125,19 @@ export const siteMetadata: ISiteMetadata = {
         selector: ":self",
         filters: [
           (row: object) => {
-            const values = [
-              pickAttr(row as IGenerationFreeRawTorrent, "release_year"),
-              pickAttr(row as IGenerationFreeRawTorrent, "resolution"),
-              pickAttr(row as IGenerationFreeRawTorrent, "type"),
-            ];
+            const values = [pickAttr(row, "release_year"), pickAttr(row, "resolution"), pickAttr(row, "type")];
             return values.filter(Boolean).map(String).join(" / ");
           },
         ],
       },
       url: {
         selector: ":self",
-        filters: [(row: object) => `/torrents/${pickAttr(row as IGenerationFreeRawTorrent, "id")}`],
+        filters: [(row: object) => `/torrents/${pickAttr(row, "id")}`],
       },
       link: { selector: ["download_link", "attributes.download_link"] },
       category: {
         selector: ":self",
-        filters: [
-          (row: object) => categoryMap[Number(pick(row as IGenerationFreeRawTorrent, "category_id"))] ?? "Other",
-        ],
+        filters: [(row: object) => categoryMap[Number(pick(row, "category_id"))] ?? "Other"],
       },
       size: { selector: ["size", "attributes.size"] },
       time: { selector: ["created_at", "attributes.created_at"] },

@@ -3,9 +3,8 @@
  * @ProwlarrDefinitions https://github.com/Prowlarr/Indexers/blob/master/definitions/v11/dreadvault-api.yml
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { get } from "es-toolkit/compat";
 
-import Unit3D, { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
+import Unit3D, { CategoryFree, pick, pickAttr, SchemaMetadata } from "../schemas/Unit3D.ts";
 import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 import { buildCategoryOptionsFromDict } from "../utils.ts";
 
@@ -49,35 +48,6 @@ interface IDreadVaultRawTorrent {
   featured?: boolean;
   internal?: boolean;
   [key: string]: unknown;
-}
-
-/** 行内字段既可能挂在 attributes 下，也可能被拍平，两种都取 */
-function pick<T>(row: IDreadVaultRawTorrent, key: string, fallback?: T): T {
-  const value = get(row, `attributes.${key}`);
-  if (value !== undefined && value !== null && value !== "") {
-    return value as T;
-  }
-
-  const flat = get(row, key);
-  if (flat !== undefined && flat !== null && flat !== "") {
-    return flat as T;
-  }
-
-  return fallback as T;
-}
-
-/**
- * 仅从 attributes 取值。
- * 顶层还挂着 JSON:API 的 `type`（恒为 "torrents"）、`id` 等元字段，
- * 若像 pick 那样回落顶层，会把资源的 type 误当成种子的媒介类型。
- */
-function pickAttr<T>(row: IDreadVaultRawTorrent, key: string, fallback?: T): T {
-  const value = get(row, `attributes.${key}`);
-  if (value !== undefined && value !== null && value !== "") {
-    return value as T;
-  }
-
-  return fallback as T;
 }
 
 export const siteMetadata: ISiteMetadata = {
@@ -145,12 +115,12 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: ["name", "attributes.name"] },
       url: {
         selector: ":self",
-        filters: [(row: object) => `/torrents/${pickAttr(row as IDreadVaultRawTorrent, "id")}`],
+        filters: [(row: object) => `/torrents/${pickAttr(row, "id")}`],
       },
       link: { selector: ["download_link", "attributes.download_link"] },
       category: {
         selector: ":self",
-        filters: [(row: object) => categoryMap[Number(pick(row as IDreadVaultRawTorrent, "category_id"))] ?? "Other"],
+        filters: [(row: object) => categoryMap[Number(pick(row, "category_id"))] ?? "Other"],
       },
       size: { selector: ["size", "attributes.size"] },
       time: {
