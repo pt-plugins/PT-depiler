@@ -74,7 +74,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "token",
       label: "API Key",
-      hint: "在站点 个人设置（My Settings）→ API Key 页面获取 API Key 并填入此处",
+      hint: "在站点 个人设置（My Settings）→ API Key 页面获取 API Key 并填入此处（搜索与用户信息均使用该 Key）",
       required: true,
     },
   ],
@@ -143,10 +143,30 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  // 站点页面的用户信息仍需登录态 HTML；此处仅保证 API 检索可用，userInfo 沿用 Unit3D 默认
   noLoginAssert: {
     ...SchemaMetadata.noLoginAssert,
     urlPatterns: [/doLogin|login|verify|checkpoint|returnto|twofactor/gi],
+  },
+
+  // 用户信息走 Unit3D 的 /api/user（Bearer Token），不依赖站点登录态 Cookie
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    process: [
+      {
+        requestConfig: { url: "/api/user", method: "GET", responseType: "json" },
+        selectors: {
+          name: { selector: "username" },
+          levelName: { selector: "group" },
+          uploaded: { selector: "uploaded", filters: [{ name: "parseSize" }] },
+          downloaded: { selector: "downloaded", filters: [{ name: "parseSize" }] },
+          ratio: { selector: "ratio", filters: [{ name: "parseNumber" }] },
+          bonus: { selector: "seedbonus", filters: [{ name: "parseNumber" }] },
+          seeding: { selector: "seeding", filters: [{ name: "parseNumber" }] },
+          leeching: { selector: "leeching", filters: [{ name: "parseNumber" }] },
+          hnrUnsatisfied: { selector: "hit_and_runs", filters: [{ name: "parseNumber" }] },
+        },
+      },
+    ],
   },
 
   levelRequirements: [
