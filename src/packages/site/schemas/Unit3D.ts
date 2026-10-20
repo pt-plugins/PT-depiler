@@ -1,5 +1,6 @@
 import urlJoin from "url-join";
 import { omit, toMerged } from "es-toolkit";
+import { get } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
 import {
@@ -34,6 +35,38 @@ export const userInfoTrans: Record<TUserInfoTransKey, string[]> = {
   trueRatio: ["Real Ratio", "真实分享率", "真實比率"],
   lastAccessAt: ["Last login", "Last Login", "上次登录时间", "上次登入"],
 };
+
+/**
+ * 从 UNIT3D JSON API 的种子行中取字段。
+ * 行内字段既可能挂在 `attributes` 下，也可能被拍平到顶层，两种都取。
+ */
+export function pick<T>(row: object, key: string, fallback?: T): T {
+  const value = get(row, `attributes.${key}`);
+  if (value !== undefined && value !== null && value !== "") {
+    return value as T;
+  }
+
+  const flat = get(row, key);
+  if (flat !== undefined && flat !== null && flat !== "") {
+    return flat as T;
+  }
+
+  return fallback as T;
+}
+
+/**
+ * 仅从 `attributes` 取值。
+ * 顶层还挂着 JSON:API 的 `type`（恒为 "torrents"）、`id` 等元字段，
+ * 若像 pick 那样回落顶层，会把资源的 type 误当成种子的媒介类型。
+ */
+export function pickAttr<T>(row: object, key: string, fallback?: T): T {
+  const value = get(row, `attributes.${key}`);
+  if (value !== undefined && value !== null && value !== "") {
+    return value as T;
+  }
+
+  return fallback as T;
+}
 
 export const CategoryFree: ISearchCategories = {
   name: "Buff",
