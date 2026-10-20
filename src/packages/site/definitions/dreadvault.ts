@@ -30,8 +30,8 @@ import { buildCategoryOptionsFromDict } from "../utils.ts";
  *
  * 用户等级与站规来自 issue #1642 的登录态页面反馈（2026-10）：
  *  - 等级：User / Wanderer / Survivor / Night Stalker / Grave Keeper / Dreadborn / Shadow Walker / Bloodbound；
- *  - 站规要点：最低分享率 0.70；每个下载种子需做种 5 天（120 小时）；3 个活跃 HnR 会禁用下载；
- *    新账号需在 90 天内产生上传、下载或辅种活动。
+ *  - 站规要点：最低分享率 0.70；每个下载种子需做种 5 天（120 小时），因此所有种子都带 H&R 标签；
+ *    3 个活跃 HnR 会禁用下载；新账号需在 90 天内产生上传、下载或辅种活动。
  */
 const categoryMap: Record<number, string> = {
   1: "Movie",
@@ -279,6 +279,9 @@ export default class DreadVault extends Unit3D {
     if (internal) {
       tags.push({ name: "官方", color: "blue-darken-2" });
     }
+
+    // 站规：所有下载种子均需做种 5 天（120 小时），因此每个种子都带 H&R 标记
+    tags.push({ name: "H&R", color: "red" });
 
     torrent.tags = tags;
     return torrent;
