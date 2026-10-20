@@ -26,8 +26,12 @@ import { buildCategoryOptionsFromDict } from "../utils.ts";
  * times_completed / created_at / size / freeleech / double_upload / featured。
  *
  * 分类 ID 来自 Prowlarr / Jackett 的 categorymappings：1 Movie / 2 TV / 3 eBook / 4 SoundTrack。
- * 用户等级页（/stats/groups/requirements）与规则页（/pages/1）需要登录，
- * 待站点方提供内容后再补充 levelRequirements 与必要的 H&R 规则。
+ * 站点以恐怖题材为主，故 tags 额外标注「恐怖」。
+ *
+ * 用户等级与站规来自 issue #1642 的登录态页面反馈（2026-10）：
+ *  - 等级：User / Wanderer / Survivor / Night Stalker / Grave Keeper / Dreadborn / Shadow Walker / Bloodbound；
+ *  - 站规要点：最低分享率 0.70；每个下载种子需做种 5 天（120 小时）；3 个活跃 HnR 会禁用下载；
+ *    新账号需在 90 天内产生上传、下载或辅种活动。
  */
 const categoryMap: Record<number, string> = {
   1: "Movie",
@@ -57,7 +61,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "dreadvault",
   name: "DreadVault",
   description: "DreadVault 是一个专注恐怖题材的私有 PT 站，资源涵盖恐怖电影、剧集、电子书与原声带",
-  tags: ["影视", "电子书", "音乐"],
+  tags: ["恐怖", "影视", "电子书", "音乐"],
 
   type: "private",
   schema: "Unit3D",
@@ -145,7 +149,79 @@ export const siteMetadata: ISiteMetadata = {
     urlPatterns: [/doLogin|login|verify|checkpoint|returnto|twofactor/gi],
   },
 
-  // TODO: /stats/groups/requirements 需要登录，待站点方提供等级要求后补充 levelRequirements
+  levelRequirements: [
+    {
+      id: 1,
+      name: "User",
+      privilege: "DL slots: ∞; Upload Torrents",
+    },
+    {
+      id: 2,
+      name: "Wanderer",
+      uploaded: "1 TiB",
+      ratio: 0.4,
+      interval: "P1M",
+      privilege: "DL slots: ∞; Upload Torrents; Send invite",
+    },
+    {
+      id: 3,
+      name: "Survivor",
+      uploaded: "5 TiB",
+      ratio: 0.4,
+      interval: "P2M",
+      uploads: 5,
+      privilege: "DL slots: ∞; Upload Torrents; Send invite; Torrent moderation bypass",
+    },
+    {
+      id: 4,
+      name: "Night Stalker",
+      uploaded: "20 TiB",
+      ratio: 0.4,
+      interval: "P3M",
+      uploads: 20,
+      privilege: "DL slots: ∞; Upload Torrents; Send invite; Torrent moderation bypass",
+    },
+    {
+      id: 5,
+      name: "Grave Keeper",
+      uploaded: "50 TiB",
+      ratio: 0.4,
+      interval: "P6M",
+      uploads: 50,
+      privilege: "DL slots: ∞; Upload Torrents; Send invite; Torrent moderation bypass",
+    },
+    {
+      id: 6,
+      name: "Dreadborn",
+      uploaded: "100 TiB",
+      ratio: 0.4,
+      interval: "P1Y",
+      uploads: 100,
+      privilege: "DL slots: ∞; Upload Torrents; Send invite; Freeleech; Torrent moderation bypass",
+    },
+    {
+      id: 7,
+      name: "Shadow Walker",
+      ratio: 0.4,
+      interval: "P1M",
+      averageSeedingTime: "P1M",
+      seedingSize: "5 TiB",
+      uploads: 5,
+      privilege:
+        "DL slots: ∞; Upload Torrents; Send invite; Immune to automated HnR warnings; Torrent moderation bypass",
+    },
+    {
+      id: 8,
+      name: "Bloodbound",
+      ratio: 0.4,
+      interval: "P3M",
+      averageSeedingTime: "P2M",
+      seedingSize: "10 TiB",
+      uploads: 10,
+      privilege:
+        "DL slots: ∞; Upload Torrents; Send invite; Freeleech; Immune to automated HnR warnings; Torrent moderation bypass",
+    },
+  ],
 };
 
 export default class DreadVault extends Unit3D {
