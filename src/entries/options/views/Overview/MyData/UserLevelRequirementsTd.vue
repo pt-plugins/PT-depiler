@@ -12,8 +12,10 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import UserLevelsComponent from "./UserLevelsComponent.vue";
 import UserNextLevelUnMet from "@/options/views/Overview/MyData/UserNextLevelUnMet.vue";
 
-const { userInfo } = defineProps<{
+const { userInfo, limitLevelNameTdWidth } = defineProps<{
   userInfo: IUserInfo;
+  // 由父表格统一计算后传入；行组件（每个站点一行）不再各自创建相同的 computed
+  limitLevelNameTdWidth: boolean;
 }>();
 
 const display = useDisplay();
@@ -102,7 +104,11 @@ const userLevelGroupIcon = computed(() => {
       :open-on-click="display.mobile.value"
     >
       <template v-slot:activator="{ props }">
-        <span v-bind="props">
+        <!--
+          截断类必须加在激活元素本身：若只裁剪外层容器，激活元素的 getBoundingClientRect()
+          仍按完整文字宽度计算，浮层会被定位到隐藏文字的末端（远离单元格）。
+        -->
+        <span v-bind="props" :class="{ 'd-block text-truncate': limitLevelNameTdWidth }">
           <v-icon :icon="userLevelGroupIcon" size="small" :color="currentUserLevelColor" class="mr-1" />
           <span :class="`text-${currentUserLevelColor}`">{{ levelName }}</span>
           <v-icon
@@ -196,7 +202,12 @@ const userLevelGroupIcon = computed(() => {
         </v-card>
       </template>
     </v-tooltip>
-    <span v-else>
+    <!-- 未渲染等级浮层（如关闭了等级要求展示）时，被截断的等级名通过原生 title 提供完整内容 -->
+    <span
+      v-else
+      :class="{ 'd-block text-truncate': limitLevelNameTdWidth }"
+      :title="limitLevelNameTdWidth ? levelName : undefined"
+    >
       <v-icon :icon="userLevelGroupIcon" size="small"></v-icon>
       {{ levelName }}
     </span>
