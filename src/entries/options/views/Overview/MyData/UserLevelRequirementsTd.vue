@@ -11,10 +11,11 @@ import { useConfigStore } from "@/options/stores/config.ts";
 
 import UserLevelsComponent from "./UserLevelsComponent.vue";
 import UserNextLevelUnMet from "@/options/views/Overview/MyData/UserNextLevelUnMet.vue";
-import { useLevelNameTdWidthLimit } from "./utils/levelColumn.ts";
 
-const { userInfo } = defineProps<{
+const { userInfo, limitLevelNameTdWidth } = defineProps<{
   userInfo: IUserInfo;
+  // 由父表格统一计算后传入；行组件（每个站点一行）不再各自创建相同的 computed
+  limitLevelNameTdWidth: boolean;
 }>();
 
 const display = useDisplay();
@@ -82,9 +83,6 @@ const userLevelGroupIconMap: Record<TLevelGroupType, string> = {
 const userLevelGroupIcon = computed(() => {
   return userLevelGroupIconMap[userLevelGroupType.value] || userLevelGroupIconMap.user;
 });
-
-// 与表格中等级列的最大宽度限制共用同一条件（见 utils/levelColumn.ts），对超出部分做省略号截断
-const limitLevelNameTdWidth = useLevelNameTdWidthLimit();
 </script>
 
 <template>

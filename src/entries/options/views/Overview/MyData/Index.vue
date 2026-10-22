@@ -4,7 +4,7 @@ import { watchDebounced } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { isUndefined } from "es-toolkit/compat";
-import type { DataTableHeader } from "vuetify";
+import { useDisplay, type DataTableHeader } from "vuetify";
 import { EResultParseStatus, type ISiteUserConfig, type IUserInfo, type TSiteID } from "@ptd/site";
 
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -25,15 +25,19 @@ import ExportUserInfoDialog from "./ExportUserInfoDialog.vue";
 
 import { formatRatio } from "./utils/format.ts";
 import { tableData, initTableData, cancelFlushSiteLastUserInfo, flushSiteLastUserInfo } from "./utils/lastUserData.ts";
-import { useLevelNameTdWidthLimit } from "./utils/levelColumn.ts";
 
 const { t } = useI18n();
 const router = useRouter();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
+const display = useDisplay();
 
-const limitLevelNameTdWidth = useLevelNameTdWidthLimit();
+// 等级列是否限制宽度：用户开启「限制等级栏宽度」，或处于小屏时生效（与搜索结果页的标题列行为一致）。
+// 表头 maxWidth 与单元格截断共用此条件，避免出现「限宽不裁剪」或「裁剪不限宽」的错位。
+const limitLevelNameTdWidth = computed(
+  () => configStore.myDataTableControl.limitLevelNameTdWidth || display.smAndDown.value,
+);
 
 const currentDate = new Date();
 
@@ -456,7 +460,7 @@ const showExportDialog = ref(false);
 
       <!-- 等级信息，升级信息 -->
       <template #item.levelName="{ item }">
-        <UserLevelRequirementsTd :user-info="item" />
+        <UserLevelRequirementsTd :user-info="item" :limit-level-name-td-width="limitLevelNameTdWidth" />
       </template>
 
       <!-- 上传、下载 -->
