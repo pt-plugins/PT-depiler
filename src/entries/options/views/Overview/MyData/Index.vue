@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -25,6 +25,7 @@ import ExportUserInfoDialog from "./ExportUserInfoDialog.vue";
 
 import { formatRatio } from "./utils/format.ts";
 import { tableData, initTableData, cancelFlushSiteLastUserInfo, flushSiteLastUserInfo } from "./utils/lastUserData.ts";
+import { useLevelNameTdWidthLimit } from "./utils/levelColumn.ts";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -32,39 +33,50 @@ const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
+const limitLevelNameTdWidth = useLevelNameTdWidthLimit();
+
 const currentDate = new Date();
 
 type TExtendDataTableHeader = DataTableHeader & { props?: any };
 
-const fullTableHeader = reactive([
-  {
-    title: t("common.site"),
-    key: "siteUserConfig.sortIndex",
-    align: "center",
-    props: { disabled: true },
-  },
-  { title: t("common.username"), key: "name", align: "center" },
-  { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: "15%" },
-  // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
-  { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
-  { title: t("MyData.table.trueUserData"), key: "trueUploaded", align: "end" }, // 默认不显示
-  { title: t("levelRequirement.ratio"), key: "ratio", align: "end" },
-  { title: t("levelRequirement.trueRatio"), key: "trueRatio", align: "end" }, // 默认不显示
-  { title: t("levelRequirement.uploads"), key: "uploads", align: "end" },
-  { title: t("levelRequirement.seeding"), key: "seeding", align: "end" },
-  { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
-  { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
-  { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
-  { title: t("MyData.table.invites"), key: "invites", align: "end" }, // 默认不显示
-  { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
-  { title: t("MyData.table.lastAccessAt"), key: "lastAccessAt", align: "center" }, // 默认不显示
-  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
-  { title: t("common.action"), key: "action", align: "center", sortable: false, props: { disabled: true } },
-] as TExtendDataTableHeader[]);
+const fullTableHeader = computed(
+  () =>
+    [
+      {
+        title: t("common.site"),
+        key: "siteUserConfig.sortIndex",
+        align: "center",
+        props: { disabled: true },
+      },
+      { title: t("common.username"), key: "name", align: "center" },
+      {
+        title: t("MyData.table.levelName"),
+        key: "levelName",
+        align: "start",
+        width: "10%",
+        ...(limitLevelNameTdWidth.value ? { maxWidth: "32vw" } : {}),
+      },
+      // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
+      { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
+      { title: t("MyData.table.trueUserData"), key: "trueUploaded", align: "end" }, // 默认不显示
+      { title: t("levelRequirement.ratio"), key: "ratio", align: "end" },
+      { title: t("levelRequirement.trueRatio"), key: "trueRatio", align: "end" }, // 默认不显示
+      { title: t("levelRequirement.uploads"), key: "uploads", align: "end" },
+      { title: t("levelRequirement.seeding"), key: "seeding", align: "end" },
+      { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
+      { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
+      { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
+      { title: t("MyData.table.invites"), key: "invites", align: "end" }, // 默认不显示
+      { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
+      { title: t("MyData.table.lastAccessAt"), key: "lastAccessAt", align: "center" }, // 默认不显示
+      { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
+      { title: t("common.action"), key: "action", align: "center", sortable: false, props: { disabled: true } },
+    ] as TExtendDataTableHeader[],
+);
 
 const tableHeader = computed(() => {
   return useTableActionColumn(
-    fullTableHeader.filter(
+    fullTableHeader.value.filter(
       (item: TExtendDataTableHeader) =>
         item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
     ) as DataTableHeader[],

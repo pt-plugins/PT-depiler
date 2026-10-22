@@ -72,6 +72,8 @@ export interface IConfigPiniaStorageSchema {
     showUserName: boolean;
     // 是否使用站点定义中的 levelRequirements 中的名称来统一显示等级名称，如果不使用，则直接显示为 getUserInfo 获取到的信息
     normalizeLevelName: boolean;
+    // 是否限制等级列的最大宽度，防止等级要求过长导致表格布局混乱
+    limitLevelNameTdWidth: boolean;
     // 是否展示升级情况及站点等级情况
     showLevelRequirement: boolean;
 

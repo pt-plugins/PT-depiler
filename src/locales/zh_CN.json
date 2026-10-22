@@ -394,6 +394,7 @@
         "alive": "相对时间",
         "aliveWeek": "相对周数"
       },
+      "limitLevelNameTdWidth": "限制等级栏宽度",
       "multiOpen": "批量打开",
       "noSiteSelectedCancelRefresh": "未选择任何站点，取消刷新",
       "noSiteSelectedRefreshAll": "未选择任何站点，默认刷新全部站点",
