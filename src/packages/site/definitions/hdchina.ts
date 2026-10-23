@@ -446,12 +446,22 @@ export default class HDChina extends NexusPHP {
   private csrfToken: string | null = null;
 
   /**
-   * 站点把优惠状态（Free / 2X / …）从列表页里剥离，改为前端 POST /ajax_promotion.php 批量获取，
-   * 因此这里在解析完当页种子后再补一次请求，把优惠标签补回每个种子。
+   * 站点把优惠状态（Free / 2X / …）从列表页里剥离，改为前端 POST /ajax_promotion.php 批量获取。
+   *
+   * - content-script 场景：页面自己的脚本已经请求过该接口，并把优惠图标写进每行的 `td.discount`
+   *   （`<img class="pro_free" alt="Free">`）。NexusPHP schema 的 `tags` 选择器（`img.pro_*`）
+   *   会直接从行内 DOM 解析出优惠标签，此时无需再发一次同样的请求；
+   * - 后台搜索场景：通过 HTTP 拿到的原始 HTML 没有执行页面脚本，`td.discount` 为空，
+   *   这时才补一次请求，把优惠标签补回每个种子。
    */
   public override async transformSearchPage(doc: Document | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
     const torrents = await super.transformSearchPage(doc, searchConfig);
     if (!(doc instanceof Document) || torrents.length === 0) {
+      return torrents;
+    }
+
+    // 页面已渲染出优惠图标（td.discount 内的 img.pro_*），说明站点自己的 ajax_promotion.php 请求已经完成，复用其结果
+    if (doc.querySelector("td.discount img[class*='pro_']")) {
       return torrents;
     }
 
