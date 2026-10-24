@@ -12,6 +12,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 
+import NavButton from "@/options/components/NavButton.vue";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 
 const { t } = useI18n();
@@ -216,32 +217,38 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
 </script>
 
 <template>
-  <v-alert type="info">
-    {{ t("KeepUploadTask.title") }}
-  </v-alert>
+  <v-alert :title="t('route.Overview.KeepUploadTask')" type="info" />
 
   <v-card>
     <v-card-title>
-      <v-btn color="error" :disabled="selectedTasks.length === 0" class="mr-2" @click="deleteSelectedTasks">
-        <v-icon class="mr-2">mdi-delete</v-icon>
-        {{ t("common.remove") }}
-      </v-btn>
+      <v-row gap="0" class="ma-0">
+        <NavButton
+          :disabled="selectedTasks.length === 0"
+          color="error"
+          icon="mdi-delete"
+          :text="t('common.remove')"
+          @click="deleteSelectedTasks"
+        />
 
-      <v-btn color="error" :disabled="tasks.length === 0" @click="clearAllTasks">
-        <v-icon class="mr-2">mdi-delete-sweep</v-icon>
-        {{ t("KeepUploadTask.clearAll") }}
-      </v-btn>
+        <NavButton
+          :disabled="tasks.length === 0"
+          color="error"
+          icon="mdi-delete-sweep"
+          :text="t('KeepUploadTask.clearAll')"
+          @click="clearAllTasks"
+        />
 
-      <v-btn
-        color="info"
-        href="https://github.com/pt-plugins/PT-Plugin-Plus/wiki/keep-upload-task"
-        target="_blank"
-        rel="noopener noreferrer nofollow"
-        class="ml-2"
-      >
-        <v-icon class="mr-2">mdi-help</v-icon>
-        {{ t("common.howToUse") }}
-      </v-btn>
+        <v-divider vertical class="mx-2" />
+
+        <NavButton
+          color="info"
+          href="https://github.com/pt-plugins/PT-Plugin-Plus/wiki/keep-upload-task"
+          icon="mdi-help-circle"
+          rel="noopener noreferrer nofollow"
+          target="_blank"
+          :text="t('common.howToUse')"
+        />
+      </v-row>
     </v-card-title>
 
     <v-data-table
@@ -250,11 +257,17 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
       v-model:expanded="expanded"
       :headers="headers"
       :items="tasks"
+      :items-per-page="configStore.tableBehavior.KeepUploadTask.itemsPerPage"
       :loading="loading"
+      :multi-sort="configStore.enableTableMultiSort"
+      :sort-by="configStore.tableBehavior.KeepUploadTask.sortBy"
+      class="table-stripe table-header-no-wrap"
+      hover
       item-value="id"
-      show-select
       show-expand
-      class="elevation-1"
+      show-select
+      @update:itemsPerPage="(v) => configStore.updateTableBehavior('KeepUploadTask', 'itemsPerPage', v)"
+      @update:sortBy="(v) => configStore.updateTableBehavior('KeepUploadTask', 'sortBy', v)"
     >
       <template #item.site="{ item }">
         <div class="d-flex flex-column align-center">
@@ -293,45 +306,37 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
       </template>
 
       <template #item.action="{ item }">
-        <v-btn
-          icon
-          variant="text"
-          color="primary"
-          :title="t('KeepUploadTask.sendBaseTorrent')"
-          @click="sendBaseTorrent(item)"
-        >
-          <v-icon>mdi-numeric-1-circle</v-icon>
-        </v-btn>
-        <v-btn
-          icon
-          variant="text"
-          color="info"
-          :title="t('KeepUploadTask.sendOtherTorrents')"
-          @click="sendOtherTorrents(item)"
-        >
-          <v-icon>mdi-numeric-2-circle</v-icon>
-        </v-btn>
-        <v-btn
-          icon
-          variant="text"
-          color="success"
-          :title="t('KeepUploadTask.sendAllTorrents')"
-          @click="sendAllTorrents(item)"
-        >
-          <v-icon>mdi-download</v-icon>
-        </v-btn>
-        <v-btn
-          icon
-          variant="text"
-          color="info"
-          :title="t('KeepUploadTask.copyLinks')"
-          @click="copyLinksToClipboard(item)"
-        >
-          <v-icon>mdi-content-copy</v-icon>
-        </v-btn>
-        <v-btn icon variant="text" color="error" :title="t('common.remove')" @click="deleteTask(item)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+        <v-btn-group class="table-action" density="compact" variant="plain">
+          <v-btn
+            color="primary"
+            icon="mdi-numeric-1-circle"
+            size="small"
+            :title="t('KeepUploadTask.sendBaseTorrent')"
+            @click="sendBaseTorrent(item)"
+          />
+          <v-btn
+            color="info"
+            icon="mdi-numeric-2-circle"
+            size="small"
+            :title="t('KeepUploadTask.sendOtherTorrents')"
+            @click="sendOtherTorrents(item)"
+          />
+          <v-btn
+            color="success"
+            icon="mdi-download"
+            size="small"
+            :title="t('KeepUploadTask.sendAllTorrents')"
+            @click="sendAllTorrents(item)"
+          />
+          <v-btn
+            color="info"
+            icon="mdi-content-copy"
+            size="small"
+            :title="t('KeepUploadTask.copyLinks')"
+            @click="copyLinksToClipboard(item)"
+          />
+          <v-btn color="error" icon="mdi-delete" size="small" :title="t('common.remove')" @click="deleteTask(item)" />
+        </v-btn-group>
       </template>
 
       <template #expanded-row="{ item }">
@@ -353,15 +358,13 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
                 </v-list-item-subtitle>
                 <template #append>
                   <v-btn
-                    icon
-                    variant="text"
                     color="primary"
+                    icon="mdi-arrow-up-bold"
                     size="small"
                     :title="t('KeepUploadTask.setAsBaseTorrent')"
+                    variant="text"
                     @click="setAsBaseTorrent(item, index)"
-                  >
-                    <v-icon>mdi-arrow-up-bold</v-icon>
-                  </v-btn>
+                  />
                 </template>
               </v-list-item>
             </v-list>
@@ -377,15 +380,12 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
     </v-data-table>
   </v-card>
 
-  <v-alert type="warning" class="mt-4">
-    <div>
-      {{ t("KeepUploadTask.warning.title") }}
-      <ul>
-        <li>{{ t("KeepUploadTask.warning.item1") }}</li>
-        <li>{{ t("KeepUploadTask.warning.item2") }}</li>
-        <li>{{ t("KeepUploadTask.warning.item3") }}</li>
-      </ul>
-    </div>
+  <v-alert class="mt-4" :title="t('KeepUploadTask.warning.title')" type="warning">
+    <ul>
+      <li>{{ t("KeepUploadTask.warning.item1") }}</li>
+      <li>{{ t("KeepUploadTask.warning.item2") }}</li>
+      <li>{{ t("KeepUploadTask.warning.item3") }}</li>
+    </ul>
   </v-alert>
 </template>
 
