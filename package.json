@@ -58,7 +58,7 @@
     "idb": "^8.0.4",
     "konva": "^10.9.0",
     "nanoid": "^6.0.2",
-    "p-queue": "^9.3.3",
+    "p-queue": "^10.0.0",
     "parse-torrent": "^11.0.24",
     "pinia": "^4.1.0",
     "pinia-plugin-state-persistence": "^1.12.20",
