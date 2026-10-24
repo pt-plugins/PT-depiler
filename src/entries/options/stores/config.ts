@@ -144,6 +144,10 @@ export const useConfigStore = defineStore("config", {
         itemsPerPage: 25,
         sortBy: [{ key: "createdAt", order: "desc" }],
       },
+      KeepUploadTask: {
+        itemsPerPage: 10,
+        sortBy: [{ key: "time", order: "desc" }],
+      },
       SetDownloader: {
         itemsPerPage: 10,
         sortBy: [{ key: "enabled", order: "desc" }],

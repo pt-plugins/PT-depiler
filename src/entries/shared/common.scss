@@ -7,7 +7,10 @@
 }
 
 .table-stripe {
-  tr.v-data-table__tr:nth-child(even) {
+  /* 只按「数据行」计数：可展开的表格（如辅种任务）会在数据行之间插入展开行的 <tr>，
+   * 用 :nth-child(even) 时展开行本身也占一个位置，展开后其后的隔行底色会整体错位。
+   * `of .v-data-table__tr` 让序号只在数据行之间计算（Chromium 111+ / Firefox 113+）。 */
+  tr.v-data-table__tr:nth-child(even of .v-data-table__tr) {
     background-color: #f1f1f1;
 
     /* v-data-table 会为固定列（fixed / fixed-end）设置 surface 背景色，导致固定列不响应上面的隔行变色，
@@ -37,7 +40,7 @@
 /* 暗黑模式覆写 */
 .v-theme--dark {
   .table-stripe {
-    tr.v-data-table__tr:nth-child(even) {
+    tr.v-data-table__tr:nth-child(even of .v-data-table__tr) {
       background-color: #2a2a2a;
     }
   }
