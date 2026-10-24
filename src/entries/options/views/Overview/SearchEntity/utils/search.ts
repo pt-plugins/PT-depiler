@@ -28,7 +28,7 @@ const globalExistingIds = new Set<string>();
 
 export const searchQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
-searchQueue.on("active", () => {
+searchQueue.addEventListener("active", () => {
   runtimeStore.search.isSearching = true;
   // 启动后，根据 configStore 的值，自动更新 searchQueue 的并发数
   if (searchQueue.concurrency != configStore.searchEntity.queueConcurrency) {
@@ -40,7 +40,7 @@ searchQueue.on("active", () => {
   runtimeStore.search.searchResult.forEach((r) => globalExistingIds.add(r.uniqueId));
 });
 
-searchQueue.on("idle", () => {
+searchQueue.addEventListener("idle", () => {
   runtimeStore.search.isSearching = false;
   runtimeStore.search.endAt = Date.now();
 

@@ -4,7 +4,7 @@ import { isEmpty, unset } from "es-toolkit/compat";
 import type { IUserInfo } from "@ptd/site";
 import { EResultParseStatus } from "@ptd/site";
 
-import { onMessage, sendMessage } from "@/messages.ts";
+import { onMessage, sendMessage, USER_INFO_QUEUE_CANCELLED } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema, IConfigPiniaStorageSchema, TUserInfoStorageSchema } from "@/shared/types.ts";
 
 import { logger } from "./logger.ts";
@@ -13,7 +13,7 @@ import { getSiteInstance } from "./site.ts";
 const flushQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 const setSiteLastUserInfoQueue = new PQueue({ concurrency: 1 }); // 专门用于 setSiteLastUserInfo 的队列
 
-flushQueue.on("active", async () => {
+flushQueue.addEventListener("active", async () => {
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
   const queueConcurrency = configStoreRaw?.userInfo?.queueConcurrency ?? 1;
 
@@ -26,11 +26,26 @@ flushQueue.on("active", async () => {
 });
 
 onMessage("cancelUserInfoQueue", () => {
+  // p-queue 10 起 clear() 会以 AbortError 结束被移除的排队任务，由 getSiteUserInfoResult 归一化后抛给调用方
   flushQueue.clear();
 });
 
+/**
+ * p-queue 10 起 `clear()`（用户取消刷新）会以 AbortError 结束被移除的排队任务。
+ * AbortError 是 DOMException，跨 `sendMessage` 边界序列化后无法可靠识别，
+ * 这里统一归一化成稳定的错误信息，调用方用 `isUserInfoQueueCancelledError()` 判定。
+ */
+function normalizeUserInfoQueueCancellation<T>(task: Promise<T>): Promise<T> {
+  return task.catch((error: unknown) => {
+    if ((error as Error | undefined)?.name === "AbortError") {
+      throw new Error(USER_INFO_QUEUE_CANCELLED);
+    }
+    throw error;
+  });
+}
+
 export async function getSiteUserInfoResult(siteId: string) {
-  return (await flushQueue.add(async () => {
+  const task = flushQueue.add(async () => {
     logger({ msg: `getSiteUserInfoResult for ${siteId}` });
 
     // 获取站点实例和配置信息
@@ -81,7 +96,9 @@ export async function getSiteUserInfoResult(siteId: string) {
 
     await setSiteLastUserInfo(userInfo);
     return userInfo!;
-  }))!;
+  });
+
+  return (await normalizeUserInfoQueueCancellation(task))!;
 }
 
 onMessage("getSiteUserInfoResult", async ({ data: siteId }) => await getSiteUserInfoResult(siteId));
