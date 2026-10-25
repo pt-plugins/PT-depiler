@@ -2,10 +2,10 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/ptlao.yml
  */
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+// import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   version: 1,
 
   id: "ptlao",
@@ -20,6 +20,8 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["haowenwu"],
 
   urls: ["uggcf://cgynb.gbc/"],
+
+  isDead: true,
 
   levelRequirements: [
     {
