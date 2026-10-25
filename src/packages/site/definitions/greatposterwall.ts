@@ -25,9 +25,8 @@ interface gpwTorrent extends groupTorrent {
 }
 
 /**
- * GPW 的 freeType → 量系数。口径与既有标签保持一致：
+ * GPW 的 freeType → 量系数，与 Jackett 的 `GreatPosterWall.cs` 完全一致：
  * 11 = 按 75% 计费、12 = 50%、13 = 25%、1 = 免费、2 = 中性（不计上传也不计下载）。
- * ⚠️ 若实测确认 freeType 的百分比是「减免比例」，把 11/12/13 改成 1 - x 即可。
  */
 const freeTypeFactorMap: Record<string, { downloadVolumeFactor?: number; uploadVolumeFactor?: number }> = {
   "11": { downloadVolumeFactor: 0.75 },
@@ -337,10 +336,13 @@ export default class GreatPosterWall extends GazelleJSONAPI {
 
     let downloadVolumeFactor: number | undefined;
     let uploadVolumeFactor: number | undefined;
+    if (freeTypeFactorMap[torrent.freeType]) {
+      ({ downloadVolumeFactor, uploadVolumeFactor } = freeTypeFactorMap[torrent.freeType]);
+    }
+
+    // 与 Jackett 的 GreatPosterWall.cs 一致：先按 freeType 赋值，再用个人免费把下载系数覆盖为 0
     if (torrent.isPersonalFreeleech) {
       downloadVolumeFactor = 0;
-    } else if (freeTypeFactorMap[torrent.freeType]) {
-      ({ downloadVolumeFactor, uploadVolumeFactor } = freeTypeFactorMap[torrent.freeType]);
     }
 
     const attrs = torrent.remasterTitle.split("/").map((s) => s.trim());

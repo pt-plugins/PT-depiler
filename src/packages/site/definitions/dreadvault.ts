@@ -45,9 +45,10 @@ const categoryMap: Record<number, string> = {
  * 依据 UNIT3D 源码：
  *  - `App\Jobs\ProcessAnnounce`：`creditedDownloadedDelta = $downloadedDelta * (100 - min(100, $torrent->percentFree)) / 100`
  *  - `App\Services\Unit3dAnnounce::addTorrent`：`download_factor => max(0, 100 - $torrent->free)`
- * 所以 API 返回的 "75%" 要换算成 0.25，而不是 0.75。
+ * 与 Jackett 的 Unit3D API 定义一致（如 `aither-api.yml`：25% → 0.75、75% → 0.25、100% → 0、featured → 0/2）。
  */
 const freeleechFactorMap: Record<string, number> = {
+  "0%": 1,
   "100%": 0,
   "75%": 0.25,
   "50%": 0.5,
@@ -300,9 +301,8 @@ export default class DreadVault extends Unit3D {
         torrent.downloadVolumeFactor = downloadVolumeFactor;
       }
 
-      if (doubleUpload) {
-        torrent.uploadVolumeFactor = 2;
-      }
+      // 与 Jackett 一致：double_upload 是布尔值，false 表示已知的「正常」（1），不是未知
+      torrent.uploadVolumeFactor = doubleUpload ? 2 : 1;
     }
 
     if (internal) {

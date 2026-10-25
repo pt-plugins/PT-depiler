@@ -697,18 +697,19 @@ export default class MTeam extends PrivateSite {
     return torrent;
   }
 
-  /** 站点折扣枚举 → 下载量系数。注意 PERCENT_70 是「减免 70%」，即按 30% 计费 */
-  private mapDiscountToFactor(discount?: string | null): number | undefined {
-    switch (discount) {
-      case "FREE":
-        return 0;
-      case "PERCENT_70":
-        return 0.3;
-      case "PERCENT_50":
-        return 0.5;
-      default:
-        return undefined;
-    }
+  /**
+   * 站点折扣枚举 → 量系数，与 Jackett 的 `MTeamTp.cs` 对齐：
+   * `FREE → 下载 0`、`PERCENT_50 → 0.5`、`PERCENT_70 → 0.3`（减免 70% 即按 30% 计费），
+   * `_2X_*` 前缀表示双倍上传（上传 = 2），其余（含 NORMAL）按正常 1 计。
+   * Jackett 未列出的 `_2X_PERCENT_70` / `_2X` 按同一命名规则推得。
+   */
+  private mapDiscountToFactors(discount?: string | null): { download: number; upload: number } {
+    const normalized = (discount ?? "NORMAL").toUpperCase();
+    const upload = /^_?2X/.test(normalized) ? 2 : 1;
+    const base = normalized.replace(/^_?2X_?/, "");
+
+    const download = base === "FREE" ? 0 : base === "PERCENT_50" ? 0.5 : base === "PERCENT_70" ? 0.3 : 1;
+    return { download, upload };
   }
 
   protected override parseTorrentRowForTags(
@@ -716,21 +717,20 @@ export default class MTeam extends PrivateSite {
     row: IMTeamRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    // 优先处理全站促销规则
-    let downloadVolumeFactor: number | undefined;
+    // 优先处理全站促销规则（Jackett 只读 status.discount，这里保留本站既有的 promotionRule 优先级）
+    let factors: { download: number; upload: number };
     if (row.status?.promotionRule) {
-      downloadVolumeFactor = this.mapDiscountToFactor(row.status.promotionRule.discount ?? "NORMAL");
+      factors = this.mapDiscountToFactors(row.status.promotionRule.discount ?? "NORMAL");
     } else if (row.status?.mallSingleFree) {
       // 处理 成人区限时free
-      downloadVolumeFactor = 0;
+      factors = { download: 0, upload: 1 };
     } else {
       // 其他促销状态 从 status.discount 中获取
-      downloadVolumeFactor = this.mapDiscountToFactor(row.status?.discount ?? "NORMAL");
+      factors = this.mapDiscountToFactors(row.status?.discount ?? "NORMAL");
     }
 
-    if (downloadVolumeFactor !== undefined) {
-      torrent.downloadVolumeFactor = downloadVolumeFactor;
-    }
+    torrent.downloadVolumeFactor = factors.download;
+    torrent.uploadVolumeFactor = factors.upload;
 
     const tags: ITorrentTag[] = [];
     if (row.labelsNew && row.labelsNew.length > 0) {
