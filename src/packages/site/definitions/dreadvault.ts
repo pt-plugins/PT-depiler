@@ -40,6 +40,19 @@ const categoryMap: Record<number, string> = {
   4: "SoundTrack",
 };
 
+/**
+ * Unit3D 的 `freeleech` 字段 → 下载量系数。
+ * 沿用本仓库既有口径：字段里的百分比直接作为「计费比例」（`75%` → 计费 75% → 标签 `75%`）。
+ * ⚠️ 若实测确认该字段表达的是「减免比例」（Jackett 对 Unit3D 有 75% → 0.25 的写法），
+ * 这里改成 `1 - x` 即可，同时 Unit3D schema 的 DOM 标签映射需要一起改。
+ */
+const freeleechFactorMap: Record<string, number> = {
+  "100%": 0,
+  "75%": 0.75,
+  "50%": 0.5,
+  "25%": 0.25,
+};
+
 interface IDreadVaultRawTorrent {
   attributes?: {
     freeleech?: string;
@@ -277,22 +290,17 @@ export default class DreadVault extends Unit3D {
 
     if (featured) {
       // featured（精选）在 Unit3D 中等价于 100% 免费 + 双倍上传
-      tags.push({ name: "Free", color: "blue" });
-      tags.push({ name: "2xUp", color: "lime" });
+      torrent.downloadVolumeFactor = 0;
+      torrent.uploadVolumeFactor = 2;
       tags.push({ name: "精选", color: "deep-purple" });
     } else {
-      if (freeleech === "100%") {
-        tags.push({ name: "Free", color: "blue" });
-      } else if (freeleech === "75%") {
-        tags.push({ name: "75%", color: "lime-darken-3" });
-      } else if (freeleech === "50%") {
-        tags.push({ name: "50%", color: "orange" });
-      } else if (freeleech === "25%") {
-        tags.push({ name: "25%", color: "purple" });
+      const downloadVolumeFactor = freeleechFactorMap[freeleech];
+      if (downloadVolumeFactor !== undefined) {
+        torrent.downloadVolumeFactor = downloadVolumeFactor;
       }
 
       if (doubleUpload) {
-        tags.push({ name: "2xUp", color: "lime" });
+        torrent.uploadVolumeFactor = 2;
       }
     }
 

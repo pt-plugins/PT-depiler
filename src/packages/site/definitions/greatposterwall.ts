@@ -24,12 +24,17 @@ interface gpwTorrent extends groupTorrent {
   chineseDubbed: string;
 }
 
-const freeTypeMap: Record<string, ITorrentTag> = {
-  "11": { name: "75%" },
-  "12": { name: "50%" },
-  "13": { name: "25%" },
-  "1": { name: "Free" },
-  "2": { name: "Neutral", color: "cyan" },
+/**
+ * GPW 的 freeType → 量系数。口径与既有标签保持一致：
+ * 11 = 按 75% 计费、12 = 50%、13 = 25%、1 = 免费、2 = 中性（不计上传也不计下载）。
+ * ⚠️ 若实测确认 freeType 的百分比是「减免比例」，把 11/12/13 改成 1 - x 即可。
+ */
+const freeTypeFactorMap: Record<string, { downloadVolumeFactor?: number; uploadVolumeFactor?: number }> = {
+  "11": { downloadVolumeFactor: 0.75 },
+  "12": { downloadVolumeFactor: 0.5 },
+  "13": { downloadVolumeFactor: 0.25 },
+  "1": { downloadVolumeFactor: 0 },
+  "2": { downloadVolumeFactor: 0, uploadVolumeFactor: 0 },
 };
 
 // https://github.com/Mosasauroidea/GazellePW/raw/86c4bedf727691b5a97af42a4864869d18446449/src/locales/zh-Hans/zh-Hans.yaml
@@ -329,10 +334,13 @@ export default class GreatPosterWall extends GazelleJSONAPI {
     const { authkey, passkey } = await this.getAuthKey();
 
     const tags: ITorrentTag[] = [];
+
+    let downloadVolumeFactor: number | undefined;
+    let uploadVolumeFactor: number | undefined;
     if (torrent.isPersonalFreeleech) {
-      tags.push({ name: "Free", color: "blue" });
-    } else if (freeTypeMap[torrent.freeType]) {
-      tags.push(freeTypeMap[torrent.freeType]);
+      downloadVolumeFactor = 0;
+    } else if (freeTypeFactorMap[torrent.freeType]) {
+      ({ downloadVolumeFactor, uploadVolumeFactor } = freeTypeFactorMap[torrent.freeType]);
     }
 
     const attrs = torrent.remasterTitle.split("/").map((s) => s.trim());
@@ -366,6 +374,8 @@ export default class GreatPosterWall extends GazelleJSONAPI {
       leechers: torrent.leechers,
       completed: torrent.snatches,
       category: group.releaseType || "",
+      downloadVolumeFactor,
+      uploadVolumeFactor,
       tags,
       ext_imdb: group.imdbId,
       ext_douban: group.doubanId !== "0" ? group.doubanId : null,

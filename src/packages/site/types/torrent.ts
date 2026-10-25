@@ -45,6 +45,27 @@ export interface ITorrent {
   category?: string | number;
   tags?: ITorrentTag[];
 
+  /**
+   * 下载量系数（对应 torznab / Jackett 的 `downloadvolumefactor`）：
+   *  - `0`：免费下载（Free）
+   *  - `0 < d < 1`：按比例计算下载量（如 `0.5` 即 50%）
+   *  - `1`：正常计算下载量
+   *  - `undefined`：未知（**不要用 `1` 表示未知**）
+   *
+   * 与 `tags` 的关系：二者同时存在（`utils/promotion.ts` 单点派生），factor 优先；
+   * 只有一个时由另一个反推。`0` 是合法值，判断必须写 `!== undefined`。
+   */
+  downloadVolumeFactor?: number;
+
+  /**
+   * 上传量系数（对应 torznab / Jackett 的 `uploadvolumefactor`）：
+   *  - `0`：不计上传量
+   *  - `1`：正常计算上传量
+   *  - `> 1`：多倍上传（如 `2` 即 2x）
+   *  - `undefined`：未知
+   */
+  uploadVolumeFactor?: number;
+
   [key: `ext_${TAdvanceSearchKeyword}`]: string | number | null; // 外部资源id
 
   // 对于PT种子才 获取以下部分

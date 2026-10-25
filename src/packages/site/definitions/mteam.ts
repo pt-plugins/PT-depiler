@@ -697,14 +697,15 @@ export default class MTeam extends PrivateSite {
     return torrent;
   }
 
-  private mapDiscountToTag(discount?: string | null): ITorrentTag | undefined {
+  /** 站点折扣枚举 → 下载量系数。注意 PERCENT_70 是「减免 70%」，即按 30% 计费 */
+  private mapDiscountToFactor(discount?: string | null): number | undefined {
     switch (discount) {
       case "FREE":
-        return { name: "Free", color: "blue" };
+        return 0;
       case "PERCENT_70":
-        return { name: "30%", color: "indigo" };
+        return 0.3;
       case "PERCENT_50":
-        return { name: "50%", color: "orange" };
+        return 0.5;
       default:
         return undefined;
     }
@@ -715,25 +716,23 @@ export default class MTeam extends PrivateSite {
     row: IMTeamRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    const tags: ITorrentTag[] = [];
-
     // 优先处理全站促销规则
+    let downloadVolumeFactor: number | undefined;
     if (row.status?.promotionRule) {
-      const globalDiscount = row.status.promotionRule.discount ?? "NORMAL";
-      const tag = this.mapDiscountToTag(globalDiscount);
-      if (tag) tags.push(tag);
-    } else {
+      downloadVolumeFactor = this.mapDiscountToFactor(row.status.promotionRule.discount ?? "NORMAL");
+    } else if (row.status?.mallSingleFree) {
       // 处理 成人区限时free
-      if (row.status?.mallSingleFree) {
-        tags.push({ name: "Free", color: "blue" });
-      } else {
-        // 其他促销状态 从 status.discount 中获取
-        const discount = row.status?.discount ?? "NORMAL";
-        const tag = this.mapDiscountToTag(discount);
-        if (tag) tags.push(tag);
-      }
+      downloadVolumeFactor = 0;
+    } else {
+      // 其他促销状态 从 status.discount 中获取
+      downloadVolumeFactor = this.mapDiscountToFactor(row.status?.discount ?? "NORMAL");
     }
 
+    if (downloadVolumeFactor !== undefined) {
+      torrent.downloadVolumeFactor = downloadVolumeFactor;
+    }
+
+    const tags: ITorrentTag[] = [];
     if (row.labelsNew && row.labelsNew.length > 0) {
       const uniqueLabels = Array.from(new Set(row.labelsNew)); // 去重
       tags.push(...uniqueLabels.map((x) => ({ name: x })));

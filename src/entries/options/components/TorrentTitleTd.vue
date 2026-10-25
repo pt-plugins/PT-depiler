@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import { socialBuildUrlMap } from "@ptd/social";
-import type { ITorrent } from "@ptd/site";
+import { tagsToPromotion, type ITorrent, type ITorrentTag } from "@ptd/site";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
 
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -54,6 +54,30 @@ function tempHideTag(name: string) {
   if (!configStore.searchEntifyControl.hiddenTagNames.includes(name)) {
     configStore.searchEntifyControl.hiddenTagNames = [...configStore.searchEntifyControl.hiddenTagNames, name];
   }
+}
+
+/** 优惠标签的数值释义（由 tagsToPromotion 反推），非优惠标签返回 undefined */
+function tagTooltip(tag: ITorrentTag): string | undefined {
+  const { downloadVolumeFactor, uploadVolumeFactor } = tagsToPromotion([tag]);
+  const parts: string[] = [];
+
+  if (downloadVolumeFactor !== undefined) {
+    parts.push(
+      downloadVolumeFactor === 0
+        ? t("SearchEntity.index.tagTooltip.freeDownload")
+        : t("SearchEntity.index.tagTooltip.downloadPercent", [Math.round(downloadVolumeFactor * 100)]),
+    );
+  }
+
+  if (uploadVolumeFactor !== undefined && uploadVolumeFactor !== 1) {
+    parts.push(
+      uploadVolumeFactor === 0
+        ? t("SearchEntity.index.tagTooltip.noUpload")
+        : t("SearchEntity.index.tagTooltip.uploadTimes", [uploadVolumeFactor]),
+    );
+  }
+
+  return parts.length > 0 ? parts.join(" · ") : undefined;
 }
 
 function loadSocialInformation(site: TSupportSocialSite) {
@@ -198,6 +222,7 @@ function canAdvanceSearch(site: TSupportSocialSite) {
               v-bind="props"
               :color="tag.color"
               :closable="isHovering as unknown as boolean"
+              :title="tagTooltip(tag)"
               class="mr-1"
               label
               size="x-small"

@@ -519,9 +519,17 @@
         "searching": "搜索中…",
         "snapshot": "搜索快照"
       },
+      "billableSize": "计费体积",
+      "billableSizeHint": "已选种子的实际计费体积（按下载量系数折算；系数未知时按 1 计）",
       "filterLabel": "过滤搜索结果",
       "highlightSameSizeTorrent": "按大小排序时标记相同大小的种子",
       "limitTorrentTitleTdWidth": "限制种子标题宽度",
+      "promoFilter": {
+        "all": "显示全部种子",
+        "discount": "只显示有优惠的种子",
+        "free": "只显示免费种子",
+        "label": "优惠筛选"
+      },
       "selectedTorrents": "已选择 {0} 个种子",
       "showSiteName": "显示站点名称",
       "showSocialInformation": "显示媒体评价信息",
@@ -532,11 +540,18 @@
         "category": "分类",
         "comments": "评论",
         "completed": "完成",
+        "downloadVolumeFactor": "优惠",
         "leechers": "下载",
         "seeders": "上传",
         "size": "大小",
         "time": "发布于(≈)",
         "title": "标题"
+      },
+      "tagTooltip": {
+        "downloadPercent": "下载量按 {0}% 计算",
+        "freeDownload": "下载不计流量",
+        "noUpload": "上传不计流量",
+        "uploadTimes": "上传量 ×{0}"
       },
       "uploadAtFormatAsAlive": "上传时间显示为相对时间"
     },

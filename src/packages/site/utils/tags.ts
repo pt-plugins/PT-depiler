@@ -12,11 +12,12 @@ interface IPreDefinedTorrentTag extends ITorrentTag {
  */
 export const preDefinedTorrentTagMap: IPreDefinedTorrentTag[] = [
   // 优惠类
-  { name: "NL.", color: "deep-purple", aka: ["Neutral"] }, // 中性种子（0xUP & 0xDL）
+  { name: "NL.", color: "deep-purple", aka: ["Neutral", "0流量%"] }, // 中性种子（0xUP & 0xDL）
   { name: "Freeload", color: "red", aka: [] }, // Freeload
   { name: "2xFree", color: "green", aka: [] }, // 免费下载 + 2x 上传
   { name: "2xUp", color: "lime", aka: [] }, // 2x 上传
   { name: "2x50%", color: "light-green", aka: [] }, // 2x 上传 + 50% 下载
+  { name: "1.5xUp", color: "light-green", aka: [] }, // 1.5x 上传
   { name: "25%", color: "purple", aka: [] }, // 25% 下载
   { name: "30%", color: "indigo", aka: [] }, // 30% 下载
   { name: "35%", color: "indigo-darken-3", aka: [] }, // 35% 下载

@@ -222,15 +222,24 @@ export function checkRangeValue(
   format: TFormat = {},
   // @ts-ignore
 ): boolean | undefined {
-  const itemValue = get(rawItem, keyword);
-  if (filter[keyword] && typeof itemValue !== "undefined") {
-    const valueFormat = getValueFormat(keyword, format);
-    const value = valueFormat.parse(itemValue) as number;
-    const from = valueFormat.parse((filter[keyword] as any).from || -Infinity) as number;
-    const to = valueFormat.parse((filter[keyword] as any).to || Infinity) as number;
+  const range = filter[keyword] as { from?: unknown; to?: unknown } | undefined;
+  if (!range) return undefined;
 
-    return Boolean(from && value >= from && to && value <= to);
-  }
+  const itemValue = get(rawItem, keyword);
+  // 与 checkKeywordValue 保持一致：字段缺失视为不匹配，避免「按优惠筛选」把未知系数的种子也算进来
+  if (typeof itemValue === "undefined") return false;
+
+  const valueFormat = getValueFormat(keyword, format);
+  const value = Number(valueFormat.parse(itemValue));
+  if (!Number.isFinite(value)) return false;
+
+  // 注意不能用 `from || -Infinity` / `Boolean(from && ...)`：边界为 0 时会被当成「未设置」
+  const hasFrom = range.from !== undefined && range.from !== null && range.from !== "";
+  const hasTo = range.to !== undefined && range.to !== null && range.to !== "";
+  const from = hasFrom ? Number(valueFormat.parse(range.from)) : Number.NEGATIVE_INFINITY;
+  const to = hasTo ? Number(valueFormat.parse(range.to)) : Number.POSITIVE_INFINITY;
+
+  return (!hasFrom || value >= from) && (!hasTo || value <= to);
 }
 
 interface TableCustomFilterOptions<ItemType> {

@@ -3,6 +3,8 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify/framework";
 
+import { getTorrentVolumeFactors } from "@ptd/site";
+
 import { useConfigStore } from "@/options/stores/config.ts";
 import { formatSize } from "@/options/utils.ts";
 import type { ISearchResultTorrent } from "@/shared/types/storages/runtime.ts";
@@ -28,19 +30,20 @@ const selectedSites = ref<string[]>([]);
 // 优化后的选中种子信息计算：直接基于选中对象计算
 const selectedTorrentsInfo = computed(() => {
   const selectedObjects = selectedTorrents;
-  const count = selectedObjects.length;
-
-  // 如果没有选中任何项，直接返回
-  if (count === 0) {
-    return { count: 0, totalSize: 0 };
-  }
 
   // 直接计算选中对象的总大小，避免遍历查找
   const totalSize = selectedObjects.reduce((sum, torrent) => sum + (torrent.size || 0), 0);
 
+  // 计费体积：按下载量系数折算（系数未知时按 1 计，即与总大小一致）
+  const billableSize = selectedObjects.reduce((sum, torrent) => {
+    const { downloadVolumeFactor } = getTorrentVolumeFactors(torrent);
+    return sum + (torrent.size || 0) * (downloadVolumeFactor ?? 1);
+  }, 0);
+
   return {
-    count,
+    count: selectedObjects.length,
     totalSize,
+    billableSize,
   };
 });
 
@@ -84,6 +87,13 @@ function updateQuickSiteFilter() {
         <v-divider class="mx-2" vertical />
         <v-icon icon="mdi-harddisk" start />
         {{ formatSize(selectedTorrentsInfo.totalSize) }}
+        <template v-if="selectedTorrentsInfo.billableSize !== selectedTorrentsInfo.totalSize">
+          <v-divider class="mx-2" vertical />
+          <v-icon icon="mdi-download" start />
+          <span :title="t('SearchEntity.index.billableSizeHint')">
+            {{ t("SearchEntity.index.billableSize") }}: {{ formatSize(selectedTorrentsInfo.billableSize) }}
+          </span>
+        </template>
       </v-chip>
     </div>
   </v-alert>

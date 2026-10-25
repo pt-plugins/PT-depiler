@@ -13,7 +13,7 @@ const metadataStore = useMetadataStore();
 export const tableCustomFilter = useTableCustomFilter({
   parseOptions: {
     keywords: ["site", "tags", "status"],
-    ranges: ["time", "size", "seeders", "leechers", "completed"],
+    ranges: ["time", "size", "seeders", "leechers", "completed", "downloadVolumeFactor", "uploadVolumeFactor"],
   },
   titleFields: ["title", "subTitle"],
   initialSearchValue: metadataStore.lastSearchFilter,

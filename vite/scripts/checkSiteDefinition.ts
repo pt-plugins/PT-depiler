@@ -724,6 +724,57 @@ function checkSiteDefinition(file: string, seenIds: Map<string, string>, knownSc
     }
   }
 
+  // 13. 优惠信息双写警告：factor 与「可被 factor 派生」的优惠 tags 同时声明时，运行时会以 factor 为准重建 tags
+  // 注意：Freeload / 可退款 不属于倍率语义、不会被重建，所以不在下面的名单里（它们与 factor 共存是合法的）
+  const volumeFactorFields = new Set(["downloadVolumeFactor", "uploadVolumeFactor"]);
+  const promotionTagNames = new Set([
+    "NL.",
+    "Free",
+    "2xFree",
+    "2xUp",
+    "2x",
+    "1.5xUp",
+    "2x50%",
+    "25%",
+    "30%",
+    "35%",
+    "50%",
+    "70%",
+    "75%",
+  ]);
+  const visitPromotion = (node: ts.Node) => {
+    if (ts.isObjectLiteralExpression(node)) {
+      let factorNode: ts.Node | undefined;
+      let hasPromotionTag = false;
+
+      for (const prop of node.properties) {
+        if (!ts.isPropertyAssignment(prop)) continue;
+        const field = readName(prop.name);
+        if (field && volumeFactorFields.has(field)) factorNode = prop;
+        if (field !== "tags") continue;
+
+        const tagsNode = unwrap(prop.initializer);
+        if (!tagsNode || !ts.isArrayLiteralExpression(tagsNode)) continue;
+        hasPromotionTag = tagsNode.elements.some((element) => {
+          const tagObj = unwrap(element);
+          if (!tagObj || !ts.isObjectLiteralExpression(tagObj)) return false;
+          const name = asString(getProp(tagObj, "name"));
+          return name !== undefined && promotionTagNames.has(name);
+        });
+      }
+
+      if (factorNode && hasPromotionTag) {
+        warnings.push(
+          `${at(factorNode)}  同时声明了优惠 factor 与优惠 tags：运行时会以 factor 为准重建优惠标签` +
+            `（utils/promotion.ts 的 normalizeTorrentPromotion），手写的这几个 tags 会被覆盖，删掉它们即可`,
+        );
+      }
+    }
+
+    ts.forEachChild(node, visitPromotion);
+  };
+  visitPromotion(meta);
+
   return result;
 }
 

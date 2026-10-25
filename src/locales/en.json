@@ -519,9 +519,17 @@
         "searching": "Searching...",
         "snapshot": "Search Snapshot"
       },
+      "billableSize": "Billable size",
+      "billableSizeHint": "Actual billable size of the selected torrents (weighted by download volume factor; unknown factors count as 1)",
       "filterLabel": "Filter search results",
       "highlightSameSizeTorrent": "Mark same-size torrents when sorted by size",
       "limitTorrentTitleTdWidth": "Limit torrent title column width",
+      "promoFilter": {
+        "all": "Show all torrents",
+        "discount": "Only show torrents with a promotion",
+        "free": "Only show free torrents",
+        "label": "Promotion filter"
+      },
       "selectedTorrents": "Selected {0} torrents",
       "showSiteName": "Show Site Name",
       "showSocialInformation": "Show Media Rating Information",
@@ -532,11 +540,18 @@
         "category": "Category",
         "comments": "Comments",
         "completed": "Completed",
+        "downloadVolumeFactor": "Promo",
         "leechers": "Leechers",
         "seeders": "Seeders",
         "size": "Size",
         "time": "Published(≈)",
         "title": "Title"
+      },
+      "tagTooltip": {
+        "downloadPercent": "Download counts {0}%",
+        "freeDownload": "Free download",
+        "noUpload": "No upload credit",
+        "uploadTimes": "Upload counts ×{0}"
       },
       "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
     },

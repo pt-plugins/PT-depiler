@@ -1,6 +1,6 @@
 import { uniqBy } from "es-toolkit";
 import { getMediaServer } from "@ptd/mediaServer";
-import { normalizedTorrentTagMap, sortTorrentTags, type TPatterns } from "@ptd/site";
+import { normalizeTorrentPromotion, normalizedTorrentTagMap, sortTorrentTags, type TPatterns } from "@ptd/site";
 
 import { onMessage, sendMessage } from "@/messages.ts";
 import type {
@@ -37,6 +37,10 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
           item.tags.push({ name: "官方" });
         }
       }
+
+      // 让种子同时具备 factor 与 tag 两种优惠表示（factor 优先；仅 tags 时反推 factor）。
+      // 这里也兜住了不经过 parseWholeTorrentFromRow 的 JSON API schema（如 GazelleJSONAPI 直接构造 ITorrent）。
+      normalizeTorrentPromotion(item);
 
       // 尽可能将 tags 转换预定义的部分，去重并排序
       item.tags = sortTorrentTags(

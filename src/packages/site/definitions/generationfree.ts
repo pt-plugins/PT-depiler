@@ -35,6 +35,18 @@ const categoryMap: Record<number, string> = {
   8: "体育",
 };
 
+/**
+ * Unit3D 的 `freeleech` 字段 → 下载量系数。
+ * 沿用本仓库既有口径：字段里的百分比直接作为「计费比例」（`75%` → 计费 75% → 标签 `75%`）。
+ * ⚠️ 若实测确认该字段表达的是「减免比例」，这里改成 `1 - x` 即可（dreadvault 同源字段同理）。
+ */
+const freeleechFactorMap: Record<string, number> = {
+  "100%": 0,
+  "75%": 0.75,
+  "50%": 0.5,
+  "25%": 0.25,
+};
+
 interface IGenerationFreeRawTorrent {
   attributes?: {
     freeleech?: string;
@@ -191,17 +203,17 @@ export default class GenerationFree extends Unit3D {
 
     if (featured) {
       // featured（精选）在 Unit3D 中等价于 100% 免费 + 双倍上传
-      tags.push({ name: "Free", color: "blue" });
-      tags.push({ name: "2xUp", color: "green" });
+      torrent.downloadVolumeFactor = 0;
+      torrent.uploadVolumeFactor = 2;
       tags.push({ name: "精选", color: "deep-purple" });
     } else {
-      if (freeleech === "100%") {
-        tags.push({ name: "Free", color: "blue" });
-      } else if (freeleech === "75%" || freeleech === "50%" || freeleech === "25%") {
-        tags.push({ name: freeleech.replace("%", "%"), color: "orange" });
+      const downloadVolumeFactor = freeleechFactorMap[freeleech];
+      if (downloadVolumeFactor !== undefined) {
+        torrent.downloadVolumeFactor = downloadVolumeFactor;
       }
+
       if (doubleUpload) {
-        tags.push({ name: "2xUp", color: "green" });
+        torrent.uploadVolumeFactor = 2;
       }
     }
 

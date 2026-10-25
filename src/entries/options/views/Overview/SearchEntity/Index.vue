@@ -3,7 +3,7 @@ import { computed, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDisplay, type DataTableHeader } from "vuetify";
-import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
+import { EResultParseStatus, ETorrentStatus, getTorrentVolumeFactors, normalizeTorrentPromotion } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -34,6 +34,16 @@ const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 const display = useDisplay();
 
+/**
+ * 旧搜索快照 / 旧会话恢复的数据没有 factor 字段，补一次归一，
+ * 让优惠筛选、排序与计费体积对历史数据同样有效（幂等，对新数据无副作用）。
+ */
+function normalizePromotions(items: ISearchResultTorrent[] = []) {
+  items.forEach((item) => normalizeTorrentPromotion(item));
+}
+
+normalizePromotions(runtimeStore.search.searchResult);
+
 const showAdvanceFilterGenerateDialog = ref<boolean>(false);
 const showSearchStatusDialog = ref<boolean>(false);
 const showSaveSnapshotDialog = ref<boolean>(false);
@@ -53,6 +63,12 @@ const fullTableHeader = computed(
         props: { disabled: true },
       },
       { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
+      {
+        title: t("SearchEntity.index.table.downloadVolumeFactor"),
+        key: "downloadVolumeFactor",
+        align: "center",
+        sortRaw: promoSortRaw,
+      },
       { title: t("SearchEntity.index.table.size"), key: "size", align: "end" },
       { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end" },
       { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end" },
@@ -88,7 +104,10 @@ watch(
   (newParams, oldParams) => {
     if (newParams.snapshot) {
       metadataStore.getSearchSnapshotData(newParams.snapshot as string).then((data) => {
-        data && (runtimeStore.search = { ...data, snapshot: newParams.snapshot as string });
+        if (data) {
+          normalizePromotions(data.searchResult);
+          runtimeStore.search = { ...data, snapshot: newParams.snapshot as string };
+        }
         // 如果启用了快速站点筛选，则重置一下筛选器，以防止快速站点筛选中无站点数据
         if (configStore.searchEntity.quickSiteFilter) {
           buildAdvanceItemPropsFn();
@@ -201,6 +220,50 @@ function sizeGroupRowProps({ item }: { item: ISearchResultTorrent }) {
   const color = sizeGroupColors.value.get(getSizeKey(item.size));
   return color ? { style: { "--ptd-size-group-color": color } } : {};
 }
+
+/**
+ * 优惠列的排序：下载系数升序（免费在前），同系数时上传倍数高的在前；未知系数排最后。
+ * 用 sortRaw 是为了拿到原始种子对象（该列默认隐藏，用户勾选后才出现）。
+ */
+function promoSortRaw(a: ISearchResultTorrent, b: ISearchResultTorrent): number {
+  const { downloadVolumeFactor: downloadA, uploadVolumeFactor: uploadA } = getTorrentVolumeFactors(a);
+  const { downloadVolumeFactor: downloadB, uploadVolumeFactor: uploadB } = getTorrentVolumeFactors(b);
+
+  const downloadFactorA = downloadA ?? Number.POSITIVE_INFINITY;
+  const downloadFactorB = downloadB ?? Number.POSITIVE_INFINITY;
+  if (downloadFactorA !== downloadFactorB) return downloadFactorA - downloadFactorB;
+
+  return (uploadB ?? 1) - (uploadA ?? 1);
+}
+
+/** 优惠列展示：下载计费比例（Free / 50%），有加倍上传时追加；未知或正常显示 - */
+function promoCellText(item: ISearchResultTorrent): string {
+  const { downloadVolumeFactor, uploadVolumeFactor } = getTorrentVolumeFactors(item);
+  if (downloadVolumeFactor === undefined || downloadVolumeFactor >= 1) return "-";
+
+  const download = downloadVolumeFactor === 0 ? "Free" : `${Math.round(downloadVolumeFactor * 100)}%`;
+  return uploadVolumeFactor !== undefined && uploadVolumeFactor > 1
+    ? `${download} · ${uploadVolumeFactor}xUp`
+    : download;
+}
+
+/** 优惠快捷筛选：全部 / 仅免费（系数 0）/ 有优惠（系数 < 1） */
+const promoFilter = ref<"all" | "free" | "discount">("all");
+
+const tableItems = computed(() => {
+  const items = runtimeStore.search.searchResult;
+  switch (promoFilter.value) {
+    case "free":
+      return items.filter((item) => getTorrentVolumeFactors(item).downloadVolumeFactor === 0);
+    case "discount":
+      return items.filter((item) => {
+        const { downloadVolumeFactor } = getTorrentVolumeFactors(item);
+        return downloadVolumeFactor !== undefined && downloadVolumeFactor < 1;
+      });
+    default:
+      return items;
+  }
+});
 </script>
 
 <template>
@@ -392,6 +455,32 @@ function sizeGroupRowProps({ item }: { item: ISearchResultTorrent }) {
           </template>
         </v-combobox>
 
+        <!-- 优惠快捷筛选：全部 / 仅免费 / 有优惠 -->
+        <v-btn-toggle
+          v-model="promoFilter"
+          :aria-label="t('SearchEntity.index.promoFilter.label')"
+          class="ml-1"
+          density="compact"
+          mandatory
+          variant="text"
+        >
+          <v-btn :title="t('SearchEntity.index.promoFilter.all')" icon="mdi-view-list" size="small" value="all" />
+          <v-btn
+            :title="t('SearchEntity.index.promoFilter.free')"
+            color="primary"
+            icon="mdi-gift"
+            size="small"
+            value="free"
+          />
+          <v-btn
+            :title="t('SearchEntity.index.promoFilter.discount')"
+            color="primary"
+            icon="mdi-sale"
+            size="small"
+            value="discount"
+          />
+        </v-btn-toggle>
+
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilterRef"
@@ -419,7 +508,7 @@ function sizeGroupRowProps({ item }: { item: ISearchResultTorrent }) {
         :custom-filter="tableFilterFn"
         :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
         :headers="tableHeader"
-        :items="runtimeStore.search.searchResult"
+        :items="tableItems"
         :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
         :search="tableFilterRef"
         :sort-by="configStore.tableBehavior.SearchEntity.sortBy"
@@ -444,6 +533,13 @@ function sizeGroupRowProps({ item }: { item: ISearchResultTorrent }) {
         <!-- 主标题，副标题，优惠及标签 -->
         <template #item.title="{ item }">
           <TorrentTitleTd :item="item" />
+        </template>
+
+        <!-- 优惠（下载量系数），默认隐藏，勾选后可按优惠排序 -->
+        <template #item.downloadVolumeFactor="{ item }">
+          <span class="text-no-wrap" :class="promoCellText(item) === '-' ? 'text-grey' : ''">
+            {{ promoCellText(item) }}
+          </span>
         </template>
 
         <!-- 种子大小，下载情况 -->
