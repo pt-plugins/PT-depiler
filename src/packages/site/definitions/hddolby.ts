@@ -166,7 +166,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  officialGroupPattern: [/-DBTV|-QHstudIo|Dream$|.*@dream/i],
+  officialGroupPattern: [/[@-]\s?(Dream|DBTV|QHstudIo|HDo)\b/i],
 
   search: {
     ...SchemaMetadata.search,

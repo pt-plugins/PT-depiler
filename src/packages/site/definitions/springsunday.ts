@@ -227,7 +227,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  officialGroupPattern: [/-(CMCT|cmctv)/i],
+  officialGroupPattern: [/[@-]\s?(CMCT(?:V|A)?|Oldboys|GTR)\b/i],
 
   search: {
     ...SchemaMetadata.search,

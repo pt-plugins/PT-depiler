@@ -52,6 +52,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/[@-]\s?(Bts(?:HD|TV|PAD)?|Zone)\b/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

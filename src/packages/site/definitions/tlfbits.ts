@@ -42,7 +42,7 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
-  officialGroupPattern: [/-tlf/i],
+  officialGroupPattern: [/[@-]\s?(iNT-TLF|HALFCD-TLF|Mini(?:SD|HD|FHD)-TLF|TLF)\b/i],
 
   search: {
     ...SchemaMetadata.search,

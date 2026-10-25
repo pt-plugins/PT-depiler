@@ -163,7 +163,7 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
-  officialGroupPattern: [/(-Ao|-.*OurBits|-FLTTH|-IloveTV|OurTV|-IloveHD|OurPad|-MGs)$/i],
+  officialGroupPattern: [/[@-]\s?(OurBits|OurTV|OurPad|FLTTH|iLoveTV|iLoveHD|Ao|PbK|MGs)\b/i],
 
   search: {
     ...SchemaMetadata.search,

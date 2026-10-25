@@ -121,7 +121,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  officialGroupPattern: [/(-pthome|-pth|.*@pth)/i],
+  officialGroupPattern: [/[@-]\s?(PTH(?:ome|web|tv|eBook|Audio|music)?)\b/i],
 
   search: {
     ...SchemaMetadata.search,

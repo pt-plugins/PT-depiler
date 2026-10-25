@@ -138,7 +138,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  officialGroupPattern: [/-(Pter|.*Pter)/i],
+  officialGroupPattern: [/[@-]\s?(Pter(?:WEB|MV|TV)?)\b/i],
 
   search: {
     ...SchemaMetadata.search,

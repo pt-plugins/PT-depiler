@@ -297,7 +297,7 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
-  officialGroupPattern: [/-(HDChina|HDWinG|HDCTV|HDWTV)$/i],
+  officialGroupPattern: [/[@-]\s?(HDChina|HDCTV|HDWinG|HDWTV|HDC|k9611|tudou|iHD)\b/i],
 
   search: {
     ...SchemaMetadata.search!,

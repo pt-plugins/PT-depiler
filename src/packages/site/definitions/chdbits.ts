@@ -151,7 +151,7 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
-  officialGroupPattern: [/-(CHD|.*@CHDBits)|@CHDWEB/i],
+  officialGroupPattern: [/[@-]\s?(CHD(?:Bits|TV|PAD|WEB|HKTV)?|StBOX|OneHD)\b/i],
 
   search: {
     ...SchemaMetadata.search,

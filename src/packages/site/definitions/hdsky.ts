@@ -272,7 +272,7 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
-  officialGroupPattern: [/-(hds|.*@HDSky)/i],
+  officialGroupPattern: [/[@-]\s?(HDSky|HDSWEB|HDSTV|HDSPad|HDS)\b/i],
 
   search: {
     ...SchemaMetadata.search,

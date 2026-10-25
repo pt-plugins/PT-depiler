@@ -333,7 +333,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  officialGroupPattern: [/(-hdh|.*@HDHome)/i],
+  officialGroupPattern: [/[@-]\s?(HDH(?:ome|TV|Pad|WEB)?)\b/i],
 
   search: {
     ...SchemaMetadata.search,

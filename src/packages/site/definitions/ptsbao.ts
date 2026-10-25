@@ -231,7 +231,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  officialGroupPattern: [/-(FFans|sBao|FHDMV|OPS)/i],
+  officialGroupPattern: [/[@-]\s?(OPS|FFans(?:BD|WEB|TV|DVD)?|FHDMv|sBao)\b/i],
 
   levelRequirements: [
     {
