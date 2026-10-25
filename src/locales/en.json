@@ -524,12 +524,6 @@
       "filterLabel": "Filter search results",
       "highlightSameSizeTorrent": "Mark same-size torrents when sorted by size",
       "limitTorrentTitleTdWidth": "Limit torrent title column width",
-      "promoFilter": {
-        "all": "Show all torrents",
-        "discount": "Only show torrents with a promotion",
-        "free": "Only show free torrents",
-        "label": "Promotion filter"
-      },
       "selectedTorrents": "Selected {0} torrents",
       "showSiteName": "Show Site Name",
       "showSocialInformation": "Show Media Rating Information",

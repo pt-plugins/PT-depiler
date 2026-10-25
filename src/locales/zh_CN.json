@@ -524,12 +524,6 @@
       "filterLabel": "过滤搜索结果",
       "highlightSameSizeTorrent": "按大小排序时标记相同大小的种子",
       "limitTorrentTitleTdWidth": "限制种子标题宽度",
-      "promoFilter": {
-        "all": "显示全部种子",
-        "discount": "只显示有优惠的种子",
-        "free": "只显示免费种子",
-        "label": "优惠筛选"
-      },
       "selectedTorrents": "已选择 {0} 个种子",
       "showSiteName": "显示站点名称",
       "showSocialInformation": "显示媒体评价信息",

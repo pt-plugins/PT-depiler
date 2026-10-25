@@ -246,24 +246,6 @@ function promoCellText(item: ISearchResultTorrent): string {
     ? `${download} · ${uploadVolumeFactor}xUp`
     : download;
 }
-
-/** 优惠快捷筛选：全部 / 仅免费（系数 0）/ 有优惠（系数 < 1） */
-const promoFilter = ref<"all" | "free" | "discount">("all");
-
-const tableItems = computed(() => {
-  const items = runtimeStore.search.searchResult;
-  switch (promoFilter.value) {
-    case "free":
-      return items.filter((item) => getTorrentVolumeFactors(item).downloadVolumeFactor === 0);
-    case "discount":
-      return items.filter((item) => {
-        const { downloadVolumeFactor } = getTorrentVolumeFactors(item);
-        return downloadVolumeFactor !== undefined && downloadVolumeFactor < 1;
-      });
-    default:
-      return items;
-  }
-});
 </script>
 
 <template>
@@ -455,32 +437,6 @@ const tableItems = computed(() => {
           </template>
         </v-combobox>
 
-        <!-- 优惠快捷筛选：全部 / 仅免费 / 有优惠 -->
-        <v-btn-toggle
-          v-model="promoFilter"
-          :aria-label="t('SearchEntity.index.promoFilter.label')"
-          class="ml-1"
-          density="compact"
-          mandatory
-          variant="text"
-        >
-          <v-btn :title="t('SearchEntity.index.promoFilter.all')" icon="mdi-view-list" size="small" value="all" />
-          <v-btn
-            :title="t('SearchEntity.index.promoFilter.free')"
-            color="primary"
-            icon="mdi-gift"
-            size="small"
-            value="free"
-          />
-          <v-btn
-            :title="t('SearchEntity.index.promoFilter.discount')"
-            color="primary"
-            icon="mdi-sale"
-            size="small"
-            value="discount"
-          />
-        </v-btn-toggle>
-
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilterRef"
@@ -508,7 +464,7 @@ const tableItems = computed(() => {
         :custom-filter="tableFilterFn"
         :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
         :headers="tableHeader"
-        :items="tableItems"
+        :items="runtimeStore.search.searchResult"
         :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
         :search="tableFilterRef"
         :sort-by="configStore.tableBehavior.SearchEntity.sortBy"
