@@ -14,8 +14,8 @@ export const siteMetadata: ISiteMetadata = {
 
   version: 2,
   id: "hddolby",
-  name: "HD Dolby",
-  aka: ["高清杜比"],
+  name: "UHDDolby",
+  aka: ["高清杜比", "HD Dolby"],
   description: "高清杜比",
   tags: ["影视", "综合"],
   collaborator: ["iceyuamao0510", "tongyifan"],
@@ -23,8 +23,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://www.hddolby.com/"],
-  legacyUrls: ["https://hddolby.com/"],
+  urls: ["https://www.uhddolby.com/"],
+  legacyUrls: ["https://hddolby.com/", "https://www.hddolby.com/"],
 
   category: [
     {
