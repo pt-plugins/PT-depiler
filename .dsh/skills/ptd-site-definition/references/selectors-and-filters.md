@@ -297,6 +297,7 @@ tags: [{ name: "Free", selector: "img.pro_free" }, { name: "50%", selector: "img
 - 只有 `Freeload` / `可退款` / `H&R` / `官方` 这类标签不参与反推、也不会被重建删除（它们不是倍率语义）。
 - `0` 是合法值：判断写 `torrent.downloadVolumeFactor !== undefined`，不要用真值判断。
 - 选择器未命中时 `getFieldData` 会回落成 `""`；归一层把它当未知清掉，自己写代码时别把 `""` 当 0。
+- **注意数据源口径**：UNIT3D 的 `freeleech` 是「免费比例」（`100%` = 全免），计费比例要换算成 `1 - x`；本仓库的标签一律按「计费比例」命名（`25%` = 按 25% 计费）。
 
 ## search 配置
 

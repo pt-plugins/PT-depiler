@@ -36,15 +36,16 @@ const categoryMap: Record<number, string> = {
 };
 
 /**
- * Unit3D 的 `freeleech` 字段 → 下载量系数。
- * 沿用本仓库既有口径：字段里的百分比直接作为「计费比例」（`75%` → 计费 75% → 标签 `75%`）。
- * ⚠️ 若实测确认该字段表达的是「减免比例」，这里改成 `1 - x` 即可（dreadvault 同源字段同理）。
+ * UNIT3D 的 `freeleech` 字段是「免费比例」（0~100，100 = 全免），下载计费比例 = 1 - free%。
+ * 依据 UNIT3D 源码（与 dreadvault 同源字段）：
+ *  - `App\Jobs\ProcessAnnounce`：`creditedDownloadedDelta = $downloadedDelta * (100 - min(100, $torrent->percentFree)) / 100`
+ *  - `App\Services\Unit3dAnnounce::addTorrent`：`download_factor => max(0, 100 - $torrent->free)`
  */
 const freeleechFactorMap: Record<string, number> = {
   "100%": 0,
-  "75%": 0.75,
+  "75%": 0.25,
   "50%": 0.5,
-  "25%": 0.25,
+  "25%": 0.75,
 };
 
 interface IGenerationFreeRawTorrent {

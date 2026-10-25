@@ -40,7 +40,7 @@ Unit3D（UNIT3D-Community-Edition，Laravel + Blade）是近年新建 PT 站最�
 | `search.selectors.time` | `time` 标签；有 `title` 用 `parseValidTimeString(title)`，否则用 `parseTimeToLiveToDate(text)` | 146-158 | 视站点 |
 | `search.selectors.size/author/category/seeders/leechers/completed/comments` | 见源码；`category` 优先取 `data-original-title` 去掉末尾的 "Torrent" 词，回落到 `alt` | 160-211 | 视站点 |
 | `search.selectors.status/progress` | 由 `i.torrent-icons` 的类名映射 `ETorrentStatus`，默认 `unknown` / `0` | 213-229 | 视站点 |
-| `search.selectors.tags` | 11 个标签：Free、2xUp、75%、50%、25%、置顶、可退款、Internal、个人发布、Highspeed、Trump | 230-288 | 常追加站点自有标签 |
+| `search.selectors.tags` | 11 个标签：Free、2xUp、25%、50%、75%、置顶、可退款、Internal、个人发布、Highspeed、Trump | 230-288 | 常追加站点自有标签 |
 | `list[0]` | `urlPattern` 匹配 `/torrents` 根路径，`excludeUrlPattern` 排除 `?view=card` / `?view=grouped` / `?view=poster` | 292-296 | 不需要 |
 | `list[1]` | `/torrents/similar/`，`mergeSearchSelectors: false`，自带 `rows/id/title/url/link` | 297-325 | 不需要 |
 | `detail.urlPattern` | `/torrents/\d+` | 329 | 不需要 |
@@ -128,7 +128,7 @@ Unit3D 覆写了 `getUserInfoResult`（564-612），行为与 `AbstractPrivateSi
 
 | 方法（签名见源码） | 何时覆写 | 行号 |
 | --- | --- | --- |
-| `protected parseTorrentRowForTags(torrent, row, searchConfig)` | 需要在默认标签之外增删标签。默认实现会把同一个种子的多个优惠标签裁剪为只保留最高折扣（Free > 75% > 50% > 25%） | 527-562；范例 `definitions/huno.ts:405` |
+| `protected parseTorrentRowForTags(torrent, row, searchConfig)` | 需要在默认标签之外增删标签。默认实现会把同一个种子的多个优惠标签裁剪为只保留最高折扣（按免费比例：Free > 25% > 50% > 75%） | 527-562；范例 `definitions/huno.ts:405` |
 | `public getUserInfoResult(lastUserInfo = {})` | 抓取流程与默认三页不同（每站自定义路径 / 字段顺序）时整体替换；注意保持 `status`/`updateAt`/`site` 返回结构 | 564-612 |
 | `protected getUserNameFromSite()` | 首页无法用默认 `selectors.name` 取到用户名时 | 614-629 |
 | `protected getUserInfoFromDetailsPage(userName)` | 用户资料页路径不是 `/users/{name}` 时 | 631-644 |
@@ -159,3 +159,4 @@ Unit3D 覆写了 `getUserInfoResult`（564-612），行为与 `AbstractPrivateSi
 8. **`comments` 空值处理**：默认靠 `parseNumber` filter 把空值变成 `0`（208-211）；JSON API 站若接口不返回评论数，写 `comments: { text: 0 }` 更稳妥（`definitions/huno.ts:235`）。
 9. **`list` 只匹配第一条命中的规则**：`transformListPage` 命中即 `break`（`AbstractBittorrentSite.ts:659-665`），新增 `list` 条目要注意顺序与 `urlPattern` 的重叠。
 10. **`id` 必须与文件名一致且只含小写字母数字**（`index.ts:22`、`types/site.ts:36-44`）；`urls` 支持 rot13，加载时会统一还原（`index.ts:53-56`）。
+11. **`freeleech` 是「免费比例」，不是「计费比例」**：UNIT3D 数据库的 `free` 是 0~100 的免费百分比，计费按 `downloaded * (100 - free) / 100`（`App\Jobs\ProcessAnnounce`），announce 服务里 `download_factor = 100 - free`（`App\Services\Unit3dAnnounce`）。所以图标标题的 `75% Free` 实际按 25% 计费，schema 里映射成标签 `25%`；JSON API 站（`definitions/dreadvault.ts`、`definitions/generationfree.ts`）要自己换算成 `1 - x`，不要直接把 `freeleech` 当计费比例用。
