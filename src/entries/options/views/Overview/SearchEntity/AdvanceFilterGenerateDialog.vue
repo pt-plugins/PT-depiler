@@ -12,6 +12,7 @@ import { ETorrentStatus, preDefinedTorrentTagNameSet, sortTorrentTags } from "@p
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils/filter.ts";
 import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
@@ -22,6 +23,7 @@ const showDialog = defineModel<boolean>();
 
 const { t } = useI18n();
 const configStore = useConfigStore();
+const runtimeStore = useRuntimeStore();
 
 const {
   advanceItemPropsRef,
@@ -50,6 +52,27 @@ const filteredTorrentTags = computed(() => {
   return torrentTags.value.filter((tag) => showHiddenTags.value || !hiddenNames.includes(tag.name));
 });
 
+/**
+ * 列表渲染上限：种子/标签数量很大时，一次性挂载成百上千个 v-checkbox（还有 favicon / SiteName 组件）
+ * 会让 v-dialog 打开卡住数秒。首屏只渲染一部分，其余用「显示全部」展开。
+ */
+const MAX_SITE_OPTIONS = 60;
+const MAX_TAG_OPTIONS = 80;
+
+const showAllSites = ref(false);
+const showAllTags = ref(false);
+
+const siteOptions = computed<string[]>(() => advanceItemPropsRef.value.site ?? []);
+const displayedSites = computed(() =>
+  showAllSites.value ? siteOptions.value : siteOptions.value.slice(0, MAX_SITE_OPTIONS),
+);
+const displayedTorrentTags = computed(() =>
+  showAllTags.value ? filteredTorrentTags.value : filteredTorrentTags.value.slice(0, MAX_TAG_OPTIONS),
+);
+
+/** 结果里至少有一个种子确实有优惠（免费或折扣）时，才显示优惠筛选 */
+const hasPromoData = ref(false);
+
 function updateTableFilter() {
   updateTableFilterValueFn();
   showDialog.value = false;
@@ -57,6 +80,14 @@ function updateTableFilter() {
 
 function enterDialog() {
   reBuildAdvanceFilter();
+  // 每次打开都从「收合」状态开始
+  showAllSites.value = false;
+  showAllTags.value = false;
+  // 单次线性扫描结果集判断是否需要「优惠」筛选，成本远低于直接构建 props
+  hasPromoData.value = runtimeStore.search.searchResult.some((item) => {
+    const factor = item.downloadVolumeFactor as number | undefined;
+    return Number.isFinite(factor) && (factor as number) < 1;
+  });
 }
 </script>
 
@@ -98,12 +129,26 @@ function enterDialog() {
             </v-col>
           </v-row>
 
-          <v-row gap="0"
-            ><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row
-          >
+          <v-row gap="0" class="align-center">
+            <v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label>
+            <v-spacer />
+            <v-btn
+              v-if="siteOptions.length > MAX_SITE_OPTIONS"
+              color="info"
+              size="x-small"
+              variant="text"
+              @click="showAllSites = !showAllSites"
+            >
+              {{
+                showAllSites
+                  ? t("common.AdvanceFilterGenerateDialog.collapse")
+                  : t("common.AdvanceFilterGenerateDialog.showAll", [siteOptions.length])
+              }}
+            </v-btn>
+          </v-row>
           <v-row gap="0">
             <v-col
-              v-for="site in advanceItemPropsRef.site"
+              v-for="site in displayedSites"
               :key="`${reBuildFilterCountRef}_${site}`"
               class="pa-0"
               cols="6"
@@ -128,9 +173,22 @@ function enterDialog() {
           </v-row>
 
           <template v-if="configStore.searchEntifyControl.showTorrentTag">
-            <v-row gap="0">
+            <v-row gap="0" class="align-center">
               <v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.tags") }}</v-label>
               <v-spacer />
+              <v-btn
+                v-if="filteredTorrentTags.length > MAX_TAG_OPTIONS"
+                color="info"
+                size="x-small"
+                variant="text"
+                @click="showAllTags = !showAllTags"
+              >
+                {{
+                  showAllTags
+                    ? t("common.AdvanceFilterGenerateDialog.collapse")
+                    : t("common.AdvanceFilterGenerateDialog.showAll", [filteredTorrentTags.length])
+                }}
+              </v-btn>
               <v-btn
                 v-if="configStore.searchEntifyControl.hiddenTagNames?.length"
                 variant="text"
@@ -147,7 +205,7 @@ function enterDialog() {
             </v-row>
             <v-row gap="0">
               <v-col
-                v-for="tag in filteredTorrentTags"
+                v-for="tag in displayedTorrentTags"
                 :key="`${reBuildFilterCountRef}_${tag.name}`"
                 class="pa-0"
                 cols="4"
@@ -341,6 +399,34 @@ function enterDialog() {
                   tick-size="4"
                 >
                   <template #tick-label></template>
+                </v-range-slider>
+              </v-row>
+            </v-col>
+          </v-row>
+
+          <!-- 优惠筛选：下载计费比例（0% = 免费，100% = 正常） -->
+          <v-row v-if="hasPromoData" gap="0">
+            <v-col cols="12">
+              <v-row gap="0">
+                <v-label>{{ t("common.AdvanceFilterGenerateDialog.promo") }}</v-label>
+              </v-row>
+              <v-row gap="0">
+                <v-range-slider
+                  v-model="advanceFilterDictRef.downloadVolumeFactor"
+                  :max="1"
+                  :min="0"
+                  :step="0.05"
+                  :thumb-label="true"
+                  :ticks="[0, 0.25, 0.5, 0.75, 1]"
+                  class="px-6"
+                  hide-details
+                  show-ticks="always"
+                  tick-size="4"
+                >
+                  <template #tick-label></template>
+                  <template #thumb-label="{ modelValue }">
+                    <span class="text-no-wrap">{{ Math.round((modelValue ?? 0) * 100) }}%</span>
+                  </template>
                 </v-range-slider>
               </v-row>
             </v-col>

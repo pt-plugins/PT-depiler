@@ -170,11 +170,37 @@ export function getThisDateUnitRange(
 }
 
 export function generateRangeField(data: (number | undefined)[]): IRangedField {
-  const numData = data.filter((x) => !isNaN(x as unknown as number)) as number[];
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  const uniqueValues = new Set<number>();
+
+  // 注意不要用 Math.min(...data)：种子数上万时参数栈会被打爆，而且明显更慢
+  for (const raw of data) {
+    const value = Number(raw);
+    if (!Number.isFinite(value)) continue;
+    if (value < min) min = value;
+    if (value > max) max = value;
+    uniqueValues.add(value);
+  }
+
+  // ticks 过多会让 v-slider 渲染出成百上千个刻度，这里最多保留 80 个（均匀采样）
+  let ticks: number[] = [];
+  if (uniqueValues.size > 0) {
+    const sorted = [...uniqueValues].sort((a, b) => a - b);
+    if (sorted.length <= 80) {
+      ticks = sorted;
+    } else {
+      const stepSize = (sorted.length - 1) / 79;
+      for (let i = 0; i < 80; i++) {
+        const value = sorted[Math.round(i * stepSize)];
+        if (ticks[ticks.length - 1] !== value) ticks.push(value);
+      }
+    }
+  }
 
   return {
-    range: numData.length > 0 ? [Math.min(...numData), Math.max(...numData)] : [-Infinity, Infinity],
-    ticks: Array.from(new Set(data)) as number[],
+    range: uniqueValues.size > 0 ? [min, max] : [-Infinity, Infinity],
+    ticks,
   };
 }
 

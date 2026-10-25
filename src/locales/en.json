@@ -1217,6 +1217,7 @@
   },
   "common": {
     "AdvanceFilterGenerateDialog": {
+      "collapse": "Show less",
       "date": "Date",
       "dateUnit": {
         "custom": "Custom",
@@ -1229,8 +1230,10 @@
       "exclude": "Exclude",
       "generate": "Generate",
       "keywords": "Keywords",
+      "promo": "Promo (download volume factor)",
       "required": "Required",
       "reset": "Reset Filter",
+      "showAll": "Show all ({0})",
       "site": "@:common.site",
       "title": "Generate Advanced Filter"
     },

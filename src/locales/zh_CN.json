@@ -1214,6 +1214,7 @@
   },
   "common": {
     "AdvanceFilterGenerateDialog": {
+      "collapse": "收起",
       "date": "日期",
       "dateUnit": {
         "custom": "自定义",
@@ -1226,8 +1227,10 @@
       "exclude": "排除项",
       "generate": "生成",
       "keywords": "关键词",
+      "promo": "优惠（下载计费比例）",
       "required": "必要项",
       "reset": "重置搜索词",
+      "showAll": "显示全部（{0}）",
       "site": "@:common.site",
       "title": "生成高级过滤词"
     },
