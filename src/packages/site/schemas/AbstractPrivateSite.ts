@@ -1,7 +1,7 @@
 // 所有PT站点的基类
 import Sizzle from "sizzle";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { intersection, pascalCase, pick, toMerged, uniq } from "es-toolkit";
+import { intersection, pascalCase, pickBy, toMerged, uniq } from "es-toolkit";
 import { get, has, set } from "es-toolkit/compat";
 
 import BittorrentSite from "./AbstractBittorrentSite";
@@ -21,6 +21,13 @@ import {
 
 /** 本引擎一定会提供的键；列出来之后消费方读它们不必再写非空断言 */
 type TMetadataKeys = "version" | "search" | "userInfo";
+
+/**
+ * userInfo 字段的「有值」判定：空串（含纯空白）与 null / undefined 一样视为「没取到」。
+ * 用于过滤从缓存继承下来的历史值，避免把「没解析出来」当成「已获取」。
+ */
+const hasUserInfoValue = (value: unknown): boolean =>
+  value != null && (typeof value !== "string" || value.trim() !== "");
 
 export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
   version: -1,
@@ -127,9 +134,16 @@ export default class PrivateSite extends BittorrentSite {
       return flushUserInfo;
     }
 
-    // 如果有 lastUserInfo 则合并
+    // 如果有 lastUserInfo 则合并：只继承 pickLast 里「有值」的字段。
+    // 一旦把空的 id（例如页面没给出 userdetails 链接时，querystring 过滤器返回的是 `""` 而不是 undefined）
+    // 继承进来，下方「字段齐全则跳过该步骤」就会永久跳过取值的请求，后续断言随之恒失败，
+    // 该站 userInfo 会一直停在 parseError 且无法自愈。refs: https://github.com/pt-plugins/PT-depiler/issues/1644
     if (this.metadata.userInfo.pickLast) {
-      flushUserInfo = toMerged(flushUserInfo, pick(lastUserInfo, this.metadata.userInfo.pickLast));
+      const pickLast = this.metadata.userInfo.pickLast;
+      flushUserInfo = toMerged(
+        flushUserInfo,
+        pickBy(lastUserInfo, (value, key) => pickLast.includes(key) && hasUserInfoValue(value)),
+      );
     }
 
     try {
