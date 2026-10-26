@@ -733,6 +733,13 @@
       "mediaSearchLimit": "单次搜索结果数量",
       "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
       "mediaServerSearchConfig": "媒体服务器搜索配置",
+      "promotionDisplay": "优惠信息展示",
+      "promotionDisplayMessage": "默认仅标签（与原行为一致）；选择「仅数值」后不再显示优惠标签，改用「优惠」列与高级筛选中的优惠滑块",
+      "promotionDisplayOptions": {
+        "both": "标签 + 数值",
+        "factor": "仅数值",
+        "tags": "仅标签"
+      },
       "quickSiteFilter": "直接显示站点筛选栏",
       "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
       "searchPlanLabel": "搜索方案",

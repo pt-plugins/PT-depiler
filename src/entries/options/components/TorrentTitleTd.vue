@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import { socialBuildUrlMap } from "@ptd/social";
-import { tagsToPromotion, type ITorrent, type ITorrentTag } from "@ptd/site";
+import { isPromotionTagName, tagsToPromotion, type ITorrent, type ITorrentTag } from "@ptd/site";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
 
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -32,7 +32,9 @@ const visibleTags = computed(() => {
   const tags = item.tags;
   if (!tags || !tags.length) return [];
   const hiddenNames = configStore.searchEntifyControl.hiddenTagNames || [];
-  return tags.filter((tag) => !hiddenNames.includes(tag.name));
+  // 「仅 factor」模式下优惠信息由「优惠」列展示，不再重复显示优惠标签；其他标签照常显示
+  const hidePromotionTags = configStore.searchEntifyControl.promotionDisplay === "factor";
+  return tags.filter((tag) => !hiddenNames.includes(tag.name) && !(hidePromotionTags && isPromotionTagName(tag.name)));
 });
 
 const maxTagCount = computed(() => configStore.searchEntifyControl.maxTagCountBeforeGroup || 0);

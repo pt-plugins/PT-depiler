@@ -253,6 +253,7 @@ export const useConfigStore = defineStore("config", {
     searchEntifyControl: {
       showSiteName: true,
       showTorrentTag: true,
+      promotionDisplay: "tags",
       showTorrentSubtitle: true,
       showSocialInformation: true,
       socialInformationSearchOnNewTab: true,

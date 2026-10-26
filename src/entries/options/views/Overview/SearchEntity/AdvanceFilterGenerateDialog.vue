@@ -74,6 +74,9 @@ const displayedTorrentTags = computed(() =>
 const hasPromoData = ref(false);
 const hasUploadData = ref(false);
 
+/** 「仅 tags」模式下不显示优惠相关的滑块（与原行为一致） */
+const showPromoFilters = computed(() => configStore.searchEntifyControl.promotionDisplay !== "tags");
+
 function updateTableFilter() {
   updateTableFilterValueFn();
   showDialog.value = false;
@@ -415,7 +418,7 @@ function enterDialog() {
           </v-row>
 
           <!-- 优惠筛选：上传计费比例（倍率） + 下载计费比例（0% = 免费，100% = 正常） -->
-          <v-row v-if="hasPromoData || hasUploadData" gap="0">
+          <v-row v-if="showPromoFilters && (hasPromoData || hasUploadData)" gap="0">
             <v-col v-if="hasUploadData" :cols="12" :md="hasPromoData ? 6 : 12">
               <v-row gap="0">
                 <v-label>{{ t("common.AdvanceFilterGenerateDialog.promoUpload") }}</v-label>

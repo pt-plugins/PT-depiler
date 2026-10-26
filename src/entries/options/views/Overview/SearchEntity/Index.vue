@@ -54,6 +54,10 @@ const showAdvanceFilterGenerateDialog = ref<boolean>(false);
 const showSearchStatusDialog = ref<boolean>(false);
 const showSaveSnapshotDialog = ref<boolean>(false);
 
+/** 优惠信息的展示形式：tags（默认，仅标签）/ factor / both，见 SetBase → 搜索 */
+const promotionDisplay = computed(() => configStore.searchEntifyControl.promotionDisplay ?? "tags");
+const showPromoColumn = computed(() => promotionDisplay.value !== "tags");
+
 const fullTableHeader = computed(
   () =>
     [
@@ -69,12 +73,16 @@ const fullTableHeader = computed(
         props: { disabled: true },
       },
       { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
-      {
-        title: t("SearchEntity.index.table.downloadVolumeFactor"),
-        key: "downloadVolumeFactor",
-        align: "center",
-        sortRaw: promoSortRaw,
-      },
+      ...(showPromoColumn.value
+        ? [
+            {
+              title: t("SearchEntity.index.table.downloadVolumeFactor"),
+              key: "downloadVolumeFactor",
+              align: "center",
+              sortRaw: promoSortRaw,
+            },
+          ]
+        : []),
       { title: t("SearchEntity.index.table.size"), key: "size", align: "end" },
       { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end" },
       { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end" },
@@ -94,10 +102,32 @@ const fullTableHeader = computed(
 const tableHeader = computed(() => {
   return useTableActionColumn(
     fullTableHeader.value.filter(
-      (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
+      (item) =>
+        item?.props?.disabled ||
+        // 「优惠」列不受列选择器控制，仅由优惠信息展示形式决定
+        item.key === "downloadVolumeFactor" ||
+        configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
     ) as DataTableHeader[],
   );
 });
+
+/** 列选择器里不列出「优惠」列（由展示形式控制显隐） */
+const columnSelectItems = computed(() => fullTableHeader.value.filter((item) => item.key !== "downloadVolumeFactor"));
+
+// 「优惠」列已改由优惠信息展示形式控制，清理旧版本可能残留在列配置里的 key
+watch(
+  () => configStore.tableBehavior.SearchEntity.columns,
+  (columns) => {
+    if (columns?.includes("downloadVolumeFactor")) {
+      configStore.updateTableBehavior(
+        "SearchEntity",
+        "columns",
+        columns.filter((key) => key !== "downloadVolumeFactor"),
+      );
+    }
+  },
+  { immediate: true, deep: true },
+);
 
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn, buildAdvanceItemPropsFn, buildFilterDictFn } =
   tableCustomFilter;
@@ -429,7 +459,7 @@ function promoCellText(item: ISearchResultTorrent): string {
 
         <v-combobox
           v-model="configStore.tableBehavior.SearchEntity.columns"
-          :items="fullTableHeader"
+          :items="columnSelectItems"
           :return-object="false"
           chips
           class="table-header-filter-clear ml-1"
