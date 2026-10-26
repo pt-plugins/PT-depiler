@@ -494,7 +494,7 @@
         "siteNotEnabled": "The site not enabled",
         "userCancel": "You Cancel this search"
       },
-      "successMsg": "Find {0} results in {0}s",
+      "successMsg": "Find {0} results in {1}s",
       "title": "Search Status of [{0}]"
     },
     "index": {

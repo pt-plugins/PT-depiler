@@ -26,6 +26,11 @@ function getSearchSolution(planKey: string, entryName: string) {
 
 const statusFilterRef = ref<EResultParseStatus[]>([]);
 
+// costTime 以毫秒存储，展示时换算为秒并统一保留 1~2 位小数（如 3.5s / 12.34s）
+function formatCostTime(costTime?: number) {
+  return ((costTime ?? 0) / 1000).toFixed(2).replace(/0$/, "");
+}
+
 const statusColorMap: Record<EResultParseStatus, string> = {
   [EResultParseStatus.success]: "green",
   [EResultParseStatus.waiting]: "indigo",
@@ -129,7 +134,7 @@ const filteredSearchPlan = computed(() => {
                     {{
                       t("SearchEntity.SearchStatusDialog.successMsg", [
                         searchPlan.count,
-                        (searchPlan.costTime ?? 0) / 1000,
+                        formatCostTime(searchPlan.costTime),
                       ])
                     }}
                   </span>

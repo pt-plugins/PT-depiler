@@ -494,7 +494,7 @@
         "siteNotEnabled": "该站点未启用",
         "userCancel": "用户取消该搜索请求"
       },
-      "successMsg": "共找到 {0} 条结果，用时 {0}s",
+      "successMsg": "共找到 {0} 条结果，用时 {1}s",
       "title": "方案 [{0}] 搜索状态"
     },
     "index": {
