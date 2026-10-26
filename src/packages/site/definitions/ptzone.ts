@@ -123,4 +123,24 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   levelRequirements: [...xiaomloveDefaultUserLevelRequirements],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+
+    /**
+     * 不继承缓存里的 id（其余同 schema 默认）。
+     *
+     * 本站对 /userdetails.php 做了加固：不带 id 会直接返回「錯誤 無效的ID！基於安全考慮，我們記錄了本次行為。」错误页，
+     * 所以第二步必须拿到真实 id。而 AbstractPrivateSite 判断「该步骤字段是否齐全」只看 key 是否存在，
+     * 一旦某次解析把空的 id（querystring 过滤器取不到参数时返回的是 `""` 而不是 `undefined`）写进缓存，
+     * 后续每次都会把 `""` 继承为「已有 id」→ 跳过取 id 的 /index.php 请求 → 第二步断言 `params.id` 恒失败
+     * → 该站 userInfo 永久停在 parseError（id 恒为空），站点恢复后也无法自愈。
+     *
+     * 清空后每次刷新都会重新从 /index.php 解析 id，空值不会被缓存成「已获取」。
+     * refs:
+     * - https://github.com/pt-plugins/PT-depiler/issues/1644
+     * - https://github.com/sunerpy/pt-tools/blob/main/site/v2/definitions/ptzone.go
+     */
+    pickLast: [],
+  },
 };
