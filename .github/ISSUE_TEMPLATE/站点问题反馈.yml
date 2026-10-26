@@ -1,5 +1,5 @@
 name: 站点问题反馈 / Site issue
-description: 反馈某个已支持站点的数据获取、搜索、下载、等级、时魔等异常（请逐项填写，不接受一句话描述）/ Report problems with an already supported site — data fetching, search, download, user class, seeding bonus … (fill in every item; one-line reports are not accepted)
+description: 已支持站点的数据获取、搜索、下载、等级、时魔等异常（请逐项填写，不接受一句话描述）/ Problems with a supported site — data, search, download, user class, seeding bonus (fill in every item; one-line reports are rejected)
 title: "[站点问题] "
 type: bug
 labels: ["adapter/site"]
