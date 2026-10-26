@@ -35,6 +35,21 @@ const categoryMap: Record<number, string> = {
   8: "体育",
 };
 
+/**
+ * UNIT3D 的 `freeleech` 字段是「免费比例」（0~100，100 = 全免），下载计费比例 = 1 - free%。
+ * 依据 UNIT3D 源码（与 dreadvault 同源字段）：
+ *  - `App\Jobs\ProcessAnnounce`：`creditedDownloadedDelta = $downloadedDelta * (100 - min(100, $torrent->percentFree)) / 100`
+ *  - `App\Services\Unit3dAnnounce::addTorrent`：`download_factor => max(0, 100 - $torrent->free)`
+ * 与 Jackett 的 Unit3D API 定义一致（25% → 0.75、75% → 0.25、100% → 0、featured → 0/2）。
+ */
+const freeleechFactorMap: Record<string, number> = {
+  "0%": 1,
+  "100%": 0,
+  "75%": 0.25,
+  "50%": 0.5,
+  "25%": 0.75,
+};
+
 interface IGenerationFreeRawTorrent {
   attributes?: {
     freeleech?: string;
@@ -191,18 +206,17 @@ export default class GenerationFree extends Unit3D {
 
     if (featured) {
       // featured（精选）在 Unit3D 中等价于 100% 免费 + 双倍上传
-      tags.push({ name: "Free", color: "blue" });
-      tags.push({ name: "2xUp", color: "green" });
+      torrent.downloadVolumeFactor = 0;
+      torrent.uploadVolumeFactor = 2;
       tags.push({ name: "精选", color: "deep-purple" });
     } else {
-      if (freeleech === "100%") {
-        tags.push({ name: "Free", color: "blue" });
-      } else if (freeleech === "75%" || freeleech === "50%" || freeleech === "25%") {
-        tags.push({ name: freeleech.replace("%", "%"), color: "orange" });
+      const downloadVolumeFactor = freeleechFactorMap[freeleech];
+      if (downloadVolumeFactor !== undefined) {
+        torrent.downloadVolumeFactor = downloadVolumeFactor;
       }
-      if (doubleUpload) {
-        tags.push({ name: "2xUp", color: "green" });
-      }
+
+      // 与 Jackett 一致：double_upload 是布尔值，false 表示已知的「正常」（1），不是未知
+      torrent.uploadVolumeFactor = doubleUpload ? 2 : 1;
     }
 
     if (internal) {

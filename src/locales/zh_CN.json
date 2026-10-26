@@ -519,6 +519,8 @@
         "searching": "搜索中…",
         "snapshot": "搜索快照"
       },
+      "billableSize": "计费体积",
+      "billableSizeHint": "已选种子的实际计费体积（按下载量系数折算；系数未知时按 1 计）",
       "filterLabel": "过滤搜索结果",
       "highlightSameSizeTorrent": "按大小排序时标记相同大小的种子",
       "limitTorrentTitleTdWidth": "限制种子标题宽度",
@@ -532,11 +534,18 @@
         "category": "分类",
         "comments": "评论",
         "completed": "完成",
+        "downloadVolumeFactor": "优惠",
         "leechers": "下载",
         "seeders": "上传",
         "size": "大小",
         "time": "发布于(≈)",
         "title": "标题"
+      },
+      "tagTooltip": {
+        "downloadPercent": "下载量按 {0}% 计算",
+        "freeDownload": "下载不计流量",
+        "noUpload": "上传不计流量",
+        "uploadTimes": "上传量 ×{0}"
       },
       "uploadAtFormatAsAlive": "上传时间显示为相对时间"
     },
@@ -724,6 +733,14 @@
       "mediaSearchLimit": "单次搜索结果数量",
       "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
       "mediaServerSearchConfig": "媒体服务器搜索配置",
+      "promotionDisplay": "优惠信息展示",
+      "promotionDisplayMessage": "「不显示」完全隐藏优惠信息；「仅标签」与原行为一致；「仅数值」隐藏优惠标签，改用「优惠」列与高级筛选滑块；「标签 + 数值」两者都显示",
+      "promotionDisplayOptions": {
+        "both": "标签 + 数值",
+        "factor": "仅数值",
+        "none": "不显示",
+        "tags": "仅标签"
+      },
       "quickSiteFilter": "直接显示站点筛选栏",
       "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
       "searchPlanLabel": "搜索方案",
@@ -1205,6 +1222,7 @@
   },
   "common": {
     "AdvanceFilterGenerateDialog": {
+      "collapse": "收起",
       "date": "日期",
       "dateUnit": {
         "custom": "自定义",
@@ -1217,8 +1235,11 @@
       "exclude": "排除项",
       "generate": "生成",
       "keywords": "关键词",
+      "promo": "优惠（下载计费比例）",
+      "promoUpload": "上传计费比例",
       "required": "必要项",
       "reset": "重置搜索词",
+      "showAll": "显示全部（{0}）",
       "site": "@:common.site",
       "title": "生成高级过滤词"
     },

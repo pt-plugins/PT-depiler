@@ -287,16 +287,13 @@ export default class ColaPT extends PrivateSite {
   ): Partial<ITorrent> {
     if (row instanceof Element) return super.parseTorrentRowForTags(torrent, row, searchConfig);
 
-    torrent.tags = [];
+    // promotion 的 num/den 就是「实际计费比例」，直接作为量系数，标签交给归一层派生
     const promotion = (row as IReelCoreGroup).versions[0].promotion;
     if (promotion) {
-      const download = promotion.download.num / promotion.download.den;
-      const upload = promotion.upload.num / promotion.upload.den;
-      if (download < 1) {
-        torrent.tags.push({ name: download === 0 ? "Free" : `${download * 100}%`, color: "blue" });
-      }
-      if (upload > 1) torrent.tags.push({ name: `${upload}xUp`, color: "green" });
+      torrent.downloadVolumeFactor = promotion.download.num / promotion.download.den;
+      torrent.uploadVolumeFactor = promotion.upload.num / promotion.upload.den;
     }
+
     return torrent;
   }
 

@@ -268,11 +268,36 @@ search: {
 
 ## 种子字段
 
-`selectors` 的键对应 `ITorrent` 字段（`types/torrent.ts:19-53`），常用：`id`、`title`、`subTitle`、`url`（详情页）、`link`（**下载链接**）、`time`、`size`、`seeders`、`leechers`、`completed`、`comments`、`category`、`progress`、`status`、`tags`。
+`selectors` 的键对应 `ITorrent` 字段（`types/torrent.ts:19-53`），常用：`id`、`title`、`subTitle`、`url`（详情页）、`link`（**下载链接**）、`time`、`size`、`seeders`、`leechers`、`completed`、`comments`、`category`、`progress`、`status`、`tags`、`downloadVolumeFactor`、`uploadVolumeFactor`。
 
 最容易写反的一对：`url` 是详情页链接，`link` 是种子下载链接（`types/torrent.ts:26-34`）。解析时若 `link` 缺失，插件会走 `getTorrentDownloadLink` 补全（见下）。
 
 `tags` 的写法是数组，每项 `{ name, selector, color? }`（`types/search.ts:133-141`）；name 命中 `utils/tags.ts:13-55` 的预定义名或其 aka（不区分大小写）时，会被替换成统一的 name 与颜色，`color` 取 Vuetify 调色板名。
+
+### 优惠信息：factor 与 tag（定义只写一种，运行时补齐另一侧）
+
+`downloadVolumeFactor` / `uploadVolumeFactor` 是优惠的**数值表示**，与 torznab / Jackett 的 `downloadvolumefactor` / `uploadvolumefactor` 同名同义：
+`0` = 免费（下载）/ 不计上传，`0 < d < 1` = 折扣，`1` = 正常，`> 1` = 多倍上传，`undefined` = 未知。
+
+```ts
+// 数据源给数值/枚举：只写 factor（sunnypt、colapt、mteam 这类站点）
+downloadVolumeFactor: { selector: "promotion.down", filters: [{ name: "parseNumber" }] },
+uploadVolumeFactor: { selector: "promotion.up", filters: [{ name: "parseNumber" }] },
+// 或在 parseTorrentRowForTags / fixParsedTorrent 里直接赋值
+torrent.downloadVolumeFactor = 0;
+```
+
+```ts
+// 数据源只给图标/文本：只写 tags（NexusPHP 的 img.pro_free、Unit3D 的 i[title*='50%']）
+tags: [{ name: "Free", selector: "img.pro_free" }, { name: "50%", selector: "img.pro_50pctdown" }],
+```
+
+离开解析层时，`normalizeTorrentPromotion`（`utils/promotion.ts`；在 `parseWholeTorrentFromRow` 末尾、`transformDetailPage` 与后台搜索结果归一处各调一次）会让种子**两种表示同时成立**：factor → 派生 `Free` / `50%` / `2xUp` / `2xFree` / `NL.` 等标签；只有 tags → 反推 factor（`2x` 会被改写成 `2xUp`）。两组都写时 **factor 优先**，手写优惠 tags 会被重建，`pnpm check:site-definition` 会给出警告。
+
+- 只有 `Freeload` / `可退款` / `H&R` / `官方` 这类标签不参与反推、也不会被重建删除（它们不是倍率语义）。
+- `0` 是合法值：判断写 `torrent.downloadVolumeFactor !== undefined`，不要用真值判断。
+- 选择器未命中时 `getFieldData` 会回落成 `""`；归一层把它当未知清掉，自己写代码时别把 `""` 当 0。
+- **注意数据源口径**：UNIT3D 的 `freeleech` 是「免费比例」（`100%` = 全免），计费比例要换算成 `1 - x`；本仓库的标签一律按「计费比例」命名（`25%` = 按 25% 计费）。
 
 ## search 配置
 

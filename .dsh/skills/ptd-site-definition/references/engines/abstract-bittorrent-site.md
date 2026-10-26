@@ -45,9 +45,9 @@
 - **`getFieldData` / `getFieldsData`（347-444）**：选择器求值核心，解释 `IElementQuery` 的全部字段（见「常见坑」）。
 - **`runQueryFilters(query, filters)`（446-460）**：执行 `filters`，既支持函数也支持 `{ name, args }`；只有 `filterNames`（`utils/filter.ts:207`）里存在的名字才生效，**拼错名字会被静默忽略**（451-456）。
 - **`fixLink(uri, requestConfig)`（321-338）**：把 `//host/x`、`/x`、`x` 形式的相对链接按请求地址补全；`magnet:` 原样返回。
-- **`parseTorrentRowForTags(torrent, row, searchConfig)`（615-637）**：仅当 `searchEntry.selectors.tags` 存在时才写入 `torrent.tags`（620）；对 DOM 用 `Sizzle(selector, row).length > 0` 判断，对 JSON 用 `get(row, selector)` 判断（623-631）。
-- **`parseWholeTorrentFromRow(torrent, row, searchConfig)`（560-613）**：逐字段求值 + 通用补全（`site`、`id`、`fixLink`、体积/计数转数字、`timezoneOffset` 时间换算，590-608），最后交给 `fixParsedTorrent`（611）。
-- **`fixParsedTorrent(torrent, row, searchConfig)`（639-645）**：默认直接返回入参，是留给子类的空挂钩。
+- **`parseTorrentRowForTags(torrent, row, searchConfig)`（约 646-668）**：仅当 `searchEntry.selectors.tags` 存在时才写入 `torrent.tags`（约 651）；对 DOM 用 `Sizzle(selector, row).length > 0` 判断，对 JSON 用 `get(row, selector)` 判断（约 654-662）。优惠信息建议改用 `downloadVolumeFactor` / `uploadVolumeFactor` 声明，运行时自动派生 tags（见「优惠信息：factor 与 tag」）。
+- **`parseWholeTorrentFromRow(torrent, row, searchConfig)`（约 582-638）**：逐字段求值 + 通用补全（`site`、`id`、`fixLink`、体积/计数转数字、`timezoneOffset` 时间换算），然后先交给 `fixParsedTorrent`，**最后无条件执行 `normalizeTorrentPromotion`**（优惠 factor / tag 双写），因此这一步不依赖子类是否覆写钩子。
+- **`fixParsedTorrent(torrent, row, searchConfig)`（约 664-675）**：默认直接返回入参，是留给子类的站点级后处理钩子（在优惠归一**之前**执行）；优惠的 factor / tag 派生在其后由 `parseWholeTorrentFromRow` 统一完成，所以覆写它不需要额外处理优惠。
 - **`getTorrentDownloadLink(torrent)`（764-778）**：`torrent.link` 为空且配置了 `detail.selectors.link` 时，用 `detail.requestConfig` 垫片请求详情页并取值（765-770）；随后若用户配置了 `downloadLinkAppendix` 就拼到链接尾部（772-775）。
 - **`getTorrentDownloadRequestConfig(torrent)`（784-790）**：先取下载链接，再与 `download.requestConfig` 合并出最终 axios 配置。
 - **`userInfo` 相关：基类没有。** `allowQueryUserInfo`、`getUserInfoResult`、`guessUserLevelId` 都只存在于 `AbstractPrivateSite`（27-29、113-215、218-220）。调用方 `offscreen/utils/userInfo.ts:59-61` 用 `if (site.allowQueryUserInfo)` 判断，纯 `BittorrentSite` 实例上该属性为 `undefined`，因此 public 站**永远不会进入用户信息抓取**。
@@ -116,7 +116,7 @@ export const siteMetadata: ISiteMetadata = {
 
 **搜索入口合并**（188-205）：传入 `searchEntry.id` 时先与 `metadata.searchEntry[id]` 深合并（192）；随后只要 `searchEntry` 为空或没显式写 `merge: false`，就继续与 `metadata.search` 深合并（196-198）；`enabled === false` 的入口直接返回 `passParse`。`nyaa` 用它做"表站/里站"两个入口（`definitions/nyaa.ts:137-151`）。
 
-**selectors 字段解析**：见「常见坑」中的 `IElementQuery` 语义。可用的种子键为 `ITorrent` 里除 `site`/`tags` 外的字段 + `rows`（`types/search.ts:115-141`）；`parseWholeTorrentFromRow` 遍历的是 `selectors` 的键与 `defaultTorrentSelectorKey`（44-61）的并集（575）。
+**selectors 字段解析**：见「常见坑」中的 `IElementQuery` 语义。可用的种子键为 `ITorrent` 里除 `site`/`tags` 外的字段 + `rows`（`types/search.ts:115-141`，**新增的 `downloadVolumeFactor` / `uploadVolumeFactor` 自动可用**）；`parseWholeTorrentFromRow` 遍历的是 `selectors` 的键与 `defaultTorrentSelectorKey`（50-69）的并集（597）。
 
 **`list.urlPattern` 自动推断**：`metadata.list` 为空时，content-script 用 `uniq([search.requestConfig.url, ...searchEntry[*].requestConfig.url])` 作为列表页正则（`entries/content-script/app/utils.ts:44-52`）；一旦 `metadata.list` 非空，就**只**用其中各条 `urlPattern` 的并集（46）。`list[*].urlPattern` 缺省则为空数组、不匹配任何页面。匹配前会先用 `excludeUrlPattern` 排除（54-59）。`transformListPage` 侧则只认 `list`（656-665），与上面的推断互补。
 

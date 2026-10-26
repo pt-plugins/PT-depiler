@@ -142,7 +142,7 @@ export const siteMetadata: ISiteMetadata = {
 4. **`rows` 已定义就不再兜底**：`:243-247` 只在 `searchEntry.selectors.rows` 为空时才生成 `table#torrent_table:last tr:gt(0)`。
 5. **覆盖 `search.selectors` 必须展开默认值**：否则会丢掉 `rows`/`title`/`url`/`link`/`time`/`status`/`progress`/`tags`（`definitions/cgpeers.ts:58-101` 是正确写法）。
 6. **只写 `userInfo: { selectors: {...} }` 会丢 `pickLast` 与 `process`**：标准写法是先 `...SchemaMetadata.userInfo!`（`definitions/cgpeers.ts:104-155`）。若该站点自己掌控 `process`，应改用 `process[*].selectors` 声明字段，而不是覆写全局 `userInfo.selectors`。
-7. **`tags` 默认选择器是网页类名**：`span.icon[title*='Freeleech']` / `img[alt='DoubleSeed']`（`:66`、`:71`），对没有这些图标的接口返回不会命中，需要整段重写（morethantv 用 `[name="downloadvolumefactor"][value="0"]`，`definitions/morethantv.ts:102`）。
+7. **`tags` 默认选择器是网页类名**：`span.icon[title*='Freeleech']` / `img[alt='DoubleSeed']`（`:66`、`:71`），对没有这些图标的接口返回不会命中，需要整段重写。**torznab/XML 接口直接给量系数时，改用 `downloadVolumeFactor` / `uploadVolumeFactor` 两个选择器取 `value` 属性即可**（morethantv 即如此，`definitions/morethantv.ts:105-107`），优惠标签由归一层派生。
 8. **`status`/`progress` 用 `case` + `Sizzle.matchesSelector` 判定**（`:46-61`）：`case` 的键是 CSS 选择器，站点换图标类名后不会报错，只会全部落到默认值 `unknown` / `0`。
 9. **`timezoneOffset` 没有默认值**：`index.ts:60` 对非 NexusPHP 站点回落 `"+0000"`；有些定义仍显式写 `"+0000"`（冗余），Empornium 写 `"-1100"`（`definitions/empornium.ts:63`）——时区错了会让 `time`/`lastAccessAt` 偏移。
 10. **下载链接补全依赖参数名**：默认 `getTorrentDownloadLinkFactory("id")`（`:281-284`）只处理 `?id=`；链接形如 `torrents.php?torrentid=123` 的站必须覆写（morethantv），否则得到的不是下载链接。

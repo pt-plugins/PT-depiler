@@ -271,10 +271,15 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
             "i.fa-gem.text-green, i.fa-chevron-double-up, i.torrent-icons__double-upload, i.torrent-icons__featured, i[title*='Double Upload'], i[title*='Featured'], span[title*='feature'], i[data-original-title*='Double Upload'], i[data-original-title*='Featured']",
           color: "lime",
         },
+        // UNIT3D 的 freeleech 是「免费比例」（DB 0~100，100 = 全免）：
+        // ProcessAnnounce 里 creditedDownloadedDelta = downloadedDelta * (100 - free) / 100，
+        // Unit3dAnnounce 里 download_factor = max(0, 100 - free)。
+        // 所以图标标题里的 "75% Free" 实际按 25% 计费；标签名沿用本仓库的「计费比例」口径：
+        // 75% Free → "25%"，50% Free → "50%"，25% Free → "75%"。
         {
-          name: "75%",
+          name: "25%",
           selector: "i[title*='75%'], span[title*='75%']",
-          color: "lime-darken-3",
+          color: "purple",
         },
         {
           name: "50%",
@@ -282,9 +287,9 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
           color: "deep-orange-darken-1",
         },
         {
-          name: "25%",
+          name: "75%",
           selector: "i[title*='25%'], span[title*='25%']",
-          color: "blue",
+          color: "lime-darken-3",
         },
         {
           name: "置顶",
@@ -562,11 +567,13 @@ export default class Unit3D extends PrivateSite {
   ): Partial<ITorrent> {
     const torrents = super.parseTorrentRowForTags(torrent, row, searchConfig);
 
+    // 同一行可能同时命中多个优惠图标，只保留最强的一个。
+    // 数值是「免费比例」（越大越优惠）：Free = 100% 免费，标签 "25%" = 按 25% 计费 = 75% 免费。
     const discountType: Record<string, number> = {
       Free: 100,
-      "75%": 75,
+      "25%": 75,
       "50%": 50,
-      "25%": 25,
+      "75%": 25,
     };
 
     if (Array.isArray(torrents.tags)) {

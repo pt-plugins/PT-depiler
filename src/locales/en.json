@@ -519,6 +519,8 @@
         "searching": "Searching...",
         "snapshot": "Search Snapshot"
       },
+      "billableSize": "Billable size",
+      "billableSizeHint": "Actual billable size of the selected torrents (weighted by download volume factor; unknown factors count as 1)",
       "filterLabel": "Filter search results",
       "highlightSameSizeTorrent": "Mark same-size torrents when sorted by size",
       "limitTorrentTitleTdWidth": "Limit torrent title column width",
@@ -532,11 +534,18 @@
         "category": "Category",
         "comments": "Comments",
         "completed": "Completed",
+        "downloadVolumeFactor": "Promo",
         "leechers": "Leechers",
         "seeders": "Seeders",
         "size": "Size",
         "time": "Published(≈)",
         "title": "Title"
+      },
+      "tagTooltip": {
+        "downloadPercent": "Download counts {0}%",
+        "freeDownload": "Free download",
+        "noUpload": "No upload credit",
+        "uploadTimes": "Upload counts ×{0}"
       },
       "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
     },
@@ -724,6 +733,14 @@
       "mediaSearchLimit": "Number of search results per request",
       "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
       "mediaServerSearchConfig": "Media Server Search Configuration",
+      "promotionDisplay": "Promotion display",
+      "promotionDisplayMessage": "Do not show hides all promotion info; Tags only keeps the original behavior; Factor only hides promotion tags and uses the Promo column plus the promotion sliders; Tags + factor shows both",
+      "promotionDisplayOptions": {
+        "both": "Tags + factor",
+        "factor": "Factor only",
+        "none": "Do not show",
+        "tags": "Tags only"
+      },
       "quickSiteFilter": "Quick Site Filter In Search Page",
       "saveLastSearchFilter": "Save last used search filter",
       "searchPlanLabel": "Search Plan",
@@ -1208,6 +1225,7 @@
   },
   "common": {
     "AdvanceFilterGenerateDialog": {
+      "collapse": "Show less",
       "date": "Date",
       "dateUnit": {
         "custom": "Custom",
@@ -1220,8 +1238,11 @@
       "exclude": "Exclude",
       "generate": "Generate",
       "keywords": "Keywords",
+      "promo": "Promo (download volume factor)",
+      "promoUpload": "Upload volume factor",
       "required": "Required",
       "reset": "Reset Filter",
+      "showAll": "Show all ({0})",
       "site": "@:common.site",
       "title": "Generate Advanced Filter"
     },

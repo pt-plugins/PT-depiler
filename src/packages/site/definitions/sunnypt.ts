@@ -350,25 +350,13 @@ export default class SunnyPT extends PrivateSite {
     row: ISunnyPtTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    let torrentTags = torrent.tags ?? [];
-
-    // 解析 promotion
+    // promotion 直接给的就是计费倍率：down 是下载计费比例（0 = 免费），up 是上传倍率
     if (row.promotion?.is_active) {
-      const { up_multiplier, down_multiplier } = row.promotion;
-      if (up_multiplier == 1 && down_multiplier == 0) {
-        torrentTags.push({ name: "Free" });
-      } else if (up_multiplier == 2 && down_multiplier == 1) {
-        torrentTags.push({ name: "2x" });
-      } else if (up_multiplier == 2 && down_multiplier == 0) {
-        torrentTags.push({ name: "2xFree" });
-      } else if (up_multiplier == 1 && down_multiplier == 0.5) {
-        torrentTags.push({ name: "50%" });
-      } else if (up_multiplier == 2 && down_multiplier == 0.5) {
-        torrentTags.push({ name: "2x50%" });
-      } else if (up_multiplier == 1 && down_multiplier == 0.3) {
-        torrentTags.push({ name: "30%" });
-      }
+      torrent.downloadVolumeFactor = row.promotion.down_multiplier;
+      torrent.uploadVolumeFactor = row.promotion.up_multiplier;
     }
+
+    const torrentTags = torrent.tags ?? [];
 
     if (row.hit_and_run) {
       torrentTags.push({ name: "H&R" });

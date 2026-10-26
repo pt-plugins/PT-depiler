@@ -102,7 +102,9 @@ export const siteMetadata: ISiteMetadata = {
         attr: "value",
         filters: [(x: string | number) => categories.find((c) => c.value === parseInt(`${x}`))?.name ?? "Unknown"],
       }, // <torznab:attr name="category" value="5040" />
-      tags: [{ selector: '[name="downloadvolumefactor"][value="0"]', name: "Free", color: "blue" }],
+      // torznab 属性直接给出量系数（0 = 免费，1 = 正常；上传同理，2 = 双倍）
+      downloadVolumeFactor: { selector: '[name="downloadvolumefactor"]', attr: "value" },
+      uploadVolumeFactor: { selector: '[name="uploadvolumefactor"]', attr: "value" },
       ext_imdb: { selector: "[name='imdbid']", attr: "value", filters: [{ name: "extImdbId" }] }, // <torznab:attr name="imdbid" value="1234567" />
       ext_tvmaze: { selector: "[name='tvmazeid']", attr: "value" },
       // 使用 api 不返回 process 和 status

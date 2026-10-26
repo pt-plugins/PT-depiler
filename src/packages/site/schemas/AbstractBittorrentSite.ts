@@ -36,6 +36,7 @@ import {
   parseTimeWithZone,
   tryToNumber,
   hasNonLatinCharacters,
+  normalizeTorrentPromotion,
 } from "../utils";
 
 /** 本引擎一定会提供的键；列出来之后消费方读它们不必再写非空断言 */
@@ -61,6 +62,8 @@ const defaultTorrentSelectorKey = [
   "comments",
   "category",
   "tags",
+  "downloadVolumeFactor",
+  "uploadVolumeFactor",
   "progress",
   "status",
 ];
@@ -627,7 +630,11 @@ export default class BittorrentSite {
 
     // 在此基础上，不同 schema 可以复写处理过程
     torrent = this.fixParsedTorrent(torrent as ITorrent, row, searchConfig);
-    return torrent;
+
+    // 优惠信息统一收口：无论 factor 来自选择器、诊断方法，还是 fixParsedTorrent 里的站点级修正，
+    // 都在 hook 之后无条件补齐另一种表示（factor 优先），保证每颗种子同时带 factor 与 tag。
+    // 放在这里而不是 hook 内部，是为了让「双写」不依赖子类是否调用 super。
+    return normalizeTorrentPromotion(torrent);
   }
 
   protected parseTorrentRowForTags(
@@ -654,6 +661,11 @@ export default class BittorrentSite {
     return torrent;
   }
 
+  /**
+   * 站点级后处理钩子：在字段全部求值之后、优惠信息归一之前执行，供子类修正站点特有字段。
+   * 优惠的 factor / tag 双写由 `parseWholeTorrentFromRow` 在本钩子之后统一执行（见 utils/promotion.ts），
+   * 因此这里即使什么都做（或覆写时不调用 super）也不会丢归一。
+   */
   protected fixParsedTorrent(
     torrent: ITorrent,
     row: Element | Document | object,
@@ -768,6 +780,9 @@ export default class BittorrentSite {
     if (torrent.link) {
       torrent.link = this.fixLink(torrent.link, { baseURL: parsedDetailsPage.URL }); // 如果 link 存在，则进行修正
     }
+
+    // 详情页解析出的种子同样保持 factor / tag 双写，口径与列表页一致
+    torrent = normalizeTorrentPromotion(torrent);
 
     return torrent as ITorrent;
   }

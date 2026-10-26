@@ -25,6 +25,13 @@ const hiddenTagNamesText = computed({
       .filter(Boolean);
   },
 });
+
+const promotionDisplayOptions = computed(() => [
+  { title: t("SetBase.searchEntity.promotionDisplayOptions.none"), value: "none" },
+  { title: t("SetBase.searchEntity.promotionDisplayOptions.tags"), value: "tags" },
+  { title: t("SetBase.searchEntity.promotionDisplayOptions.factor"), value: "factor" },
+  { title: t("SetBase.searchEntity.promotionDisplayOptions.both"), value: "both" },
+]);
 </script>
 
 <template>
@@ -116,6 +123,15 @@ const hiddenTagNamesText = computed({
           <v-label>{{ t("SetBase.searchEntity.tagLabel") }}</v-label>
         </v-col>
         <v-col>
+          <v-select
+            v-model="configStore.searchEntifyControl.promotionDisplay"
+            :items="promotionDisplayOptions"
+            :label="t('SetBase.searchEntity.promotionDisplay')"
+            :messages="t('SetBase.searchEntity.promotionDisplayMessage')"
+            class="mb-2"
+            density="compact"
+          />
+
           <v-switch
             v-model="configStore.searchEntity.autoDetectOfficialGroupFromTitle"
             :label="t('SetBase.searchEntity.autoDetectOfficialGroupFromTitle')"

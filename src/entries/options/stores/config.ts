@@ -52,6 +52,13 @@ export const useConfigStore = defineStore("config", {
         }
       }
 
+      // 优惠信息展示形式只允许 tags / factor / both（防止旧版本/手工改动写入非法值）
+      const promotionDisplay = state.searchEntifyControl?.promotionDisplay;
+      if (promotionDisplay !== undefined && !["tags", "factor", "both", "none"].includes(promotionDisplay)) {
+        state.searchEntifyControl.promotionDisplay = "tags";
+        needsSave = true;
+      }
+
       if (needsSave) {
         context.store.$save();
       }
@@ -253,6 +260,7 @@ export const useConfigStore = defineStore("config", {
     searchEntifyControl: {
       showSiteName: true,
       showTorrentTag: true,
+      promotionDisplay: "tags",
       showTorrentSubtitle: true,
       showSocialInformation: true,
       socialInformationSearchOnNewTab: true,

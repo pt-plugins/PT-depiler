@@ -170,11 +170,37 @@ export function getThisDateUnitRange(
 }
 
 export function generateRangeField(data: (number | undefined)[]): IRangedField {
-  const numData = data.filter((x) => !isNaN(x as unknown as number)) as number[];
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  const uniqueValues = new Set<number>();
+
+  // 注意不要用 Math.min(...data)：种子数上万时参数栈会被打爆，而且明显更慢
+  for (const raw of data) {
+    const value = Number(raw);
+    if (!Number.isFinite(value)) continue;
+    if (value < min) min = value;
+    if (value > max) max = value;
+    uniqueValues.add(value);
+  }
+
+  // ticks 过多会让 v-slider 渲染出成百上千个刻度，这里最多保留 80 个（均匀采样）
+  let ticks: number[] = [];
+  if (uniqueValues.size > 0) {
+    const sorted = [...uniqueValues].sort((a, b) => a - b);
+    if (sorted.length <= 80) {
+      ticks = sorted;
+    } else {
+      const stepSize = (sorted.length - 1) / 79;
+      for (let i = 0; i < 80; i++) {
+        const value = sorted[Math.round(i * stepSize)];
+        if (ticks[ticks.length - 1] !== value) ticks.push(value);
+      }
+    }
+  }
 
   return {
-    range: numData.length > 0 ? [Math.min(...numData), Math.max(...numData)] : [-Infinity, Infinity],
-    ticks: Array.from(new Set(data)) as number[],
+    range: uniqueValues.size > 0 ? [min, max] : [-Infinity, Infinity],
+    ticks,
   };
 }
 
@@ -222,15 +248,24 @@ export function checkRangeValue(
   format: TFormat = {},
   // @ts-ignore
 ): boolean | undefined {
-  const itemValue = get(rawItem, keyword);
-  if (filter[keyword] && typeof itemValue !== "undefined") {
-    const valueFormat = getValueFormat(keyword, format);
-    const value = valueFormat.parse(itemValue) as number;
-    const from = valueFormat.parse((filter[keyword] as any).from || -Infinity) as number;
-    const to = valueFormat.parse((filter[keyword] as any).to || Infinity) as number;
+  const range = filter[keyword] as { from?: unknown; to?: unknown } | undefined;
+  if (!range) return undefined;
 
-    return Boolean(from && value >= from && to && value <= to);
-  }
+  const itemValue = get(rawItem, keyword);
+  // 与 checkKeywordValue 保持一致：字段缺失视为不匹配，避免「按优惠筛选」把未知系数的种子也算进来
+  if (typeof itemValue === "undefined") return false;
+
+  const valueFormat = getValueFormat(keyword, format);
+  const value = Number(valueFormat.parse(itemValue));
+  if (!Number.isFinite(value)) return false;
+
+  // 注意不能用 `from || -Infinity` / `Boolean(from && ...)`：边界为 0 时会被当成「未设置」
+  const hasFrom = range.from !== undefined && range.from !== null && range.from !== "";
+  const hasTo = range.to !== undefined && range.to !== null && range.to !== "";
+  const from = hasFrom ? Number(valueFormat.parse(range.from)) : Number.NEGATIVE_INFINITY;
+  const to = hasTo ? Number(valueFormat.parse(range.to)) : Number.POSITIVE_INFINITY;
+
+  return (!hasFrom || value >= from) && (!hasTo || value <= to);
 }
 
 interface TableCustomFilterOptions<ItemType> {
