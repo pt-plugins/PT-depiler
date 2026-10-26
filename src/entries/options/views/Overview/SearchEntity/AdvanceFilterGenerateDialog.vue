@@ -8,7 +8,7 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { addDays, startOfDay } from "date-fns";
-import { ETorrentStatus, preDefinedTorrentTagNameSet, sortTorrentTags } from "@ptd/site";
+import { ETorrentStatus, getTorrentVolumeFactors, preDefinedTorrentTagNameSet, sortTorrentTags } from "@ptd/site";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -70,8 +70,9 @@ const displayedTorrentTags = computed(() =>
   showAllTags.value ? filteredTorrentTags.value : filteredTorrentTags.value.slice(0, MAX_TAG_OPTIONS),
 );
 
-/** 结果里至少有一个种子确实有优惠（免费或折扣）时，才显示优惠筛选 */
+/** 结果里确实存在优惠（免费/折扣）或非正常上传倍率时，才显示对应的滑块 */
 const hasPromoData = ref(false);
+const hasUploadData = ref(false);
 
 function updateTableFilter() {
   updateTableFilterValueFn();
@@ -83,11 +84,20 @@ function enterDialog() {
   // 每次打开都从「收合」状态开始
   showAllSites.value = false;
   showAllTags.value = false;
-  // 单次线性扫描结果集判断是否需要「优惠」筛选，成本远低于直接构建 props
-  hasPromoData.value = runtimeStore.search.searchResult.some((item) => {
-    const factor = item.downloadVolumeFactor as number | undefined;
-    return Number.isFinite(factor) && (factor as number) < 1;
-  });
+
+  // 单次线性扫描结果集判断是否需要优惠/上传倍率筛选，成本远低于直接构建 props
+  let hasDownloadPromo = false;
+  let hasUploadPromo = false;
+  for (const item of runtimeStore.search.searchResult) {
+    // 旧快照可能只有 tags 而没有 factor，用 getTorrentVolumeFactors 兜底反推
+    const { downloadVolumeFactor: download, uploadVolumeFactor: upload } = getTorrentVolumeFactors(item);
+    if (Number.isFinite(download) && (download as number) < 1) hasDownloadPromo = true;
+    if (Number.isFinite(upload) && upload !== 1) hasUploadPromo = true;
+    if (hasDownloadPromo && hasUploadPromo) break;
+  }
+
+  hasPromoData.value = hasDownloadPromo;
+  hasUploadData.value = hasUploadPromo;
 }
 </script>
 
@@ -264,7 +274,7 @@ function enterDialog() {
             </v-col>
           </v-row>
           <v-row gap="0">
-            <v-col cols="6">
+            <v-col cols="12" md="6">
               <v-row gap="0" class="pr-4">
                 <v-label>{{ t("common.AdvanceFilterGenerateDialog.date") }}</v-label>
                 <v-spacer />
@@ -313,7 +323,7 @@ function enterDialog() {
                 </v-range-slider>
               </v-row>
             </v-col>
-            <v-col cols="6">
+            <v-col cols="12" md="6">
               <v-row gap="0"
                 ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.size") }}</v-label></v-row
               >
@@ -339,7 +349,7 @@ function enterDialog() {
             </v-col>
           </v-row>
           <v-row gap="0">
-            <v-col cols="4">
+            <v-col cols="12" md="4">
               <v-row
                 ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.seeders") }}</v-label></v-row
               >
@@ -360,7 +370,7 @@ function enterDialog() {
                 </v-range-slider>
               </v-row>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="12" md="4">
               <v-row
                 ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.leechers") }}</v-label></v-row
               >
@@ -381,7 +391,7 @@ function enterDialog() {
                 </v-range-slider>
               </v-row>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="12" md="4">
               <v-row
                 ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.completed") }}</v-label></v-row
               >
@@ -404,9 +414,33 @@ function enterDialog() {
             </v-col>
           </v-row>
 
-          <!-- 优惠筛选：下载计费比例（0% = 免费，100% = 正常） -->
-          <v-row v-if="hasPromoData" gap="0">
-            <v-col cols="12">
+          <!-- 优惠筛选：上传计费比例（倍率） + 下载计费比例（0% = 免费，100% = 正常） -->
+          <v-row v-if="hasPromoData || hasUploadData" gap="0">
+            <v-col v-if="hasUploadData" :cols="12" :md="hasPromoData ? 6 : 12">
+              <v-row gap="0">
+                <v-label>{{ t("common.AdvanceFilterGenerateDialog.promoUpload") }}</v-label>
+              </v-row>
+              <v-row gap="0">
+                <v-range-slider
+                  v-model="advanceFilterDictRef.uploadVolumeFactor"
+                  :max="3"
+                  :min="0"
+                  :step="0.5"
+                  :thumb-label="true"
+                  :ticks="[0, 1, 2, 3]"
+                  class="px-6"
+                  hide-details
+                  show-ticks="always"
+                  tick-size="4"
+                >
+                  <template #tick-label></template>
+                  <template #thumb-label="{ modelValue }">
+                    <span class="text-no-wrap">×{{ modelValue ?? 0 }}</span>
+                  </template>
+                </v-range-slider>
+              </v-row>
+            </v-col>
+            <v-col v-if="hasPromoData" :cols="12" :md="hasUploadData ? 6 : 12">
               <v-row gap="0">
                 <v-label>{{ t("common.AdvanceFilterGenerateDialog.promo") }}</v-label>
               </v-row>

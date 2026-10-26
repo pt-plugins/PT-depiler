@@ -1231,6 +1231,7 @@
       "generate": "Generate",
       "keywords": "Keywords",
       "promo": "Promo (download volume factor)",
+      "promoUpload": "Upload volume factor",
       "required": "Required",
       "reset": "Reset Filter",
       "showAll": "Show all ({0})",

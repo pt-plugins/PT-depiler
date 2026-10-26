@@ -3,7 +3,13 @@ import { computed, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDisplay, type DataTableHeader } from "vuetify";
-import { EResultParseStatus, ETorrentStatus, getTorrentVolumeFactors, normalizeTorrentPromotion } from "@ptd/site";
+import {
+  EResultParseStatus,
+  ETorrentStatus,
+  getTorrentVolumeFactors,
+  normalizeTorrentPromotion,
+  promotionToTags,
+} from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -222,29 +228,37 @@ function sizeGroupRowProps({ item }: { item: ISearchResultTorrent }) {
 }
 
 /**
- * 优惠列的排序：下载系数升序（免费在前），同系数时上传倍数高的在前；未知系数排最后。
- * 用 sortRaw 是为了拿到原始种子对象（该列默认隐藏，用户勾选后才出现）。
+ * 优惠列的排序：下载系数升序（免费在前），同系数时上传倍数高的在前。
+ * 只有上传倍率、没有下载折扣的种子按「正常下载」参与排序（不能当成未知排到最后）。
  */
 function promoSortRaw(a: ISearchResultTorrent, b: ISearchResultTorrent): number {
-  const { downloadVolumeFactor: downloadA, uploadVolumeFactor: uploadA } = getTorrentVolumeFactors(a);
-  const { downloadVolumeFactor: downloadB, uploadVolumeFactor: uploadB } = getTorrentVolumeFactors(b);
+  const factorsA = getTorrentVolumeFactors(a);
+  const factorsB = getTorrentVolumeFactors(b);
 
-  const downloadFactorA = downloadA ?? Number.POSITIVE_INFINITY;
-  const downloadFactorB = downloadB ?? Number.POSITIVE_INFINITY;
-  if (downloadFactorA !== downloadFactorB) return downloadFactorA - downloadFactorB;
+  const downloadA =
+    factorsA.downloadVolumeFactor ??
+    (factorsA.uploadVolumeFactor !== undefined && factorsA.uploadVolumeFactor !== 1 ? 1 : Number.POSITIVE_INFINITY);
+  const downloadB =
+    factorsB.downloadVolumeFactor ??
+    (factorsB.uploadVolumeFactor !== undefined && factorsB.uploadVolumeFactor !== 1 ? 1 : Number.POSITIVE_INFINITY);
 
-  return (uploadB ?? 1) - (uploadA ?? 1);
+  if (downloadA !== downloadB) return downloadA - downloadB;
+
+  return (factorsB.uploadVolumeFactor ?? 1) - (factorsA.uploadVolumeFactor ?? 1);
 }
 
-/** 优惠列展示：下载计费比例（Free / 50%），有加倍上传时追加；未知或正常显示 - */
+/**
+ * 优惠列展示：与标签使用同一套「因子 → 标签」规则（promotionToTags）。
+ * 这样只有上传倍率的种子（如 2xUp）也会显示出来，而不是被当成「无优惠」显示 -。
+ */
 function promoCellText(item: ISearchResultTorrent): string {
   const { downloadVolumeFactor, uploadVolumeFactor } = getTorrentVolumeFactors(item);
-  if (downloadVolumeFactor === undefined || downloadVolumeFactor >= 1) return "-";
+  if (downloadVolumeFactor === undefined && uploadVolumeFactor === undefined) return "-";
 
-  const download = downloadVolumeFactor === 0 ? "Free" : `${Math.round(downloadVolumeFactor * 100)}%`;
-  return uploadVolumeFactor !== undefined && uploadVolumeFactor > 1
-    ? `${download} · ${uploadVolumeFactor}xUp`
-    : download;
+  const text = promotionToTags(downloadVolumeFactor, uploadVolumeFactor)
+    .map((tag) => tag.name)
+    .join(" · ");
+  return text || "-";
 }
 </script>
 

@@ -1228,6 +1228,7 @@
       "generate": "生成",
       "keywords": "关键词",
       "promo": "优惠（下载计费比例）",
+      "promoUpload": "上传计费比例",
       "required": "必要项",
       "reset": "重置搜索词",
       "showAll": "显示全部（{0}）",
