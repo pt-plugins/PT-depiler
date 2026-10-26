@@ -32,8 +32,8 @@ const visibleTags = computed(() => {
   const tags = item.tags;
   if (!tags || !tags.length) return [];
   const hiddenNames = configStore.searchEntifyControl.hiddenTagNames || [];
-  // 「仅 factor」模式下优惠信息由「优惠」列展示，不再重复显示优惠标签；其他标签照常显示
-  const hidePromotionTags = configStore.searchEntifyControl.promotionDisplay === "factor";
+  // 「仅 factor」与「不显示」模式下都不再显示优惠标签；其他标签照常显示
+  const hidePromotionTags = ["factor", "none"].includes(configStore.searchEntifyControl.promotionDisplay);
   return tags.filter((tag) => !hiddenNames.includes(tag.name) && !(hidePromotionTags && isPromotionTagName(tag.name)));
 });
 

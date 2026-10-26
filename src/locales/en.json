@@ -734,10 +734,11 @@
       "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
       "mediaServerSearchConfig": "Media Server Search Configuration",
       "promotionDisplay": "Promotion display",
-      "promotionDisplayMessage": "Tags only keeps the original behavior; Factor only hides promotion tags and uses the Promo column plus the promotion sliders in the advanced filter",
+      "promotionDisplayMessage": "Do not show hides all promotion info; Tags only keeps the original behavior; Factor only hides promotion tags and uses the Promo column plus the promotion sliders; Tags + factor shows both",
       "promotionDisplayOptions": {
         "both": "Tags + factor",
         "factor": "Factor only",
+        "none": "Do not show",
         "tags": "Tags only"
       },
       "quickSiteFilter": "Quick Site Filter In Search Page",

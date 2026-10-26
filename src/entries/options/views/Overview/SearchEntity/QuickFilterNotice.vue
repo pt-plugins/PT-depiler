@@ -27,6 +27,9 @@ const { advanceFilterDictRef, advanceItemPropsRef, updateTableFilterValueFn } = 
 
 const selectedSites = ref<string[]>([]);
 
+/** 「不显示」模式下连计费体积也一起隐藏（它同样是优惠系数的折算结果） */
+const showBillableSize = computed(() => configStore.searchEntifyControl.promotionDisplay !== "none");
+
 // 优化后的选中种子信息计算：直接基于选中对象计算
 const selectedTorrentsInfo = computed(() => {
   const selectedObjects = selectedTorrents;
@@ -87,7 +90,7 @@ function updateQuickSiteFilter() {
         <v-divider class="mx-2" vertical />
         <v-icon icon="mdi-harddisk" start />
         {{ formatSize(selectedTorrentsInfo.totalSize) }}
-        <template v-if="selectedTorrentsInfo.billableSize !== selectedTorrentsInfo.totalSize">
+        <template v-if="showBillableSize && selectedTorrentsInfo.billableSize !== selectedTorrentsInfo.totalSize">
           <v-divider class="mx-2" vertical />
           <v-icon icon="mdi-download" start />
           <span :title="t('SearchEntity.index.billableSizeHint')">

@@ -56,12 +56,12 @@ const showAdvanceFilterGenerateDialog = ref<boolean>(false);
 const showSearchStatusDialog = ref<boolean>(false);
 const showSaveSnapshotDialog = ref<boolean>(false);
 
-/** 优惠信息的展示形式：tags（默认，仅标签）/ factor / both，见 SetBase → 搜索 */
-const promotionDisplay = computed<"tags" | "factor" | "both">(() => {
+/** 优惠信息的展示形式：tags（默认，仅标签）/ factor / both / none（不显示），见 SetBase → 搜索 */
+const promotionDisplay = computed<"tags" | "factor" | "both" | "none">(() => {
   const value = configStore.searchEntifyControl.promotionDisplay;
-  return value === "factor" || value === "both" ? value : "tags";
+  return value === "factor" || value === "both" || value === "none" ? value : "tags";
 });
-const showPromoColumn = computed(() => promotionDisplay.value !== "tags");
+const showPromoColumn = computed(() => promotionDisplay.value === "factor" || promotionDisplay.value === "both");
 
 const fullTableHeader = computed(
   () =>

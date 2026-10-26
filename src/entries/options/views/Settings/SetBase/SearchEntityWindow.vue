@@ -27,6 +27,7 @@ const hiddenTagNamesText = computed({
 });
 
 const promotionDisplayOptions = computed(() => [
+  { title: t("SetBase.searchEntity.promotionDisplayOptions.none"), value: "none" },
   { title: t("SetBase.searchEntity.promotionDisplayOptions.tags"), value: "tags" },
   { title: t("SetBase.searchEntity.promotionDisplayOptions.factor"), value: "factor" },
   { title: t("SetBase.searchEntity.promotionDisplayOptions.both"), value: "both" },

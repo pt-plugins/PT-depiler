@@ -74,8 +74,8 @@ const displayedTorrentTags = computed(() =>
 const hasPromoData = ref(false);
 const hasUploadData = ref(false);
 
-/** 「仅 tags」模式下不显示优惠相关的滑块（与原行为一致） */
-const showPromoFilters = computed(() => configStore.searchEntifyControl.promotionDisplay !== "tags");
+/** 「仅 tags」与「不显示」模式下都不显示优惠相关的滑块 */
+const showPromoFilters = computed(() => ["factor", "both"].includes(configStore.searchEntifyControl.promotionDisplay));
 
 function updateTableFilter() {
   updateTableFilterValueFn();
