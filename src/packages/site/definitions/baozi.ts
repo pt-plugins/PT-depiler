@@ -110,7 +110,6 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     ...SchemaMetadata.userInfo,
-    pickLast: [], // clear id cache
     selectors: {
       ...SchemaMetadata.userInfo.selectors!,
       // "page": "/index.php",
