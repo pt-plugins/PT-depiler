@@ -41,7 +41,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合"],
 
   type: "public",
-  urls: ["https://torrentsome269.com/"],
+  urls: ["https://torrentsome270.com/"],
   legacyUrls: [
     "https://torrentsome252.com/",
     "https://torrentsome253.com/",
@@ -60,6 +60,7 @@ export const siteMetadata: ISiteMetadata = {
     "https://torrentsome266.com/",
     "https://torrentsome267.com/",
     "https://torrentsome268.com/",
+    "https://torrentsome269.com/",
   ],
 
   timezoneOffset: "+0900",
