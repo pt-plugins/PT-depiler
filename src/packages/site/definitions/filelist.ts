@@ -42,6 +42,10 @@ export const siteMetadata: ISiteMetadata = {
         { name: "toate", value: 0 },
         { name: "Anime", value: 24 },
         { name: "Audio", value: 11 },
+        // 2026-10-20 Jackett "new cat"（9a75c3c6）后站点新增 4 个分类；name 暂用 Jackett 描述，
+        // 站点侧的罗马尼亚语标签待实测后校准。
+        { name: "Books", value: 29 },
+        { name: "Courses", value: 30 },
         { name: "Desene", value: 15 },
         { name: "Diverse", value: 18 },
         { name: "Docs", value: 16 },
@@ -55,8 +59,10 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Filme HD-RO", value: 19 },
         { name: "Filme SD", value: 1 },
         { name: "FLAC", value: 5 },
+        { name: "Games XXX", value: 32 },
         { name: "Jocuri Console", value: 10 },
         { name: "Jocuri PC", value: 9 },
+        { name: "K-Drama", value: 31 },
         { name: "Linux", value: 17 },
         { name: "Mobile", value: 22 },
         { name: "Programe", value: 8 },

@@ -19,8 +19,11 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://emuwarez.com/"],
-  legacyUrls: ["https://emuwarez.it/"],
+  // 2026-10-26 Jackett 更新域名（https://github.com/Jackett/Jackett/commit/25cd0e49 ，
+  // resolves https://github.com/Jackett/Jackett/issues/15762 ）：主域迁到 emu-warez.com，
+  // 旧域按域名迁移规则留在 legacyUrls。
+  urls: ["https://emu-warez.com/"],
+  legacyUrls: ["https://emuwarez.com/", "https://emuwarez.it/"],
 
   category: [
     {
