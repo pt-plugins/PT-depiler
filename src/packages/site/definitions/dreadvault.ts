@@ -4,7 +4,14 @@
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
-import Unit3D, { CategoryFree, pick, pickAttr, SchemaMetadata } from "../schemas/Unit3D.ts";
+import Unit3D, {
+  CategoryFree,
+  freeleechFactorMap,
+  type IUnit3DRawTorrent,
+  pick,
+  pickAttr,
+  SchemaMetadata,
+} from "../schemas/Unit3D.ts";
 import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 import { buildCategoryOptionsFromDict } from "../utils.ts";
 
@@ -42,32 +49,8 @@ const categoryMap: Record<number, string> = {
 
 /**
  * UNIT3D 的 `freeleech` 字段是「免费比例」（0~100，100 = 全免），下载计费比例 = 1 - free%。
- * 依据 UNIT3D 源码：
- *  - `App\Jobs\ProcessAnnounce`：`creditedDownloadedDelta = $downloadedDelta * (100 - min(100, $torrent->percentFree)) / 100`
- *  - `App\Services\Unit3dAnnounce::addTorrent`：`download_factor => max(0, 100 - $torrent->free)`
- * 与 Jackett 的 Unit3D API 定义一致（如 `aither-api.yml`：25% → 0.75、75% → 0.25、100% → 0、featured → 0/2）。
+ * 换算表与种子行的公共字段定义见 `schemas/Unit3D.ts`（freeleechFactorMap / IUnit3DRawTorrent）。
  */
-const freeleechFactorMap: Record<string, number> = {
-  "0%": 1,
-  "100%": 0,
-  "75%": 0.25,
-  "50%": 0.5,
-  "25%": 0.75,
-};
-
-interface IDreadVaultRawTorrent {
-  attributes?: {
-    freeleech?: string;
-    double_upload?: boolean;
-    featured?: boolean;
-    internal?: boolean;
-  };
-  freeleech?: string;
-  double_upload?: boolean;
-  featured?: boolean;
-  internal?: boolean;
-  [key: string]: unknown;
-}
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -282,7 +265,7 @@ export default class DreadVault extends Unit3D {
     row: Element | Document | object,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    const raw = row as IDreadVaultRawTorrent;
+    const raw = row as IUnit3DRawTorrent;
     const tags: ITorrentTag[] = [];
 
     const featured = pick(raw, "featured", false);
