@@ -22,7 +22,10 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["uggcf://jjj.cgfxvg.bet/"],
+  // 2026-10-29 pre-dessert-sites 跟进：新增主域置顶、原域保留；已停用的历史域进 legacyUrls。
+  // 成人站，全部写 rot13。
+  urls: ["uggcf://jjj.cgfxvg.pbz/", "uggcf://jjj.cgfxvg.bet/"],
+  legacyUrls: ["uggcf://jjj.cgfxvg.arg/"],
 
   category: [
     {
