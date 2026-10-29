@@ -31,8 +31,8 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 ## 硬性规则
 
 - **id = 文件名**，必须匹配 `/[0-9a-z]+/`（无大写、无特殊字符，见 `types/site.ts:36-44`）。若 Jackett 有同名站点配置，优先与其命名一致。
-- **version**：必填数字，既有定义全部显式声明（2026-09 的 master 上 301 个定义文件无一例外）。`types/site.ts:46-54` 的约定是「模板类 `-1`；`NexusPHP` / `Unit3D` / `Gazelle` / `GazelleJSONAPI` / `AvistaZ` 系 `0` 且无需递增；其余站点 >0」。
-  但仓库现状与文字约定不一致：引擎类定义普遍写 `1`（2026-09 统计：NexusPHP 164 个定义里 158 个写 `1`、Unit3D 35 个里 31 个、GazelleJSONAPI 14 个里 12 个），模板类站点也常写 `1`。
+- **version**：必填数字，既有定义全部显式声明（2026-10 的 master 上 410 个定义文件无一例外）。`types/site.ts:46-54` 的约定是「模板类 `-1`；`NexusPHP` / `Unit3D` / `Gazelle` / `GazelleJSONAPI` / `AvistaZ` 系 `0` 且无需递增；其余站点 >0」。
+  但仓库现状与文字约定不一致：引擎类定义普遍写 `1`（2026-10 统计：NexusPHP 169 个定义、Unit3D 61 个定义里 57 个写 `1` / 4 个写 `2`），模板类站点也常写 `1`。
   实际做法：**跟随同引擎既有文件的取值**（绝大多数是 `1`），同一站点内保持一致；修改既有站点时不要顺手改这个字段（除非该站点本来就用 `YYYYMMDD` 式自定义版本号）。
 - **urls**：第一个是默认使用地址；支持 https 就优先 https；敏感站点网址可写成 rot13（`uggc://` / `uggcf://`，类型见 `types/base.ts:11-21`，还原见 `utils/html.ts:49`）。
 - **成人站点（`tags` 含 `成人` / `XXX` / `Adult`，大小写不敏感）的 `urls` / `legacyUrls` / `trackerUrls` 必须全部写成 rot13**，由 `vite/scripts/checkSiteDefinition.ts` 强制（error）。配套约束：
@@ -45,7 +45,13 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 - **`userInfo.process[*]` 的字段声明按层分工**（`types/site.ts:355-363`）：每步要取的字段是 `[...fields, ...Object.keys(selectors)]`，二选一即可，不要两处都写。
   - **schema（`schemas/*.ts`）优先用 `process[*].fields`**：字段清单写在步骤里，具体选择器放在全局 `userInfo.selectors`；这样 definition 只需覆写选择器就能快速适配站点改版，不必重写请求流程（NexusPHP / Luminance / Gazelle 等引擎都是这个形态）。
   - **definition（`definitions/*.ts`）自己掌控 `process` 时优先用 `process[*].selectors`**：选择器的键本身就说明了「这次请求要取哪些内容」，字段与选择器不会各写一份而对不上（范例：`definitions/myanonamouse.ts`、`definitions/cgpeers.ts`）。
-- 若同时修改了公共类型/schema，必须同步检查其余定义文件是否受影响（`definitions/` 下 300+ 个定义文件、10 个 schema）。
+- **Unit3D 的 JSON API 站（`/api/torrents/filter`）额外约束**（细节见 [unit3d.md](references/engines/unit3d.md) 的「版本差异」「JSON API」两节）：
+  - 分类参数是 `categories[]`（HTML 站是 `categoryIds[]`）；`responseType` 必须是 `json`，且 `search.selectors` 要整段按 `data[].attributes` 重写；
+  - `freeleech` 是 0–100 的**免费比例**（任意整数），计费按 `1 - free/100` 现算，`freeleechFactorMap` 只覆盖五档；`featured` 只是首页精选，不影响计费（源码计费只看 `free` 与 `doubleup`）；
+  - API 的 `uploader` 是字符串（`author` 写 `["uploader", "attributes.uploader"]`），`imdbId` 会被 `(int)` 强转（高级检索要先剥 `tt`）；
+  - `/api/user` 仅 9.0.0+ 存在，且只有 10 个字段（没有注册时间 / 做种体积 / 平均做种 / 发布数），8.x 只能走 HTML 资料页；
+  - 默认 `rows` 只覆盖 7.0.0+ 的 `torrent-search--list__results` 结构，6.x 站点要补 `table.data-table > tbody > tr` 候选。
+- 若同时修改了公共类型/schema，必须同步检查其余定义文件是否受影响（`definitions/` 下 410 个定义文件、10 个 schema）。
 
 ## 按需读取
 
@@ -56,7 +62,7 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 | 写 selectors、filters、category、searchEntry、userInfo process         | [references/selectors-and-filters.md](references/selectors-and-filters.md)                       |
 | 排查"搜不到/解析为空/提示未登录/结果字段错误"                          | [references/debugging.md](references/debugging.md)                                               |
 | 目标站点是 NexusPHP 系（国内 HDSky/OurBits 类结构）                    | [references/engines/nexusphp.md](references/engines/nexusphp.md)                                 |
-| 目标站点是 Unit3D 系（Laravel + API）                                  | [references/engines/unit3d.md](references/engines/unit3d.md)                                     |
+| 目标站点是 Unit3D 系（含 `/api/torrents/filter` 的 API-only 站、6.x / 7.x+ 列表布局与版本差异） | [references/engines/unit3d.md](references/engines/unit3d.md)                                     |
 | 目标站点是 Gazelle 系（音乐 tracker，网页解析）                        | [references/engines/gazelle.md](references/engines/gazelle.md)                                   |
 | 目标站点是 Gazelle 的 JSON API 变体                                    | [references/engines/gazelle-json-api.md](references/engines/gazelle-json-api.md)                 |
 | 目标站点属于 AvistaZ 网络（AvistaZ/AsiaTorrents/CinemaZ/PrivateHD 等） | [references/engines/avistaz-network.md](references/engines/avistaz-network.md)                   |
@@ -91,5 +97,7 @@ pnpm check:site-definition src/packages/site/definitions/<id>.ts   # 只校验�
 - [ ] `category` 的每个 key 在站点内唯一，value 与站点真实分类一致
 - [ ] `userInfo.process[*]` 的字段声明符合分层约定：definition 侧用 `selectors`（键即字段清单），没有和 `fields` 重复声明；覆写引擎步骤时展开了 `...SchemaMetadata.userInfo!.process![n]`
 - [ ] 所有选择器/接口路径都有真实依据，没有猜测值
+- [ ] Unit3D JSON API 站：分类用 `categories`、`author` 取字符串 `uploader`、`freeleech` 按 `1 − free/100` 计费、`featured` 只做徽章；`/api/user` 只用于 9.0.0+ 站点
+- [ ] Unit3D 列表行选择器与站点版本匹配（6.x 的 `div.data-table-wrapper > table.data-table` 需要 `table.data-table > tbody > tr` 候选）
 - [ ] `pnpm check` 通过（含站点定义的结构与 pattern 编译校验）
 - [ ] 若覆写了类方法，确认签名与基类一致（`override` 关键字、参数个数与类型）
