@@ -16,7 +16,10 @@
  *      而且写失败时监听器**永久丢失**（空 catch），跨 tab 同步从此失效。
  *   4. **恢复期指纹守卫**：异步恢复期间应用可能已经改过状态，这些字段不要用存储里的旧值覆盖。
  *      上游见其 `index.js` 的 `stateBeforeRestore` 比对。
+ *   5. **落盘节流**：`$save()` 在 1000ms 窗口内只落盘一次（trailing 边缘），
+ *      拖拽排序 / 连续切换开关时不会每个 mutation 都写一次 `chrome.storage`。
  */
+import { throttle } from "es-toolkit";
 import type { Ref } from "vue";
 import { ref, unref } from "vue";
 // 这两个都只是类型：标成 `import type`，否则纯 ESM 工具链（Node 的类型擦除、esbuild 单文件转换）
@@ -219,19 +222,44 @@ export function piniaWebExtPersistencePlugin(context: PiniaPluginContext) {
 
   chrome.storage.onChanged.addListener(onChanged);
 
-  const $save = async (newState = store.$state) => {
+  const persistState = async (newState: typeof store.$state) => {
     // 恢复完成前不要写：此时 store 还是默认状态，写进去就把存储里的数据覆盖了
     await restorePromise;
 
     // 同一 key 的写入排队，避免并发保存乱序互相覆盖
-    return enqueue(`${storageArea}:${key}`, async () => {
+    await enqueue(`${storageArea}:${key}`, async () => {
       const serialized = JSON.stringify(newState);
       lastWritten = serialized; // 复用这次序列化结果做回声指纹，不额外开销
       await chrome.storage[storageArea].set({ [key]: JSON.parse(serialized) });
-    }).catch((e) => {
-      console.error(`[PTD] 保存 store "${store.$id}" 失败：`, e);
     });
   };
+
+  /** 本轮合并写入的等待者；节流器真正落盘后统一 resolve，`await $save()` 才不会提前返回 */
+  let pendingSaveResolvers: Array<() => void> = [];
+
+  /**
+   * 1000ms 内最多落盘一次，且只在 trailing 边缘触发（窗口结束时写最后一份状态）。
+   * 拖拽排序、连续切换开关这类高频交互里，`$save()` 的调用次数远多于实际需要落盘的次数。
+   */
+  const throttledSave = throttle(
+    (newState: typeof store.$state) => {
+      const resolvers = pendingSaveResolvers;
+      pendingSaveResolvers = [];
+      void persistState(newState)
+        .catch((e) => {
+          console.error(`[PTD] 保存 store "${store.$id}" 失败：`, e);
+        })
+        .finally(() => resolvers.forEach((resolve) => resolve()));
+    },
+    1_000,
+    { edges: ["trailing"] },
+  );
+
+  const $save = (newState = store.$state) =>
+    new Promise<void>((resolve) => {
+      pendingSaveResolvers.push(resolve);
+      throttledSave(newState);
+    });
 
   if (autoSaveType && Array.isArray(autoSaveType)) {
     store.$subscribe((mutation, state: any) => {
