@@ -13,8 +13,11 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
 
-  urls: ["https://torrentgalaxy.info/", "https://torrentgalaxy.one/"],
-  legacyUrls: ["https://torrentgalaxy.space/"],
+  // 2026-10-29 Jackett 更新域名（https://github.com/Jackett/Jackett/commit/1670eb79b41e664226d52d69710abac162e7a124 ，
+  // resolves https://github.com/Jackett/Jackett/issues/15992 ）：主域迁到 torrentgalaxy.online。
+  // 旧域按域名迁移规则留在 legacyUrls（.one 已被 Jackett 从 links 移除且实测无响应，.space 证书早已过期）。
+  urls: ["https://torrentgalaxy.online/", "https://torrentgalaxy.info/"],
+  legacyUrls: ["https://torrentgalaxy.one/", "https://torrentgalaxy.space/"],
 
   search: {
     keywordPath: "q", // 关键词放在路径中，实际由 requestConfigTransformer 拼装
