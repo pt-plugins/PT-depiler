@@ -5,7 +5,7 @@ import { computedAsync } from "@vueuse/core";
 import { getMediaServer, getMediaServerMetaData, IMediaServerMetadata } from "@ptd/mediaServer";
 
 import type { IMediaServerMetadata as IMediaServerConfig } from "@/shared/types.ts";
-import { formatDate, formValidateRules } from "@/options/utils.ts";
+import { formatDate } from "@/options/utils.ts";
 
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";
 
@@ -46,7 +46,7 @@ async function checkConnect() {
               v-model="clientConfig.name"
               :label="t('SetDownloader.common.name')"
               :placeholder="t('SetDownloader.common.name')"
-              :rules="[formValidateRules.require(t('SetDownloader.editor.nameTip'))]"
+              :rules="[['required', t('SetDownloader.editor.nameTip')]]"
               required
             />
           </v-col>
@@ -62,7 +62,7 @@ async function checkConnect() {
           <v-text-field
             v-model="clientConfig.address"
             :label="t('SetDownloader.common.address')"
-            :rules="[formValidateRules.url(t('SetDownloader.editor.addressTip'))]"
+            :rules="[['url', t('SetDownloader.editor.addressTip')]]"
             required
           />
         </v-row>
@@ -76,7 +76,7 @@ async function checkConnect() {
               <v-text-field
                 v-model="clientConfig.auth[auth_field]"
                 :label="auth_field"
-                :rules="[formValidateRules.require()]"
+                :rules="['required']"
                 hide-details
                 required
               />
@@ -86,7 +86,7 @@ async function checkConnect() {
                 v-model="clientConfig.auth[auth_field.name]"
                 :label="auth_field.name"
                 :messages="auth_field.message ?? ''"
-                :rules="auth_field.required ? [formValidateRules.require()] : []"
+                :rules="auth_field.required ? ['required'] : []"
                 required
               />
             </template>

@@ -6,7 +6,7 @@ import { computedAsync } from "@vueuse/core";
 import { type IDownloaderMetadata } from "@/shared/types.ts";
 
 import { getDownloader, getDownloaderMetaData, TorrentClientMetaData } from "@ptd/downloader";
-import { formatDate, formValidateRules } from "@/options/utils.ts";
+import { formatDate } from "@/options/utils.ts";
 
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";
 
@@ -49,7 +49,7 @@ async function checkConnect() {
               v-model="clientConfig.name"
               :label="t('SetDownloader.common.name')"
               :placeholder="t('SetDownloader.common.name')"
-              :rules="[formValidateRules.require(t('SetDownloader.editor.nameTip'))]"
+              :rules="[['required', t('SetDownloader.editor.nameTip')]]"
               required
             />
           </v-col>
@@ -64,7 +64,7 @@ async function checkConnect() {
             <v-text-field
               v-model="clientConfig.sortIndex"
               :label="t('common.sortIndex')"
-              :rules="[formValidateRules.require()]"
+              :rules="['required']"
               hide-details
               type="number"
             />
@@ -74,7 +74,7 @@ async function checkConnect() {
           <v-text-field
             v-model="clientConfig.address"
             :label="t('SetDownloader.common.address')"
-            :rules="[formValidateRules.url(t('SetDownloader.editor.addressTip'))]"
+            :rules="[['url', t('SetDownloader.editor.addressTip')]]"
             required
           />
         </v-row>

@@ -8,7 +8,6 @@ import { refDebounced } from "@vueuse/core";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { formValidateRules } from "@/options/utils.ts";
 import type { ISearchSolution, ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
 import SolutionLabel from "./SolutionLabel.vue";
@@ -132,7 +131,7 @@ function dialogLeave() {
               <v-text-field
                 v-model="solution.name"
                 :label="t('common.name')"
-                :rules="[formValidateRules.require()]"
+                :rules="['required']"
                 autofocus
                 required
               />

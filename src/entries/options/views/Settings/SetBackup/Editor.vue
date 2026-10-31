@@ -8,7 +8,6 @@ import type { IBackupRetention } from "@ptd/backupServer";
 import { DEFAULT_BACKUP_RETENTION_SAMPLE_RULES, hasBackupRetentionToApply } from "@ptd/backupServer/utils.ts";
 
 import { BackupFields, type IBackupServerMetadata } from "@/shared/types.ts";
-import { formValidateRules } from "@/options/utils.ts";
 
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";
 
@@ -189,7 +188,7 @@ async function checkConnect() {
               v-model="clientConfig.name"
               :label="t('SetDownloader.common.name')"
               :placeholder="t('SetDownloader.common.name')"
-              :rules="[formValidateRules.require(t('SetDownloader.editor.nameTip'))]"
+              :rules="[['required', t('SetDownloader.editor.nameTip')]]"
               hide-details
               required
             />

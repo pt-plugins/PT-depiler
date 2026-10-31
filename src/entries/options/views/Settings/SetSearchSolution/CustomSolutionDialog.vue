@@ -6,7 +6,6 @@ import { isJSON } from "es-toolkit";
 import type { TSiteID } from "@ptd/site";
 
 import type { ISearchSolution } from "@/shared/types/storages/metadata.ts";
-import { formValidateRules } from "@/options/utils.ts";
 
 import {
   generateSiteSearchSolution,
@@ -104,7 +103,7 @@ function doSubmit() {
         <v-form v-model="formValid" fast-fail validate-on="eager input">
           <v-text-field
             v-model="searchSolution.name"
-            :rules="[formValidateRules.require()]"
+            :rules="['required']"
             :label="t('SetSearchSolution.CustomSolutionDialog.solutionName')"
           />
 
@@ -113,7 +112,7 @@ function doSubmit() {
             v-model="searchSolutionEntryRequestConfig"
             :hint="t('SetSearchSolution.CustomSolutionDialog.requestConfigHint')"
             :rules="[
-              formValidateRules.require(),
+              'required',
               (v) => isJSON(v) || t('SetSearchSolution.CustomSolutionDialog.requestConfigJsonError'),
             ]"
             persistent-hint
