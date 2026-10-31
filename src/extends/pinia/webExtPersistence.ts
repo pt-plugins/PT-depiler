@@ -7,9 +7,10 @@
  * - 我们这份**独有**的是「跨上下文实时同步」—— `chrome.storage.onChanged` → `$patch`，
  *   上游完全没有存储事件处理（options / offscreen / SW 之间共享状态全靠这个）；
  * - 下面这些是照上游补齐、原先缺的：
- *   1. **写入队列**：同一 storage key 的写入串行化，避免两次重叠保存乱序（旧状态覆盖新状态）。
- *      上游见其 `utils.js` 的 `enqueue()`；我们此前是裸并发保存，而全仓 46 处 `$save()` 里
- *      有 18 处连 `await` 都没有。
+ *   1. **合并落盘 + 写入串行**：`$save()` 在 1000ms 窗口内只落盘一次（trailing 边缘，写窗口里最后一份状态），
+ *      拖拽排序 / 连续切换开关时不会每个 mutation 都写一次 `chrome.storage`；写入本身走一条串行链，
+ *      单次 `chrome.storage.set` 慢于窗口时也不会并发乱序（旧状态覆盖新状态）。
+ *      全仓 46 处 `$save()` 里有 18 处连 `await` 都没有，`await $save()` 仍保证等本轮真正写完。
  *   2. **恢复完成前不写**：`$save()` 先等 `restorePromise`，否则会把默认状态写回存储、覆盖已存数据。
  *   3. **回声抑制**：写完之后 `storage.onChanged` 会把自己的写入回灌一次；用写入时的序列化结果比对跳过它。
  *      以前的做法是 `removeListener` → 写 → `addListener`：窗口期内到达的外部变更会丢，
@@ -30,25 +31,6 @@ function fingerprint(value: unknown): string | undefined {
   } catch {
     return undefined;
   }
-}
-
-/** 同一 key 的写入排队，前一次失败不阻塞后一次；队列空后删表项，避免 Map 无上限增长 */
-const writeQueues = new Map<string, Promise<void>>();
-
-function enqueue(queueKey: string, operation: () => Promise<void>): Promise<void> {
-  const previous = writeQueues.get(queueKey) ?? Promise.resolve();
-  const current = previous.then(operation, operation);
-  const settled = current.then(
-    () => {},
-    () => {},
-  );
-  writeQueues.set(queueKey, settled);
-  void settled.then(() => {
-    if (writeQueues.get(queueKey) === settled) {
-      writeQueues.delete(queueKey);
-    }
-  });
-  return current;
 }
 
 export async function persistent<T>(key: string, newValue: T, storage: chrome.storage.AreaName = "local") {
@@ -219,19 +201,63 @@ export function piniaWebExtPersistencePlugin(context: PiniaPluginContext) {
 
   chrome.storage.onChanged.addListener(onChanged);
 
-  const $save = async (newState = store.$state) => {
-    // 恢复完成前不要写：此时 store 还是默认状态，写进去就把存储里的数据覆盖了
-    await restorePromise;
+  /** 落盘间隔：同一窗口内最多写一次（窗口结束时写最后一份状态） */
+  const SAVE_DELAY_MS = 1_000;
 
-    // 同一 key 的写入排队，避免并发保存乱序互相覆盖
-    return enqueue(`${storageArea}:${key}`, async () => {
-      const serialized = JSON.stringify(newState);
-      lastWritten = serialized; // 复用这次序列化结果做回声指纹，不额外开销
-      await chrome.storage[storageArea].set({ [key]: JSON.parse(serialized) });
-    }).catch((e) => {
-      console.error(`[PTD] 保存 store "${store.$id}" 失败：`, e);
+  /** 窗口内累计的「最新状态」；窗口结束时只取这一份 */
+  let pendingState: typeof store.$state | undefined;
+  /** 本轮等待者：本轮真正落盘（或失败）后统一 resolve，`await $save()` 才不会提前返回 */
+  let pendingResolvers: Array<() => void> = [];
+  let saveTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /**
+   * 写入串行链：同一 store 的写入依次执行。
+   * 节流只保证「每个窗口最多触发一次」，但单次 `chrome.storage.set` 可能慢于 1000ms，
+   * 只有链起来才能保证慢写时仍是「后写覆盖前写」而不是两个写并发乱序。
+   * 链上的任务自己吞掉异常，所以这条链永远不会 reject。
+   */
+  let writeChain: Promise<void> = Promise.resolve();
+
+  /** 窗口结束：把最新状态排进写链，等它真正落盘后统一 resolve 本轮等待者 */
+  const flushPendingSave = () => {
+    saveTimer = undefined;
+    const state = pendingState;
+    const resolvers = pendingResolvers;
+    pendingState = undefined;
+    pendingResolvers = [];
+
+    if (state === undefined) {
+      resolvers.forEach((resolve) => resolve());
+      return;
+    }
+
+    writeChain = writeChain.then(async () => {
+      try {
+        // 恢复完成前不要写：此时 store 还是默认状态，写进去就把存储里的数据覆盖了
+        await restorePromise;
+        const serialized = JSON.stringify(state);
+        lastWritten = serialized; // 复用这次序列化结果做回声指纹，不额外开销
+        await chrome.storage[storageArea].set({ [key]: JSON.parse(serialized) });
+      } catch (e) {
+        console.error(`[PTD] 保存 store "${store.$id}" 失败：`, e);
+      } finally {
+        resolvers.forEach((resolve) => resolve());
+      }
     });
   };
+
+  /**
+   * 1000ms 窗口内的重复调用合并成一次落盘（trailing 边缘）。
+   * 拖拽排序、连续切换开关这类高频交互里，`$save()` 的调用次数远多于实际需要落盘的次数。
+   */
+  const $save = (newState = store.$state) =>
+    new Promise<void>((resolve) => {
+      pendingState = newState;
+      pendingResolvers.push(resolve);
+      if (saveTimer === undefined) {
+        saveTimer = setTimeout(flushPendingSave, SAVE_DELAY_MS);
+      }
+    });
 
   if (autoSaveType && Array.isArray(autoSaveType)) {
     store.$subscribe((mutation, state: any) => {
