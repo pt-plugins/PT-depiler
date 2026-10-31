@@ -33,15 +33,6 @@ export function deepToRaw<T extends Record<string, any>>(sourceObj: T): T {
   return objectIterator(sourceObj);
 }
 
-export const formValidateRules: Record<string, (args?: any) => (v: any) => boolean | string> = {
-  require: (args: string = "Item is required") => {
-    return (v: any) => !!v || args;
-  },
-  url: (args: string = "Not url") => {
-    return (v: any) => /^(https?):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;[\]]+[-A-Za-z0-9+&@#/%=~_|]$/.test(v) || args;
-  },
-};
-
 export const formatSize = (size: number | string, options?: FilesizeOptions) => {
   try {
     return filesize(size, { base: 2, round: 2, pad: true, ...(options ?? {}) });
