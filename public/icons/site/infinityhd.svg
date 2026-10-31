@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="InfinityHD">
+  <defs>
+    <filter id="g" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.1"/></filter>
+    <path id="p" d="M120,60 C102,28 66,28 66,60 C66,92 102,92 120,60 C138,28 174,28 174,60 C174,92 138,92 120,60 Z" fill="none"/>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="#0B0F1A"/>
+  <rect x="2.5" y="2.5" width="59" height="59" rx="14.5" fill="none" stroke="#2A2350" stroke-width="1"/>
+  <g transform="translate(-8.8,11.6) scale(0.34)">
+    <g filter="url(#g)"><use href="#p" stroke="#7A50D6" stroke-width="10"/></g>
+    <use href="#p" stroke="#B79DFF" stroke-width="8" stroke-linecap="round"/>
+    <use href="#p" stroke="#EFE9FF" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+  </g>
+</svg>

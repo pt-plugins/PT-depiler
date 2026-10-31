@@ -30,7 +30,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["https://yu-scene.net/"],
-  favicon: "https://yu-scene.net/favicon.ico",
 
   category: [
     {

@@ -19,7 +19,6 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
   urls: ["https://www.hdkyl.in/", "https://na.hdkylin.com/", "https://cf.hdkylin.com/"],
-  favicon: "https://www.hdkyl.in/favicon.ico",
 
   officialGroupPattern: [/-HDK(WEB|TV|MV|Game|DIY|ylin)/i],
 

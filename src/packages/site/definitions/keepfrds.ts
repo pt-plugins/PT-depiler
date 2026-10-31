@@ -56,7 +56,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://pt.keepfrds.com/"],
-  favicon: "https://pt.keepfrds.com/static/favicon-64x64.png",
 
   category: [
     {

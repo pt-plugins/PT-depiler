@@ -63,8 +63,6 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["https://generation-free.org/"],
   legacyUrls: ["https://generation-free.biz/"],
 
-  favicon: "./_default_unit3d.ico",
-
   userInputSettingMeta: [
     {
       name: "token",

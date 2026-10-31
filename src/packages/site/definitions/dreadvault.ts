@@ -66,8 +66,6 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://dreadvault.org/"],
 
-  favicon: "./_default_unit3d.ico",
-
   userInputSettingMeta: [
     {
       name: "token",

@@ -24,7 +24,6 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
 
   urls: ["https://torrenting.com/", "https://torrenting.me/"],
-  favicon: "https://torrenting.com/favicon.ico",
 
   category: [
     {

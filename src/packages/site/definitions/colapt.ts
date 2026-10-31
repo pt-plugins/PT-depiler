@@ -31,7 +31,6 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "ReelCore",
   urls: ["https://www.colapt.com/"],
-  favicon: "https://www.colapt.com/brand/cola/favicon-black-red.ico",
 
   category: [
     {
