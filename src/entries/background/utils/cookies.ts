@@ -33,7 +33,8 @@ onMessage("getAllCookies", async ({ data }) => {
 });
 
 onMessage("getCookie", async ({ data: detail }) => {
-  return await chrome.cookies.get(detail);
+  // chrome.cookies.get 在未找到 Cookie 时可能返回 undefined（@types/chrome >= 0.3.7），统一归一为 null
+  return (await chrome.cookies.get(detail)) ?? null;
 });
 
 /**
@@ -77,7 +78,7 @@ export async function setCookie(cookie: chrome.cookies.SetDetails, force: boolea
   } else {
     // 尝试获取当前站点已存在的Cookie
     const exist_cookie = await chrome.cookies.get({ url: new_cookie.url, name: new_cookie.name! });
-    if (exist_cookie === null) {
+    if (exist_cookie == null) {
       // 如果当前站点没有这个Cookies，则允许设置
       allowSet = true;
     } else if ((exist_cookie.expirationDate ?? 0) < now) {
