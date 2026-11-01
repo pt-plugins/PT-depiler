@@ -9,7 +9,7 @@ import NexusPHP, {
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
-import { parseSizeString, parseValidTimeString } from "../utils";
+import { isPromotionTagName, parseSizeString, parseValidTimeString } from "../utils";
 
 // 清理用户名中的 star 相关元素和文本
 const cleanUsername = (element: Element): string => {
@@ -296,7 +296,13 @@ export const siteMetadata: ISiteMetadata = {
       params: { notnewword: 1 },
     },
     selectors: {
-      rows: { selector: ".mitem" },
+      // HDCity 会依据 UA 决定种子列表的 HTML 结构：手机 UA 下站点会忽略账号里的「种子列表风格」
+      // （vstyle）与 ?v= 参数，强制返回 Lo-Fi 列表——行是 div[style="vertical-align:middle;padding:1em;"]，
+      // 没有 .mitem，于是 .mitem 在手机端一行都匹配不到，整个搜索直接解析失败（#1484）。
+      // 这里同时兼容现代列表与 Lo-Fi 列表：不去伪造 UA（那需要 declarativeNetRequest 注入，
+      // 且站点可能另有客户端提示判断），而是让选择器两套结构都能解析——Lo-Fi 行同样带有
+      // 标题 / 副标题 / 大小 / 做种数 / 下载链接与优惠信息，只是没有发布时间与完成数。
+      rows: { selector: [".mitem", "div[style='vertical-align:middle;padding:1em;']"] },
       link: linkQuery,
       url: {
         ...linkQuery,
@@ -310,10 +316,10 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "querystring", args: ["id"] }],
       },
       title: {
-        selector: [".mtop a[href^='t-']"],
+        selector: [".mtop a[href^='t-']", "a[href^='t-']"],
       },
       subTitle: {
-        selector: [".mtitle a[href^='t-']"],
+        selector: [".mtitle a[href^='t-']", "div[style='width:25%;max-width:30%;float:left;'] span"],
       },
       time: {
         selector: "div[style='minfo']",
@@ -323,13 +329,23 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      size: { selector: ".mbottom .mbelement:nth-child(3)", filters: [{ name: "parseSize" }] },
+      size: {
+        selector: [
+          ".mbottom .mbelement:nth-child(3)",
+          "div[style='width:55%;max-width:60%;float:left;text-align:left;']",
+        ],
+        filters: [
+          // Lo-Fi 行把大小写在标题后面（「标题 [7.40 GB] [30%]」），先抠出中括号里的体积
+          (query: string) => query?.match(/\[([\d.]+\s*[KMGT]i?B)\]/)?.[1] ?? query,
+          { name: "parseSize" },
+        ],
+      },
       author: {
         selector: ["div[style='minfo'] > span"],
         elementProcess: cleanUsername,
       },
       seeders: {
-        selector: ".mbottom a[href*='seeders']",
+        selector: [".mbottom a[href*='seeders']", "a[href*='seeders']"],
         filters: [
           (query: string) => {
             return query ? query.match(/(\d+)/)![1] : "0";
@@ -337,7 +353,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       leechers: {
-        selector: ".mbottom a[href*='leechers']",
+        selector: [".mbottom a[href*='leechers']", "a[href*='leechers']"],
         filters: [
           (query: string) => {
             return query ? query.match(/(\d+)/)![1] : "0";
@@ -345,7 +361,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       completed: {
-        selector: ".mbottom a[href*='viewsnatches']",
+        selector: [".mbottom a[href*='viewsnatches']", "a[href*='viewsnatches']"],
         filters: [
           (query: string) => {
             return query ? query.match(/(\d+)/)![1] : "0";
@@ -528,6 +544,16 @@ export default class HDCity extends NexusPHP {
       });
 
       torrent.tags = tags;
+    } else {
+      // Lo-Fi 列表没有 .mpromo，优惠信息以「[30%]」「[2X]」「[Free]」的中括号形式
+      // 跟在标题后面（同一行里还有「[7.40 GB]」这种体积，需要过滤掉）
+      const bracketNames = [...(row.textContent ?? "").matchAll(/\[([^\]]{1,16})\]/g)]
+        .map((match) => match[1].replace(/\s/g, "").replace("免费", "Free"))
+        .filter((name) => isPromotionTagName(name));
+
+      if (bracketNames.length > 0) {
+        torrent.tags = [...(torrent.tags || []), ...bracketNames.map((name) => ({ name }))];
+      }
     }
 
     return torrent;

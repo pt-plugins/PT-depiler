@@ -623,6 +623,12 @@ export default class BittorrentSite {
     typeof torrent.comments != "undefined" && (torrent.comments = tryToNumber(torrent.comments));
     typeof torrent.status == "undefined" && (torrent.status = ETorrentStatus.unknown);
 
+    // 选择器未命中时 time 会回落到空串，而空串并不是合法的墙上时间：把它当作「未知」丢掉，
+    // 否则下面的 parseTimeWithZone 会抛 RangeError: Invalid time value（如手机端 HDCity 的 Lo-Fi 列表，见 #1484）
+    if ((torrent.time as unknown as string) === "") {
+      delete torrent.time;
+    }
+
     // 仅当设置了时区偏移时，才进行转换
     if (this.metadata.timezoneOffset && typeof torrent.time !== "undefined") {
       torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset);
