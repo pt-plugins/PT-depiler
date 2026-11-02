@@ -73,6 +73,35 @@ export const siteMetadata: ISiteMetadata = {
     area_special: { name: "9KG专区", enabled: false, requestConfig: { url: "/special.php" } },
   },
 
+  list: [
+    ...SchemaMetadata.list,
+    {
+      // H&R 页面（myhr.php）的表格与种子列表页结构不同，需要单独声明选择器；
+      // 该页每行只给出 details.php 链接，没有下载链接，link 由 NexusPHP 的 detail.selectors.link 在推送时补全
+      // ref: https://github.com/pt-plugins/PT-depiler/issues/1660
+      urlPattern: ["/myhr\\.php"],
+      mergeSearchSelectors: false,
+      selectors: {
+        // <table id="hr-table">：首行为表头（td.colhead），之后每行（td.rowfollow）一条 H&R 记录
+        rows: { selector: "table#hr-table > tbody > tr:gt(0)" },
+        id: {
+          selector: "a[href*='details.php?id=']",
+          attr: "href",
+          filters: [{ name: "querystring", args: ["id"] }],
+        },
+        title: { selector: "td:nth-child(2) a[href*='details.php?id=']" },
+        url: {
+          selector: "a[href*='details.php?id=']",
+          attr: "href",
+          filters: [
+            { name: "querystring", args: ["id"] },
+            { name: "prepend", args: ["/details.php?id="] },
+          ],
+        },
+      },
+    },
+  ],
+
   levelRequirements: [
     {
       id: 0,
