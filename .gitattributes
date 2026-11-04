@@ -1,6 +1,6 @@
 # 统一行尾：仓库与检出**都**用 LF。
 #
-# 起因（见 docs/archive/2026-10-optimization-completed.md §2.8.5(九)）：
+# 起因（2026-10 那次行尾统一问题的排查）：
 # 本机 core.autocrlf=true 会把检出变成 CRLF，而 prettier 的 endOfLine 默认是 "lf"，
 # 于是同一个文件出现两种矛盾结论 ——
 #   · prettier 说「该文件不合规」，跑 --write 后又「没有任何差异」（git 归一化后看不到）
