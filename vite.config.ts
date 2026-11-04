@@ -40,8 +40,36 @@ const gitInfo = getGitInfo();
 const base_version = `${pkg.version}.${gitInfo.count}`;
 const commit_version = `${base_version}+${gitInfo.short}`;
 
+// dev 模式下 chokidar 默认递归 watch 整个仓库根目录，而本机的临时目录（构建 TEMP、
+// 浏览器 profile、调研克隆、pnpm store 等）动辄数万文件，既拖慢启动也频繁触发无意义的
+// 全量重载。这里显式排除非源码目录；Vite 的默认值（.git / node_modules / test-results）
+// 会被覆盖，故一并列出。
+const watchIgnored = [
+  "**/.git/**",
+  "**/node_modules/**",
+  // 本机的临时 / 调研目录（.gitignore 中已忽略，见 `.tmp-*/`、`.research-*`、`.pnpm-store`）
+  "**/.tmp-*/**",
+  "**/.research-*/**",
+  "**/.pnpm-store/**",
+  "**/.dsh/**",
+  // 编辑器与 CI 元数据
+  "**/.idea/**",
+  "**/.vscode/**",
+  "**/.github/**",
+  "**/.husky/**",
+  // 构建产物与本地笔记
+  "**/dist-*/**",
+  "**/docs/**",
+  "**/*.tsbuildinfo",
+];
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    watch: {
+      ignored: watchIgnored,
+    },
+  },
   build: {
     target: "es2023",
     outDir: `dist-${target}`,
