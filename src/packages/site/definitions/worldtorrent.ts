@@ -14,20 +14,24 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
   urls: [
-    "https://ww3-darkfox.officiel.cc/",
-    "https://ww3-vidlox.officiel.cc/",
-    "https://ww3-worldivx.officiel.cc/",
-    "https://ww3-wikibox.officiel.cc/",
-    "https://ww3-sharkibox.officiel.cc/",
-    "https://ww3-workino.officiel.cc/",
-    "https://ww3-oxtorrent.officiel.cc/",
-    "https://ww3-torrent911.officiel.cc/",
+    "https://www.darkfox.ws/",
+    "https://www.wikibox.ws/",
+    "https://ww4-sharkibox.officiel.cc/",
+    "https://ww4-worldivx.officiel.cc/",
+    "https://ww4-workino.officiel.cc/",
+    "https://ww4-torrent911.officiel.cc/",
+    // vidlox / oxtorrent 两个镜像实测会把任意路径 302 到 www-vidlox.officiel.cc / www-oxtorrent.officiel.cc
+    // 的宣传落地页（无列表），排在最后以免优先命中
+    "https://ww4-vidlox.officiel.cc/",
+    "https://ww4-oxtorrent.officiel.cc/",
   ],
 
   // 2026-10-17 / 10-20 两批 Jackett 更新：darkfox / vidlox / wikibox / sharkibox / worldivx /
   // workino / torrent911 均迁到 ww2-*.officiel.cc；oxtorrent 曾为 ww1-oxtorrent.officiel.cc。
   // 2026-10-24 第三批（d460fa9a）：全部 8 个镜像再升到 ww3-*.officiel.cc（含 oxtorrent）。
-  // 旧域名（ww1/ww2 各批与 .run）按域名迁移规则留在 legacyUrls。
+  // 2026-11-01 第四批（e4e942ea）：8 个镜像全部升到 ww4-*.officiel.cc；darkfox / wikibox
+  // 另起独立短域 www.darkfox.ws、www.wikibox.ws（903db754 / 56f8bbcc），Jackett 将其排在对应 ww4 之前。
+  // 旧域名（ww1 / ww2 / ww3 各批与 .run）按域名迁移规则留在 legacyUrls。
   legacyUrls: [
     "https://ww1.darkfox.run/",
     "https://ww1.vidlox.run/",
@@ -49,6 +53,14 @@ export const siteMetadata: ISiteMetadata = {
     "https://ww2-workino.officiel.cc/",
     "https://ww1-oxtorrent.officiel.cc/",
     "https://ww2-torrent911.officiel.cc/",
+    "https://ww3-darkfox.officiel.cc/",
+    "https://ww3-vidlox.officiel.cc/",
+    "https://ww3-worldivx.officiel.cc/",
+    "https://ww3-wikibox.officiel.cc/",
+    "https://ww3-sharkibox.officiel.cc/",
+    "https://ww3-workino.officiel.cc/",
+    "https://ww3-oxtorrent.officiel.cc/",
+    "https://ww3-torrent911.officiel.cc/",
   ],
 
   search: {

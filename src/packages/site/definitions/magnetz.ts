@@ -35,7 +35,8 @@ export const siteMetadata: ISiteMetadata = {
       params: { query: "" },
     },
     selectors: {
-      rows: { selector: "article.result-card" },
+      // 站点会在结果里混入没有下载按钮的推广/占位卡片，只保留真正带 magnet 的行
+      rows: { selector: 'article.result-card:has(a[href^="magnet:?xt="])' },
       // 详情页 URL 就是根路径下的 sqid（如 /Zfuh、/2okv7）
       id: {
         selector: ".result-card__name > a",

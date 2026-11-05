@@ -35,6 +35,8 @@ export const siteMetadata: ISiteMetadata = {
         { name: "PlayStation 2", value: "ps2" },
         { name: "PlayStation 3", value: "ps3" },
         { name: "PlayStation 4", value: "ps4" },
+        // 2026-11-01 Jackett a0f3e4d5 新增 /ps5 分类（站方新增 PS5 平台，映射到 Console/PS4）
+        { name: "PlayStation 5", value: "ps5" },
         { name: "PlayStation Portable", value: "psp" },
         { name: "PlayStation Vita", value: "psvita" },
         { name: "Saturn", value: "saturn" },
