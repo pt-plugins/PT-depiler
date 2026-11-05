@@ -173,7 +173,13 @@ export default defineConfig({
           },
         },
         "{{firefox}}.content_security_policy": {
-          extension_pages: "script-src 'self'; img-src 'self'",
+          // 覆盖默认 CSP 只为去掉 MV3 自带的 `upgrade-insecure-requests`
+          // ——它会把手里的 http 请求（下载器、媒体服务器）强行升到 https（#27）。
+          //
+          // ⚠️ 不要在这里声明 `img-src`：扩展页面的图片基本都是远端地址（媒体服务器海报、
+          // 豆瓣推荐图…），写死 `img-src 'self'` 就会全部拦掉（428a53cd 引入的回归）。
+          // http 图片能否显示取决于 Firefox 的混合内容升级规则（#1657），CSP 这一层管不了。
+          extension_pages: "script-src 'self';",
         },
 
         web_accessible_resources: [
