@@ -17,25 +17,35 @@
  *   - 站点在 Cloudflare 之后（`cf-cache-status: DYNAMIC`），但上述 API 没有 CF 挑战页。
  *
  * ⚠️ 未能真机验证的部分（站点 siteLocked，注册需 Turnstile，本次没有测试账号）：
- *   - **搜索**：选择器 / 参数全部照抄 Jackett c411.yml（该定义有实际用户群），字段路径与其一致；
+ *   - **搜索**：选择器 / 参数照抄 Jackett c411.yml（该定义有实际用户群），字段路径与其一致；
  *     `size`、`seeders`、`leechers` 等是否为纯数字由 torznab 规范约定，这里一律再过一遍 parseNumber。
- *   - **用户信息**：走 `/api/auth/me` 的 `user` 对象。字段名（`username`/`uploaded`/`downloaded`/
- *     `uploadCredit`/`downloadCredit`/`ratio`）取自站点前端 auth store
- *     （站点前端 chunk `B_Bvi1AB.js`：初始化即 GET `/api/auth/me`，WebSocket `stats:update`
- *     里用 `uploaded + uploadCredit` 与 `downloaded - downloadCredit` 重算展示值），
- *     **但没有拿到登录态的响应样本**，等级（roles 是权限 slug，不是站内 Class 名）、做种数、
- *     入站时间等未做编造，留待有账号后再补。
- *   - **API Key**：搜索（Torznab）需要用户自行到 https://c411.org/user/integrations 生成的
- *     API Key（Jackett 也用它做登录校验），未填写时搜索会得到 401；用户信息走浏览器 Cookie，
- *     与 API Key 无关。
+ *
+ * ✅ 2026-11-05 按 #1666 的反馈修正（keyword 搜索已被用户实测可用）：
+ *   - **IMDb / TMDB 检索报 Parse Error**：Newznab 的 `t` 只接受 `search` / `tvsearch` / `movie` /
+ *     `music` / `book`，caps 里的 `movie-search` 只是能力名。此前误传 `t=movie-search`，站点返回的
+ *     不是 feed，解析抛错；现按 Jackett（`t: {{ .Query.Type }}`）改为 `t=movie`。
+ *   - **用户信息（「我的数据」里没有该站点）**：原实现有两个问题——一是 `userInfo: {}` 会被
+ *     `checkSiteMetadataAllow` 当成「未配置」（utils/helper.ts:17-22），`hasUserInfo` /
+ *     `allowQueryUserInfo` 均为 false，站点根本不会进入「我的数据」；二是 `/api/auth/me` 依赖
+ *     浏览器 Cookie，插件的 XHR 默认不带 Cookie。
+ *     现改为 `GET /api/user/profile` + `Authorization: Bearer <API Key>`（口径参考
+ *     jordanlambrecht/tracker-tracker 的 c411 适配器及其 2026-10-20 的真机响应样本）：
+ *     上传 / 下载取 `transfer.{uploaded,downloaded}.total`（已含 credit，与站点分享率口径一致），
+ *     真实量取同级的 `.actual`，魔力值取 `zen.balance`，入站时间取 `memberSince`，
+ *     等级取 `class.progress.grade`（bronze / argent / or 各 4 级，`or` 的第 4 级即 Gold 411，
+ *     与站点 wiki 一致）。分享率不在此处计算，统一交给 utils/level.ts 的 `fixRatio` 托底。
+ *   - **API Key**：搜索与用户信息都需要用户自行到 https://c411.org/user/integrations 生成，
+ *     但权限分开——搜索用 **Torznab**，用户信息用 **Profile (reading)**；建议建一把同时勾选两者的
+ *     Key。未填写时搜索 401、用户信息状态为「需要输入」；只有 Torznab 权限时用户信息会 401。
  */
 
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import {
   CFBlockedError,
   EResultParseStatus,
   NeedLoginError,
+  type IElementQuery,
   type ISearchCategoryOptions,
   type ISiteMetadata,
   type IUserInfo,
@@ -94,19 +104,48 @@ const CATEGORIES: ISearchCategoryOptions[] = [
 const categoryName = (value: string | number): string =>
   CATEGORIES.find((item) => `${item.value}` === `${value}`)?.name ?? `${value}`;
 
-/** `/api/auth/me` 的响应结构，字段名见文件头「用户信息」段落 */
-interface IC411AuthMeResponse {
-  authenticated?: boolean;
-  user?: {
-    id?: number | string;
-    username?: string;
-    uploaded?: number;
-    downloaded?: number;
-    uploadCredit?: number;
-    downloadCredit?: number;
-    ratio?: number | null;
-  } | null;
+/** `/api/user/profile` 的响应结构，字段名取自 tracker-tracker 的 c411 适配器（其 2026-10-20 真机样本） */
+interface IC411Grade {
+  tier?: string;
+  level?: number;
 }
+
+interface IC411ProfileResponse {
+  id?: number | string;
+  username?: string;
+  avatarUrl?: string | null;
+  memberSince?: string;
+  class?: {
+    progress?: {
+      grade?: IC411Grade | null;
+    } | null;
+  } | null;
+  zen?: { balance?: number } | null;
+  transfer?: {
+    uploaded?: { actual?: number; credit?: number; total?: number };
+    downloaded?: { actual?: number; credit?: number; total?: number };
+  };
+  download?: { allowed?: boolean } | null;
+}
+
+/**
+ * 站点把等级称作 grade：bronze / argent / or 各 4 级；`or` 的第 4 级直接叫 Gold 411，
+ * 不叫 Gold IV（站点 wiki 的写法）。未知 tier 原样透出，未选 class 时没有等级。
+ */
+const GRADE_TIERS: Record<string, string> = { bronze: "Bronze", argent: "Silver", or: "Gold" };
+const GRADE_NUMERALS = ["I", "II", "III", "IV"];
+
+const gradeName = (grade: IC411Grade | null | undefined): string | undefined => {
+  const tier = typeof grade?.tier === "string" ? grade.tier.trim().toLowerCase() : "";
+  const level = grade?.level;
+  if (!tier || typeof level !== "number" || !Number.isFinite(level)) {
+    return undefined;
+  }
+  if (tier === "or" && level === 4) {
+    return "Gold 411";
+  }
+  return `${GRADE_TIERS[tier] ?? tier} ${GRADE_NUMERALS[level - 1] ?? `${level}`}`;
+};
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,
@@ -127,7 +166,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "apikey",
       label: "API Key",
-      hint: "必填。登录 C411 后在 https://c411.org/user/integrations 生成，搜索走站点的 Torznab 接口，未填写会返回 401",
+      hint: "必填。登录 C411 后在 https://c411.org/user/integrations 生成：搜索需要 Torznab 权限，用户信息需要 Profile (reading) 权限（建议同一把 Key 同时勾选；权限不全时用户信息会 401）",
       required: true,
     },
   ],
@@ -151,12 +190,14 @@ export const siteMetadata: ISiteMetadata = {
       params: { t: "search", limit: 100 }, // caps: limits max=100
     },
     advanceKeywordParams: {
-      // 站点的 imdb/tmdb 检索只挂在 movie-search / tv-search 两个入口（t=search 只支持 q）。
-      // 搜索词里没有片种信息，统一走 movie-search；剧集类 imdb 号可能查不到，需改用标题搜索。
+      // Newznab 的 t 只接受 search / tvsearch / movie / music / book，caps 里的 "movie-search"
+      // 是能力名而不是取值（Jackett 直接传 Query.Type，即 "movie"）；传 movie-search 时站点返回的
+      // 不是 feed，前端会报 Parse Error（#1666 反馈）。搜索词里没有片种信息，统一按电影查；
+      // 剧集类 imdb 号可能查不到，需改用标题搜索。
       imdb: {
         requestConfigTransformer: ({ keywords, requestConfig }) => {
           requestConfig!.params ??= {};
-          requestConfig!.params.t = "movie-search";
+          requestConfig!.params.t = "movie";
           requestConfig!.params.imdbid = keywords;
           delete requestConfig!.params.q;
           return requestConfig!;
@@ -165,7 +206,7 @@ export const siteMetadata: ISiteMetadata = {
       tmdb: {
         requestConfigTransformer: ({ keywords, requestConfig }) => {
           requestConfig!.params ??= {};
-          requestConfig!.params.t = "movie-search";
+          requestConfig!.params.t = "movie";
           requestConfig!.params.tmdbid = keywords;
           delete requestConfig!.params.q;
           return requestConfig!;
@@ -207,9 +248,23 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  // 覆写 getUserInfoResult 自行解析（原因见下方注释），metadata.userInfo 只需存在，
-  // 让 AbstractPrivateSite.allowQueryUserInfo 为 true 即可。
-  userInfo: {},
+  // 用户信息由下面的 getUserInfoResult 覆写解析，这里的 selectors 就是它使用的字段路径。
+  // 注意：本对象**必须非空**——checkSiteMetadataAllow 会把 `{}` 视为「未配置」（utils/helper.ts:17-22），
+  // 空对象会让 hasUserInfo / allowQueryUserInfo 为 false，站点根本不会出现在「我的数据」里（#1666）。
+  userInfo: {
+    selectors: {
+      // 字段来自 GET /api/user/profile（tracker-tracker 2026-10-20 的真机样本）
+      id: { selector: "id" },
+      name: { selector: "username" },
+      uploaded: { selector: "transfer.uploaded.total" },
+      downloaded: { selector: "transfer.downloaded.total" },
+      trueUploaded: { selector: "transfer.uploaded.actual" },
+      trueDownloaded: { selector: "transfer.downloaded.actual" },
+      bonus: { selector: "zen.balance" },
+      joinTime: { selector: "memberSince", filters: [{ name: "parseTime" }] },
+      avatar: { selector: "avatarUrl" },
+    },
+  },
 };
 
 export default class C411 extends PrivateSite {
@@ -217,12 +272,16 @@ export default class C411 extends PrivateSite {
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
   ): Promise<AxiosResponse<T>> {
-    // Torznab 用 apikey 鉴权（与 Jackett 的 login/search 一致），apikey 由用户在站点生成后填入本插件设置。
-    // 其余请求（如 /api/auth/me）走浏览器 Cookie，不注入 apikey。
-    if (`${axiosConfig.url ?? ""}`.includes("/api/torznab")) {
-      const apikey = this.userConfig.inputSetting?.apikey?.trim();
-      if (apikey) {
+    const url = `${axiosConfig.url ?? ""}`;
+    const apikey = this.userConfig.inputSetting?.apikey?.trim();
+
+    if (apikey) {
+      if (url.includes("/api/torznab")) {
+        // Torznab 用 query 里的 apikey（与 Jackett 的 login/search 一致）
         axiosConfig.params = { ...(axiosConfig.params ?? {}), apikey };
+      } else if (url.includes("/api/user/profile")) {
+        // 用户信息用 Bearer（站点文档约定的 API Key 用法，token 不进 URL）
+        axiosConfig.headers = { ...(axiosConfig.headers ?? {}), Authorization: `Bearer ${apikey}` };
       }
     }
 
@@ -230,11 +289,11 @@ export default class C411 extends PrivateSite {
   }
 
   /**
-   * 用户信息取自 `/api/auth/me`。
+   * 用户信息取自 `GET /api/user/profile`，`Authorization: Bearer <API Key>`。
    *
-   * 该端点是站点唯一在未登录时也返回 200 的账号相关接口（其余 `/api/*` 一律 401），
-   * 未登录时响应为 `{ authenticated: false, user: null }`——状态码正常，base class 的
-   * `loggedCheck` 无法据此判定「需要登录」，因此这里自行判断并抛出 NeedLoginError。
+   * 该端点需要 Key 带 **Profile (reading)** 权限（搜索用的 Torznab 权限不覆盖它），
+   * 因此这里自行处理 401：对用户来说「Key 权限不够 / 已失效」与「需要登录」是两回事。
+   * 未填 Key 时直接返回「需要输入」，不必发请求。
    */
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     const flushUserInfo: IUserInfo = {
@@ -245,40 +304,44 @@ export default class C411 extends PrivateSite {
       name: lastUserInfo.name,
     };
 
+    const apikey = this.userConfig.inputSetting?.apikey?.trim();
+    if (!apikey) {
+      flushUserInfo.status = EResultParseStatus.noUserInput;
+      return flushUserInfo;
+    }
+
     try {
-      const { data } = await this.request<IC411AuthMeResponse>({
-        url: "/api/auth/me",
-        responseType: "json",
-      });
+      // checkLogin = false：401 在这里表示 Key 权限不足/失效，交给下面单独判定，
+      // 不让 base class 直接抛 NeedLoginError（那是 Cookie 会话的口径）。
+      const { data } = await this.request<IC411ProfileResponse>(
+        { url: "/api/user/profile", responseType: "json" },
+        false,
+      );
 
-      if (!data?.authenticated || !data.user) {
-        throw new NeedLoginError();
+      for (const [key, selector] of Object.entries(this.metadata.userInfo?.selectors ?? {})) {
+        const value = this.getFieldData(data, selector as IElementQuery);
+        if (value !== undefined && value !== null && value !== "") {
+          flushUserInfo[key] = value;
+        }
       }
 
-      const user = data.user;
-      if (typeof user.id === "number" || typeof user.id === "string") {
-        flushUserInfo.id = user.id;
-      }
-      if (typeof user.username === "string" && user.username.trim()) {
-        flushUserInfo.name = user.username.trim();
+      // 头像给的是站内相对路径（如 /avatars/123456.webp）
+      if (typeof data.avatarUrl === "string" && data.avatarUrl) {
+        flushUserInfo.avatar = new URL(data.avatarUrl, this.metadata.urls[0]).toString();
       }
 
-      // 站点的展示口径会把 uploadCredit / downloadCredit 折算进去（见前端 auth store 的 updateStats），
-      // 但 /api/auth/me 里的 uploaded / downloaded 是否已经折算无法匿名确认，这里原样使用，
-      // ratio 优先取站点自己算好的值，缺省时按原始上传/下载量估算。
-      const uploaded = typeof user.uploaded === "number" ? user.uploaded : undefined;
-      const downloaded = typeof user.downloaded === "number" ? user.downloaded : undefined;
-      if (uploaded !== undefined) flushUserInfo.uploaded = uploaded;
-      if (downloaded !== undefined) flushUserInfo.downloaded = downloaded;
-
-      if (typeof user.ratio === "number" && Number.isFinite(user.ratio)) {
-        flushUserInfo.ratio = user.ratio;
-      } else if (uploaded !== undefined && downloaded !== undefined) {
-        flushUserInfo.ratio = downloaded > 0 ? uploaded / downloaded : uploaded > 0 ? Number.POSITIVE_INFINITY : 0;
+      const levelName = gradeName(data.class?.progress?.grade);
+      if (levelName) {
+        flushUserInfo.levelName = levelName;
       }
 
-      // 等级 / 做种数 / 入站时间：/api/auth/me 的 user 上只有 roles 等权限 slug，
-      // 没有站内 Class 名称（前端 class 信息来自 /api/classes/progression），本次无账号实测，暂不编造。
+      // 分享率不在这里算：交给 level.ts 的 fixRatio 用 uploaded/downloaded 托底，
+      // 这样口径与其它站点一致（无下载且有上传 → Infinity，两边都为 0 → -Infinity）
+
+      // 分享率不足或账号受限时站点会直接禁止下载，挂到扩展字段留给界面提示
+      if (typeof data.download?.allowed === "boolean") {
+        flushUserInfo.canDownload = data.download.allowed;
+      }
 
       flushUserInfo.status = EResultParseStatus.success;
     } catch (error) {
@@ -286,10 +349,14 @@ export default class C411 extends PrivateSite {
 
       flushUserInfo.status = EResultParseStatus.parseError;
 
+      const status = (error as AxiosError)?.response?.status;
       if (error instanceof CFBlockedError) {
         flushUserInfo.status = EResultParseStatus.CFBlocked;
       } else if (error instanceof NeedLoginError) {
         flushUserInfo.status = EResultParseStatus.needLogin;
+      } else if (status === 401 || status === 403) {
+        // Key 没有 Profile (reading) 权限或已失效
+        flushUserInfo.status = EResultParseStatus.noUserInput;
       }
     }
 
