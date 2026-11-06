@@ -4,12 +4,13 @@
  * @Issue https://github.com/pt-plugins/PT-depiler/issues/143
  *
  * 站点为 UNIT3D 9.1.7，Jackett 侧已由 HTML 抓取改用 API（api/torrents/filter）。
- * 与 huno 一类走 JSON API 的 UNIT3D 站点同样处理：保留 Unit3D 引擎（详情页、
+ * 与 huno 一类走 JSON API 的 UNIT3D 站点同样处理：保留 Unit3D 引擎（用户信息、详情页、
  * 标签等逻辑仍然适用），只覆写与 JSON 响应相关的搜索配置。
- * 另写用户信息及列表选择器。
+ * 另写首页列表选择器；搜索接口使用 API Token。
  */
-import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import { NoUserInputError, type ISiteMetadata } from "../types";
+import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -24,6 +25,15 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["https://concertos.live/"],
+
+  userInputSettingMeta: [
+    {
+      name: "apikey",
+      label: "API Token",
+      hint: "在 Concertos 的 My Settings → API Key 页面获取 API Token；搜索时以 Authorization: Bearer 发送",
+      required: true,
+    },
+  ],
 
   search: {
     ...SchemaMetadata.search,
@@ -89,55 +99,30 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.list,
   ],
 
-  userInfo: {
-    // 新版首页的账号菜单已有完整基础统计；旧版 Unit3D 的用户详情页选择器不再适用。
-    pickLast: ["id"],
-    selectors: {
-      name: {
-        selector: "#c-account-popover a.c-account__name",
-        attr: "href",
-        filters: [(href: string) => href.match(/\/users\/([^/?#]+)/)?.[1] ?? ""],
-      },
-      levelName: { selector: "#c-account-popover .c-group-dot[aria-label]", attr: "aria-label" },
-      uploaded: {
-        selector: ".c-account__stats .c-account__stat:has(.c-account__stat-label:contains('Uploaded')) .c-account__stat-value",
-        filters: [{ name: "parseSize" }],
-      },
-      downloaded: {
-        selector: ".c-account__stats .c-account__stat:has(.c-account__stat-label:contains('Downloaded')) .c-account__stat-value",
-        filters: [{ name: "parseSize" }],
-      },
-      ratio: {
-        selector: ".c-account__stats .c-account__stat:has(.c-account__stat-label:contains('Ratio')) .c-account__stat-value",
-        filters: [{ name: "parseNumber" }],
-      },
-      bonus: {
-        selector: ".c-account__stats .c-account__stat:has(.c-account__stat-label:contains('Bonus points')) .c-account__stat-value",
-        filters: [{ name: "parseNumber" }],
-      },
-      seeding: {
-        selector: ".c-account__stats .c-account__stat:has(.c-account__stat-label:contains('Seeding')) .c-account__stat-value",
-        filters: [{ name: "parseNumber" }],
-      },
-      leeching: {
-        selector: ".c-account__stats .c-account__stat:has(.c-account__stat-label:contains('Leeching')) .c-account__stat-value",
-        filters: [{ name: "parseNumber" }],
-      },
-      uploads: {
-        selector: ".c-account__links .c-account__link:has(.c-account__label:contains('My Uploads')) .c-account__count",
-        filters: [{ name: "parseNumber" }],
-      },
-    },
-    process: [
-      {
-        requestConfig: { url: "/", responseType: "document" },
-        fields: ["name", "levelName", "uploaded", "downloaded", "ratio", "bonus", "seeding", "leeching", "uploads"],
-      },
-    ],
-  },
-
   levelRequirements: [
     { id: 1, name: "User" },
     { id: 2, name: "PowerUser" },
   ],
 };
+
+export default class Concertos extends Unit3D {
+  public override async request<T>(
+    axiosConfig: AxiosRequestConfig,
+    checkLogin: boolean = true,
+  ): Promise<AxiosResponse<T>> {
+    // 只向站点 API 搜索请求发送 Token，不将凭据附在用户页面或种子下载请求上。
+    if (axiosConfig.url === "/api/torrents/filter") {
+      const token = this.userConfig.inputSetting?.apikey?.trim();
+      if (!token) {
+        throw new NoUserInputError("API Token");
+      }
+      axiosConfig.headers = {
+        ...(axiosConfig.headers ?? {}),
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      };
+    }
+
+    return super.request<T>(axiosConfig, checkLogin);
+  }
+}
