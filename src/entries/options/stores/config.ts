@@ -59,6 +59,16 @@ export const useConfigStore = defineStore("config", {
         needsSave = true;
       }
 
+      // schema v2：tableActionColumnFixed 的默认值由 false 改为 true。
+      // 老配置里普遍残留着当年默认值写下的 false（用户并没有主动关过这个开关，
+      // 甚至不知道它的存在），表现就是表格横向滚动时操作列被推出视口、按钮点不到。
+      // 这里按配置结构版本做一次性修正；修正后用户仍可在「常规设置 → 数据表格」里自己关掉。
+      if (!state.configSchemaVersion || state.configSchemaVersion < 2) {
+        state.tableActionColumnFixed = true;
+        state.configSchemaVersion = 2;
+        needsSave = true;
+      }
+
       if (needsSave) {
         context.store.$save();
       }
@@ -66,6 +76,9 @@ export const useConfigStore = defineStore("config", {
   },
   state: (): IConfigPiniaStorageSchema => ({
     version: "",
+    // 默认 1 表示「尚未迁移」：老配置里没有这个字段时 restore 不会写入，
+    // state 会保留这个默认值，afterRestore 才能据此判断需要执行一次性迁移。
+    configSchemaVersion: 1,
     lang: "zh_CN",
     theme: "light",
     isNavBarOpen: true,
@@ -77,7 +90,7 @@ export const useConfigStore = defineStore("config", {
     saveTableBehavior: true,
     enableTableMultiSort: false,
     tableActionColumnPosition: "end",
-    tableActionColumnFixed: false,
+    tableActionColumnFixed: true,
 
     contextMenus: {
       enabled: true,

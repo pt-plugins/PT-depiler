@@ -17,6 +17,11 @@ interface UiTableBehaviorItem<T = string> {
 
 export interface IConfigPiniaStorageSchema {
   version: string; // 插件版本，格式为 v0.0.5.1147+23f758f7 ，如果为空则表示第一次安装
+  /**
+   * 配置结构版本，用于 afterRestore 里做一次性迁移。
+   * 与 `version`（插件版本，每次构建都会变）不同，它只在需要改写老配置时手动 +1。
+   */
+  configSchemaVersion: number;
   lang: TLangCode;
   theme: supportThemeType;
   isNavBarOpen: boolean;
