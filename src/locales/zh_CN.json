@@ -550,7 +550,8 @@
       "uploadAtFormatAsAlive": "上传时间显示为相对时间"
     },
     "siteFilter": {
-      "all": "全部站点"
+      "all": "全部站点",
+      "soloHint": "双击只筛选此站点"
     }
   },
   "SearchResultSnapshot": {
