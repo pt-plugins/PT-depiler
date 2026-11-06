@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { useDisplay, type DataTableHeader } from "vuetify";
+import { type DataTableHeader } from "vuetify";
 import {
   EResultParseStatus,
   ETorrentStatus,
@@ -38,7 +38,6 @@ const route = useRoute();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
-const display = useDisplay();
 
 /**
  * 只对「搜索快照」在加载时做一次归一（数据是 sendMessage 回来的普通对象，尚未进入 Pinia store）。
@@ -63,46 +62,95 @@ const promotionDisplay = computed<"tags" | "factor" | "both" | "none">(() => {
 });
 const showPromoColumn = computed(() => promotionDisplay.value === "factor" || promotionDisplay.value === "both");
 
+const titleColumnWidth = ref("36rem");
+
 const fullTableHeader = computed(
   () =>
     [
-      { title: t("common.site"), key: "site", align: "center", props: { disabled: true } },
+      { title: t("common.site"), key: "site", align: "center", width: 124, props: { disabled: true } },
       {
         title: t("SearchEntity.index.table.title"),
         key: "title",
         align: "start",
-        minWidth: "30rem",
-        ...(configStore.searchEntifyControl.limitTorrentTitleTdWidth || display.smAndDown.value
-          ? { maxWidth: "32vw" }
-          : {}),
+        // 标题列宽度 = 容器剩余空间（见 otherColumnsWidth），下限 24rem。
+        // 必须配合 table-layout: fixed 才成立，否则 nowrap 标题的 min-content 会顶开列宽。
+        // 超出部分单行省略（完整标题见 title 提示），行高由内容决定，不设固定值。
+        width: titleColumnWidth.value,
         props: { disabled: true },
       },
-      { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
+      { title: t("SearchEntity.index.table.category"), key: "category", align: "center", width: 104 },
       ...(showPromoColumn.value
         ? [
             {
               title: t("SearchEntity.index.table.downloadVolumeFactor"),
               key: "downloadVolumeFactor",
               align: "center",
+              width: 104,
               sortRaw: promoSortRaw,
             },
           ]
         : []),
-      { title: t("SearchEntity.index.table.size"), key: "size", align: "end" },
-      { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end" },
-      { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end" },
-      { title: t("SearchEntity.index.table.completed"), key: "completed", align: "end" },
-      { title: t("SearchEntity.index.table.comments"), key: "comments", align: "end" },
-      { title: t("SearchEntity.index.table.time"), key: "time", align: "center" },
+      { title: t("SearchEntity.index.table.size"), key: "size", align: "end", width: 128 },
+      { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end", width: 88 },
+      { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end", width: 88 },
+      { title: t("SearchEntity.index.table.completed"), key: "completed", align: "end", width: 88 },
+      { title: t("SearchEntity.index.table.comments"), key: "comments", align: "end", width: 88 },
+      { title: t("SearchEntity.index.table.time"), key: "time", align: "center", width: 122 },
       {
         title: t("common.action"),
         key: "action",
         align: "center",
+        // 操作列固定为窄宽：按钮组是紧凑密度的图标按钮（约 20px 一个，最多 5 个 ≈ 100px），
+        // 定宽后不再参与表格剩余空间的分配，也不会随窗口宽度被拉宽或压扁。
+        width: 148,
         sortable: false,
         props: { disabled: true },
       },
     ] as (DataTableHeader & { props?: any })[],
 );
+
+/**
+ * 除标题列之外、当前实际启用的所有列宽之和（px）。
+ *
+ * 从 fullTableHeader 推导而不是写死：用户在列选择器里取消勾选某一列（或切换优惠列）时，
+ * 剩余空间会变大，标题列必须跟着变宽，否则表格会缩在一边。
+ * 48 是复选框选择列（show-select）的实测宽度。
+ */
+const otherColumnsWidth = computed(() => {
+  const enabledColumns = configStore.tableBehavior.SearchEntity.columns ?? [];
+  let width = 48;
+  for (const header of fullTableHeader.value) {
+    if (header.key === "title") continue;
+    // 只统计实际会渲染出来的列：props.disabled 的列（站点/操作）恒定显示，
+    // 其余列要用户勾选过才渲染，否则会多算宽度、把标题列算窄。
+    if (!header?.props?.disabled && !enabledColumns.includes(header.key!)) continue;
+    if (typeof header.width === "number") width += header.width;
+  }
+  return width;
+});
+
+let titleResizeObserver: ResizeObserver | undefined;
+
+function updateTitleColumnWidth() {
+  const wrapper = document.querySelector<HTMLElement>("#ptd-search-entity-table .v-table__wrapper");
+  if (!wrapper) return;
+  const available = wrapper.clientWidth - otherColumnsWidth.value;
+  titleColumnWidth.value = `${Math.max(384, available)}px`;
+}
+
+// 优惠列开关会改变「其余列」的总和，需要重算
+watch(otherColumnsWidth, updateTitleColumnWidth);
+
+onMounted(() => {
+  updateTitleColumnWidth();
+  const wrapper = document.querySelector<HTMLElement>("#ptd-search-entity-table .v-table__wrapper");
+  if (wrapper && typeof ResizeObserver !== "undefined") {
+    titleResizeObserver = new ResizeObserver(updateTitleColumnWidth);
+    titleResizeObserver.observe(wrapper);
+  }
+});
+
+onBeforeUnmount(() => titleResizeObserver?.disconnect());
 
 const tableHeader = computed(() => {
   return useTableActionColumn(
@@ -633,6 +681,61 @@ function promoCellText(item: ISearchResultTorrent): string {
 #ptd-search-entity-table {
   :deep(td.v-data-table__td) {
     padding: 0 8px;
+  }
+
+  /* 表格布局必须用 fixed，这是本组改动的基石。
+     auto 布局下列宽由内容 min-content 与「剩余空间按比例摊分」共同决定：
+     标题带 white-space: nowrap，min-content 等于整条标题宽度，宽屏时它又会独吞所有剩余空间，
+     结果是无论表头写多少 width / minWidth 都约束不住。
+     改成 fixed 后列宽严格按表头 width 计算，列宽之和 ≥ 容器时（窄屏）出现横向滚动，
+     否则由标题列的 JS 计算值吸收剩余空间，不产生溢出。 */
+  :deep(table) {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  /* 选择列（复选框）在 fixed 布局下必须给宽度，否则会被标题列挤成 0 */
+  :deep(thead th:first-child) {
+    width: 48px;
+  }
+
+  /* 标题内容容器的固有宽度归零。
+     fixed 布局下列宽已由表头决定，但单元格内容仍会撑破格子（nowrap 长标题会溢出到相邻列）。
+     width: 0 让容器的 max-content 不再参与计算，min-width: 100% 再把它撑满单元格，
+     配合 .text-truncate 实现「按列宽单行省略」。 */
+  :deep(td > .t_main) {
+    width: 0;
+    min-width: 100%;
+  }
+
+  /* 固定在行尾的操作列（「常规设置 → 表格过宽时固定操作列」）：
+     横向滚动时它浮在内容之上，用一道向内的投影把「浮动层」和「滚动内容」区分开，
+     否则相邻列的文字会紧贴按钮，看起来像被压住。 */
+  :deep(.v-data-table-column--first-fixed-end) {
+    box-shadow:
+      inset 14px 0 14px -14px rgba(0, 0, 0, 0.45),
+      -1px 0 0 rgba(var(--v-border-color), calc(var(--v-border-opacity) * 2.5));
+  }
+
+  /* 发布时间列：完整的「日期 + 时间」比较长，跟着列宽单行省略，
+     完整时间仍可通过单元格的 title 提示查看。 */
+  :deep(.t_time) {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    vertical-align: middle;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* 操作列不换行，按钮按自身尺寸排列，避免在窄列里被 flex 压缩 */
+  :deep(td .table-action) {
+    justify-content: center;
+    flex-wrap: nowrap;
+
+    .v-btn {
+      flex: 0 0 auto;
+    }
   }
 
   /* 相同大小种子的分组色条（ #1411 ），颜色由 row-props 写入的 --ptd-size-group-color 提供 */
