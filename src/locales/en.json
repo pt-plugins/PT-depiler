@@ -553,7 +553,8 @@
       "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
     },
     "siteFilter": {
-      "all": "All Site"
+      "all": "All Site",
+      "soloHint": "Double-click to filter only this site"
     }
   },
   "SearchResultSnapshot": {
