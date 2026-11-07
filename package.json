@@ -52,7 +52,7 @@
     "axios": "^1.21.0",
     "date-fns": "^4.4.0",
     "echarts": "^6.1.0",
-    "es-toolkit": "^1.53.0",
+    "es-toolkit": "^1.53.1",
     "fflate": "^0.8.3",
     "filesize": "^11.0.29",
     "idb": "^8.0.4",
