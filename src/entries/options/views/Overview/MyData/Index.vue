@@ -6,6 +6,7 @@ import { useRouter } from "vue-router";
 import { isUndefined } from "es-toolkit/compat";
 import { useDisplay, type DataTableHeader } from "vuetify";
 import { EResultParseStatus, type ISiteUserConfig, type IUserInfo, type TSiteID } from "@ptd/site";
+import { siteMetadataIndex } from "@ptd/site/metadataIndex";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -126,6 +127,16 @@ const {
 
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 
+// 当前分页展示的站点，由 v-data-table 的 `update:currentItems` 提供（已应用筛选与排序）
+// NOTE: 这是 v-data-table 唯一能拿到的「当前结果」钩子，它只包含当前页，参见 #1663
+const tableCurrentPageSites = ref<TSiteID[]>([]);
+function updateTableCurrentPageSites(items: any[]) {
+  tableCurrentPageSites.value = items.map((item) => item.value as TSiteID);
+}
+
+// 表格是否处于筛选状态：筛选词为空时 v-data-table 不会进行任何过滤（此时展示的即是全部站点）
+const tableFiltered = computed(() => tableFilterRef.value.trim().length > 0);
+
 // 最近一次更新失败的站点状态，用于快速筛选
 // NOTE: 不要在模板的事件回调中直接访问导入枚举的成员：vue-tsc 3.3.12 起会为这类窄化访问生成 `.value`，
 //       而闭包内无法通过类型检查（TS2339），故提前在 script 中展开（见 #1601）
@@ -158,9 +169,32 @@ function viewHistoryData(siteId: TSiteID) {
   historyDataViewDialogSiteId.value = siteId;
 }
 
-async function multiOpen() {
-  for (const siteId of tableSelected.value) {
-    const siteUrl = await metadataStore.getSiteUrl(siteId);
+function multiOpen() {
+  let openSiteIds: TSiteID[] = tableSelected.value;
+
+  // #1663：未勾选站点时，按「是否处于筛选状态」决定打开范围，避免筛选后仍然打开全部站点
+  // NOTE: v-data-table 没有提供「筛选后的全部结果」的钩子（vuetifyjs/vuetify#19382），
+  //       只能取到当前分页展示的站点，故筛选状态下仅打开当前页
+  if (openSiteIds.length === 0) {
+    if (tableFiltered.value) {
+      openSiteIds = tableCurrentPageSites.value;
+      if (openSiteIds.length === 0) {
+        runtimeStore.showSnackbar(t("MyData.index.noSiteSelectedCancelOpen"), { color: "warning" });
+        return;
+      }
+      runtimeStore.showSnackbar(t("MyData.index.noSiteSelectedOpenFilteredPage", { count: openSiteIds.length }), {
+        color: "info",
+      });
+    } else {
+      openSiteIds = tableData.value.map((item) => item.site);
+      runtimeStore.showSnackbar(t("MyData.index.noSiteSelectedOpenAll"), { color: "info" });
+    }
+  }
+
+  // NOTE: 这里必须同步取 URL，若在循环内 `await`，则第一个 `window.open` 之后用户手势即失效，
+  //       后续标签页会被浏览器拦截（表格数据均已挂载 `siteUserConfig`，无需再走异步查询）
+  for (const siteId of openSiteIds) {
+    const siteUrl = metadataStore.sites[siteId]?.url || siteMetadataIndex[siteId]?.urls?.[0];
     if (siteUrl) {
       window.open(siteUrl, "_blank", "noopener noreferrer");
     }
@@ -225,7 +259,7 @@ const showExportDialog = ref(false);
         />
 
         <NavButton
-          :disabled="tableSelected.length === 0"
+          :disabled="tableData.length === 0"
           color="indigo"
           icon="mdi-open-in-new"
           :text="t('MyData.index.multiOpen')"
@@ -427,6 +461,7 @@ const showExportDialog = ref(false);
       item-selectable="selectable"
       item-value="site"
       show-select
+      @update:current-items="updateTableCurrentPageSites"
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"
     >
