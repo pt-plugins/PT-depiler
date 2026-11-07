@@ -51,12 +51,12 @@ const watchIgnored = [
   "**/.tmp-*/**",
   "**/.research-*/**",
   "**/.pnpm-store/**",
-  "**/.dsh/**",
-  // 编辑器与 CI 元数据
+  // 编辑器、CI 与 agent 元数据
   "**/.idea/**",
   "**/.vscode/**",
   "**/.github/**",
   "**/.husky/**",
+  "**/.agents/**",
   // 构建产物与本地笔记
   "**/dist-*/**",
   "**/docs/**",
