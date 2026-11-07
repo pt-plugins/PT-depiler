@@ -132,7 +132,7 @@ export const siteMetadata: ISiteMetadata = {
         selectors: {
           id: { selector: "data.id" },
           name: { selector: "data.username" },
-          joinTime: { selector: "data.registered_at" },
+          joinTime: { selector: "data.registered_at", filters: [{ name: "parseTime" }] },
           uploaded: { selector: "data.uploaded" },
           downloaded: { selector: "data.downloaded" },
           ratio: { selector: "data.ratio" },
