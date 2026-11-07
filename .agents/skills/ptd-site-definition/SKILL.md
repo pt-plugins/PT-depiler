@@ -70,6 +70,7 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 | 目标站点是 Rartracker 引擎                                             | [references/engines/rartracker.md](references/engines/rartracker.md)                             |
 | 目标站点是 TCG 引擎                                                    | [references/engines/tcg.md](references/engines/tcg.md)                                           |
 | 私有站但没有现成引擎，直接用私有站模板                                 | [references/engines/abstract-private-site.md](references/engines/abstract-private-site.md)       |
+| 目标站点是 SunnyPT（接口驱动站）                                | [references/sites/sunnypt.md](references/sites/sunnypt.md)                                       |
 | 公共 BT 站（type: "public"）与基类提供的通用能力                       | [references/engines/abstract-bittorrent-site.md](references/engines/abstract-bittorrent-site.md) |
 
 ## 静态校验
