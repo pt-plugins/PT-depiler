@@ -213,6 +213,7 @@ docs/superpowers/
 .cursorrules
 .cursorignore
 .claude/
+.dsh/
 .clinerules
 .kilocode/
 .kiro/
