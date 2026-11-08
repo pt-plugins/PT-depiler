@@ -29,6 +29,8 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Nintendo DS", value: "nds" },
         { name: "Nintendo GameCube", value: "gamecube" },
         { name: "Nintendo Switch", value: "switch" },
+        // 2026-11-06 Jackett dd2cad4d 新增 /switch2 分类（站方新增 Switch2 平台，映射到 Console/NDS）
+        { name: "Nintendo Switch 2", value: "switch2" },
         { name: "Nintendo Wii", value: "wii" },
         { name: "Nintendo Wii U", value: "wiiu" },
         { name: "PlayStation", value: "ps1" },
