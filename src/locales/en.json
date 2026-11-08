@@ -1010,6 +1010,9 @@
       "addCount": "Added {0} @:SetSearchSolution.solution",
       "cantAddByDuplicateNote": "A duplicate @:SetSearchSolution.solution already exists and cannot be added again.",
       "filterPlaceholder": "Filter by site name or url",
+      "noMatchInFilteredSolutions": "No added solutions match the current filter",
+      "siteAddedCount": "This site has {0} solution(s) added in current plan",
+      "sortByAddedCount": "Sort by added count (click to cycle: asc → desc → default)",
       "title": "Customize @:SetSearchSolution.solution"
     },
     "newSolutionNamePrompt": "Please enter the new search plan name",

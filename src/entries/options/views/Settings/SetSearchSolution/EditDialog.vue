@@ -42,10 +42,32 @@ const siteFilter = refDebounced(siteWaitFilter, 500); // 延迟搜索过滤词�
 
 const addedSiteInfo = shallowRef<Array<{ siteId: string; isDead: boolean; siteName: string; siteUrl: string }>>([]);
 
+// 每个站点在当前方案右侧已添加的方案数（同一站点允许以不同参数多次添加）
+const addedCountBySite = computed<Record<string, number>>(() => {
+  const counts: Record<string, number> = {};
+  for (const s of solution.value.solutions) {
+    counts[s.siteId] = (counts[s.siteId] ?? 0) + 1;
+  }
+  return counts;
+});
+
+// 已添加次数排序：asc（未添加在前）-> desc（添加多的在前）-> 无（保持默认次序）循环切换
+type TAddedCountSort = "asc" | "desc" | null;
+const addedCountSort = ref<TAddedCountSort>(null);
+
+// 左侧站点面板的展开状态（受控）。以 siteId 为 value，避免 Vuetify 组默认的
+// 「按索引取值」在列表重排 / 计数变化导致节点重建时错位——那会让别的站点的
+// 展开状态被错误地落到相邻面板上（#1679 反馈的「添加后上一个站点自动展开」bug）。
+const openSitePanels = ref<string[]>([]);
+
+function cycleAddedCountSort() {
+  addedCountSort.value = addedCountSort.value === null ? "asc" : addedCountSort.value === "asc" ? "desc" : null;
+}
+
 const filteredSite = computed(() => {
   const filter = (siteFilter.value ?? "").toLowerCase();
 
-  return addedSiteInfo.value
+  const sites = addedSiteInfo.value
     .filter((item) => {
       const siteKey = [item.siteId, item.siteName, item.siteUrl]
         .filter(Boolean)
@@ -54,6 +76,27 @@ const filteredSite = computed(() => {
       return siteKey.includes(filter);
     })
     .map((item) => item.siteId);
+
+  if (addedCountSort.value) {
+    // 按已添加次数排序；次数相同时保持原有顺序（稳定排序）
+    const dir = addedCountSort.value === "asc" ? 1 : -1;
+    sites.sort((a, b) => ((addedCountBySite.value[a] ?? 0) - (addedCountBySite.value[b] ?? 0)) * dir);
+  }
+  return sites;
+});
+
+// 同一个筛选词也作用于右侧已添加方案列表：按站点 id / 名称 / URL 匹配（与左侧口径一致）
+const filteredSolutions = computed(() => {
+  const filter = (siteFilter.value ?? "").toLowerCase();
+  if (!filter) return solution.value.solutions;
+  return solution.value.solutions.filter((item) => {
+    const meta = metadataStore.sites[item.siteId];
+    const siteKey = [item.siteId, meta?.name, meta?.url]
+      .filter(Boolean)
+      .map((x: string) => x.toLowerCase())
+      .join("|");
+    return siteKey.includes(filter);
+  });
 });
 
 function addSolution(addSolution: ISearchSolution) {
@@ -86,6 +129,7 @@ function saveSolutionState() {
 }
 
 function dialogEnter() {
+  siteWaitFilter.value = ""; // 进入时清空筛选词，避免上次残留影响左右两侧显示
   // 生成站点列表
   Promise.all(
     metadataStore.getAddedSiteIds
@@ -110,6 +154,7 @@ function dialogEnter() {
 
 function dialogLeave() {
   solution.value = initSolution();
+  openSitePanels.value = []; // 受控展开状态需在关闭时复位，避免下次打开残留
 }
 </script>
 
@@ -151,21 +196,50 @@ function dialogLeave() {
                 append-inner-icon="mdi-magnify"
                 clearable
                 prepend-icon="mdi-sitemap"
-              />
+              >
+                <template #append>
+                  <v-btn
+                    :color="addedCountSort ? 'info' : undefined"
+                    :icon="
+                      addedCountSort === 'asc'
+                        ? 'mdi-sort-ascending'
+                        : addedCountSort === 'desc'
+                          ? 'mdi-sort-descending'
+                          : 'mdi-sort'
+                    "
+                    size="small"
+                    variant="text"
+                    :title="t('SetSearchSolution.edit.sortByAddedCount')"
+                    @click="cycleAddedCountSort"
+                  />
+                </template>
+              </v-text-field>
 
               <v-card class="overflow-y-auto" height="calc(100vh - 340px)">
-                <v-expansion-panels>
+                <v-expansion-panels v-model="openSitePanels" multiple>
                   <v-expansion-panel
                     v-for="site in filteredSite"
                     :key="site"
                     :disabled="!!metadataStore.sites[site].isOffline"
+                    :value="site"
                   >
                     <v-expansion-panel-title>
                       <SiteFavicon :site-id="site" class="mr-2" inline />
 
-                      <v-chip color="green" label>
+                      <v-chip :color="addedCountBySite[site] ? 'green' : 'grey-lighten-1'" label>
                         <SiteName :class="['text-no-wrap']" :site-id="site" />
                       </v-chip>
+
+                      <template #actions>
+                        <v-chip
+                          v-if="addedCountBySite[site]"
+                          :color="addedCountBySite[site] === 1 ? 'success' : 'warning'"
+                          label
+                          :title="t('SetSearchSolution.edit.siteAddedCount', [addedCountBySite[site]])"
+                        >
+                          ×{{ addedCountBySite[site] }}
+                        </v-chip>
+                      </template>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
                       <SiteCategoryPanel :site-id="site" @update:solution="addSolution" />
@@ -183,9 +257,12 @@ function dialogLeave() {
 
               <v-card class="overflow-y-auto" height="calc(100vh - 330px)">
                 <v-card-text class="pl-3 py-0 pr-1">
+                  <div v-if="siteFilter && filteredSolutions.length === 0 && solution.solutions.length > 0">
+                    {{ t("SetSearchSolution.edit.noMatchInFilteredSolutions") }}
+                  </div>
                   <SolutionLabel
                     :group-props="{ column: true }"
-                    :solutions="solution.solutions"
+                    :solutions="filteredSolutions"
                     closable
                     @remove:solution="removeSolution"
                   />
