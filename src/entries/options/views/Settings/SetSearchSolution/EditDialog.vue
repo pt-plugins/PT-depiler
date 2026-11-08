@@ -42,10 +42,27 @@ const siteFilter = refDebounced(siteWaitFilter, 500); // 延迟搜索过滤词�
 
 const addedSiteInfo = shallowRef<Array<{ siteId: string; isDead: boolean; siteName: string; siteUrl: string }>>([]);
 
+// 每个站点在当前方案右侧已添加的方案数（同一站点允许以不同参数多次添加）
+const addedCountBySite = computed<Record<string, number>>(() => {
+  const counts: Record<string, number> = {};
+  for (const s of solution.value.solutions) {
+    counts[s.siteId] = (counts[s.siteId] ?? 0) + 1;
+  }
+  return counts;
+});
+
+// 已添加次数排序：asc（未添加在前）-> desc（添加多的在前）-> 无（保持默认次序）循环切换
+type TAddedCountSort = "asc" | "desc" | null;
+const addedCountSort = ref<TAddedCountSort>(null);
+
+function cycleAddedCountSort() {
+  addedCountSort.value = addedCountSort.value === null ? "asc" : addedCountSort.value === "asc" ? "desc" : null;
+}
+
 const filteredSite = computed(() => {
   const filter = (siteFilter.value ?? "").toLowerCase();
 
-  return addedSiteInfo.value
+  const sites = addedSiteInfo.value
     .filter((item) => {
       const siteKey = [item.siteId, item.siteName, item.siteUrl]
         .filter(Boolean)
@@ -54,6 +71,13 @@ const filteredSite = computed(() => {
       return siteKey.includes(filter);
     })
     .map((item) => item.siteId);
+
+  if (addedCountSort.value) {
+    // 按已添加次数排序；次数相同时保持原有顺序（稳定排序）
+    const dir = addedCountSort.value === "asc" ? 1 : -1;
+    sites.sort((a, b) => ((addedCountBySite.value[a] ?? 0) - (addedCountBySite.value[b] ?? 0)) * dir);
+  }
+  return sites;
 });
 
 function addSolution(addSolution: ISearchSolution) {
@@ -151,21 +175,49 @@ function dialogLeave() {
                 append-inner-icon="mdi-magnify"
                 clearable
                 prepend-icon="mdi-sitemap"
-              />
+              >
+                <template #append>
+                  <v-btn
+                    :color="addedCountSort ? 'info' : undefined"
+                    :icon="
+                      addedCountSort === 'asc'
+                        ? 'mdi-sort-ascending'
+                        : addedCountSort === 'desc'
+                          ? 'mdi-sort-descending'
+                          : 'mdi-sort'
+                    "
+                    size="small"
+                    variant="text"
+                    :title="t('SetSearchSolution.edit.sortByAddedCount')"
+                    @click="cycleAddedCountSort"
+                  />
+                </template>
+              </v-text-field>
 
               <v-card class="overflow-y-auto" height="calc(100vh - 340px)">
                 <v-expansion-panels>
                   <v-expansion-panel
                     v-for="site in filteredSite"
-                    :key="site"
+                    :key="addedCountSort ? `${site}-${addedCountBySite[site] ?? 0}` : site"
                     :disabled="!!metadataStore.sites[site].isOffline"
                   >
                     <v-expansion-panel-title>
                       <SiteFavicon :site-id="site" class="mr-2" inline />
 
-                      <v-chip color="green" label>
+                      <v-chip :color="addedCountBySite[site] ? 'green' : 'grey-lighten-1'" label>
                         <SiteName :class="['text-no-wrap']" :site-id="site" />
                       </v-chip>
+
+                      <template #actions>
+                        <v-chip
+                          v-if="addedCountBySite[site]"
+                          :color="addedCountBySite[site] === 1 ? 'success' : 'warning'"
+                          label
+                          :title="t('SetSearchSolution.edit.siteAddedCount', [addedCountBySite[site]])"
+                        >
+                          ×{{ addedCountBySite[site] }}
+                        </v-chip>
+                      </template>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
                       <SiteCategoryPanel :site-id="site" @update:solution="addSolution" />
