@@ -346,7 +346,16 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       time: {
-        selector: "td.t_time",
+        // 站点设置「时间显示类型」为「已去时间」时，列表时间渲染为
+        // <td class="t_time"><span title="2026-11-07 22:54:11">21时18分</span></td>；
+        // 「发生时间」时为 <td class="t_time">2026-11-07 22:54:11</td>。
+        // 有 span[title] 时直接取 title 值（绝对时间），没有则取单元格文本；两种形态都走 parseTime。
+        // （不能写成 selector + attr:"title"：attr 对命中的 td.t_time 生效，「发生时间」下无
+        // title 会取到空串，绝对时间反而丢失。）
+        elementProcess: (element: HTMLElement) => {
+          const span = element.querySelector("span[title]");
+          return span?.getAttribute("title") ?? element.innerText;
+        },
         filters: [{ name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] }],
       },
       seeders: {
