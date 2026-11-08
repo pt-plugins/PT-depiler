@@ -1010,6 +1010,7 @@
       "addCount": "已添加 @:SetSearchSolution.solution {0} 个",
       "cantAddByDuplicateNote": "已存在相同的 @:SetSearchSolution.solution ，无法重复添加。",
       "filterPlaceholder": "通过站点名称或 url 进行搜索",
+      "noMatchInFilteredSolutions": "当前筛选条件下没有匹配的已添加方案",
       "siteAddedCount": "当前方案中该站点已添加 {0} 个搜索方案",
       "sortByAddedCount": "按已添加次数排序（点击循环：升序 → 降序 → 默认）",
       "title": "自定义 @:SetSearchSolution.solution"
