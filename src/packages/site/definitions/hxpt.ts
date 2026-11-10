@@ -45,14 +45,18 @@ export const siteMetadata: ISiteMetadata = {
       cross: false,
     },
     {
+      // 兼容层的 promo 是「族」语义，不是档位精确匹配：
+      //   free 族 = {free, x2free}      x2 族 = {x2, x2free, x2half}
+      //   half 族 = {half, x2half}      x2free/x2half 是两族交集的合成档
+      // 所以「免费」会连 2X 免费一起端出来，「2X」会连 2X 免费 / 2X 50% 一起端出来。
       name: "促销",
       key: "promo",
       options: [
-        { name: "免费", value: "free" },
-        { name: "2X免费", value: "x2free" },
-        { name: "50%", value: "half" },
+        { name: "免费（含 2X 免费）", value: "free" },
+        { name: "2X 免费", value: "x2free" },
+        { name: "50%（含 2X 50%）", value: "half" },
         { name: "2X 50%", value: "x2half" },
-        { name: "2X", value: "x2" },
+        { name: "2X（含 2X 免费 / 2X 50%）", value: "x2" },
         { name: "30%", value: "p30" },
         { name: "任意优惠", value: "any" },
         { name: "无优惠", value: "none" },
@@ -76,6 +80,7 @@ export const siteMetadata: ISiteMetadata = {
       options: [
         { name: "全部", value: "" },
         { name: "仅官种", value: "1" },
+        { name: "仅非官种", value: "0" },
       ],
       cross: false,
     },
