@@ -530,6 +530,7 @@
       "selectedTorrents": "已选择 {0} 个种子",
       "showSiteName": "显示站点名称",
       "showSocialInformation": "显示媒体评价信息",
+      "showTorrentCover": "显示种子封面",
       "showTorrentSubtitle": "显示种子副标题",
       "showTorrentTag": "显示种子标签",
       "socialInformationSearchOnNewTab": "媒体评价信息搜索在新标签页中打开",

@@ -104,10 +104,26 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
 function canAdvanceSearch(site: TSupportSocialSite) {
   return site !== "tmdb";
 }
+
+const showCover = computed(() => !!item.cover && configStore.searchEntifyControl.showTorrentCover);
 </script>
 
 <template>
-  <v-container class="t_main pa-0">
+  <v-container :class="{ t_with_cover: showCover }" class="t_main pa-0">
+    <!-- 种子自带的封面：缩略图跨标题与副标题两行，悬停显示大图 -->
+    <v-menu v-if="showCover" location="end" open-on-hover>
+      <template v-slot:activator="{ props }">
+        <v-img v-bind="props" :src="item.cover" class="t_cover rounded mr-2" cover height="43" width="64">
+          <template #error>
+            <v-icon class="t_cover_error" color="grey" icon="mdi-image-off-outline" />
+          </template>
+        </v-img>
+      </template>
+      <v-card>
+        <v-img :src="item.cover" width="480" />
+      </v-card>
+    </v-menu>
+
     <v-row gap="0" class="flex-nowrap">
       <!-- 种子主标题信息 -->
       <span class="text-truncate flex-1-1-0">
@@ -264,5 +280,21 @@ function canAdvanceSearch(site: TSupportSocialSite) {
 // flex item 默认 min-width: auto 会阻止 text-overflow: ellipsis 收缩截断,需显式归零
 .t_main .text-truncate.flex-1-1-0 {
   min-width: 0;
+}
+
+// 有封面时：左列放封面（跨两行），右列依次放标题行与标签/副标题行
+.t_main.t_with_cover {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+
+  .t_cover {
+    grid-row: span 2;
+  }
+}
+
+.t_cover_error {
+  width: 100%;
+  height: 100%;
 }
 </style>
