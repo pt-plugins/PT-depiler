@@ -20,6 +20,10 @@
  *
  * 本引擎不解析 HTML，因此没有 `list` / `detail` 选择器 —— 站点页面是前端渲染的
  * 单页应用，content-script 抓不到稳定的 DOM 结构；搜索与下载都走上面的 JSON 端点。
+ *
+ * 适用面：FluxTorrent 是开源、可自部署的建站系统，凡是它建出来的站都提供同一套
+ * 兼容层，因此本引擎对所有 FluxTorrent 站通用；站点条目只需给出自己的站点地址，
+ * 并让使用者填自己的开放 API Token。
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -263,7 +267,10 @@ export default class FluxTorrent extends PrivateSite {
    *
    * - 促销：站点给的 `promotion_name`（Free / 2xFree / 50% / 2x50% / 2x / 30%）
    *   与本仓库的优惠标签表逐字一致，`normalizeTorrentPromotion` 会据此补齐
-   *   下载 / 上传量系数，并把标签名归一成规范写法（如 `2x` → `2xUp`）。
+   *   量系数，并把标签名归一成规范写法（如 `2x` → `2xUp`）。
+   *   量系数按「只声明确定的那一维」处理：`Free` 只说明下载免费，**不据此断言
+   *   上传倍数** —— 上传轴保持未知（undefined），由消费方按 1 回退；
+   *   `2xFree` / `2x50%` 这类合成档才同时确定两维。
    * - 官种：站点用 `official` 布尔位标记，对应本仓库的「官方」标签。
    */
   protected override parseTorrentRowForTags(

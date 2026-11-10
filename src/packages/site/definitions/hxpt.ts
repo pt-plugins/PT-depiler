@@ -7,8 +7,9 @@
  * 旧的 .php 页面与刮削选择器全部作废；改为走 FluxTorrent 兼容层的只读 JSON
  * （`/api/v1/compat/nexusphp/*`），鉴权用开放 API Token。
  *
- * 分类 id 取自 FluxTorrent 侧 `categories` 表的站内 id（1-7），
- * 与旧站 NP 分类号（401-407）是两套编号 —— 兼容层的 `category` 参数收的是站内 id。
+ * 分类 id 取自 FluxTorrent 侧 `categories` 表的**站内 id**（1-13 综合类 +
+ * 101-107 教育类），与旧站 NP 分类号（401-407）是两套编号 —— 兼容层的
+ * `category` 参数收的是站内 id。
  */
 import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/FluxTorrent.ts";
