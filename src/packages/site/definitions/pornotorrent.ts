@@ -7,12 +7,17 @@
  * `torznab?t=search&q=…`、`torznab/api?t=caps&apikey=` 全部 403（响应 5.7~5.9KB，
  * 标题 "Just a moment..."，CF JS 挑战页）。**没有拿到任何 XML 样本**，因此下面几点
  * 依据 Jackett 定义、**未经真机验证**：
- *   - 是否真的不需要 apikey（Jackett 定义里没有 apikey 设置，故本文件不传）；
+ *   - 是否真的不需要 apikey（Jackett 定义里没有 apikey 设置，故本文件不声明）；
  *   - 响应是 `channel > item` 还是 `rss > channel > item`（按 Jackett 的 `channel > item` 写）；
  *   - 分类到底是 `<torznab:attr name="category" value="6000"/>` 还是 `<category>` 文本
  *     （按 Jackett 的 `[name=category]` + `attribute: value` 写）。
+ *
+ * 2026-11-10 起走 `schemas/Torznab.ts` 引擎（schema: "Torznab"）：title / link / pubDate /
+ * seeders 等选择器骨架来自引擎默认值（feed 若真实携带 `[name=seeders]` 等 attr 会取真值；
+ * Jackett 的 1/0 是写死占位，不照抄），本文件只保留与默认不同的部分。
  */
 import { type ISiteMetadata } from "../types";
+import { SchemaMetadata, torznabCategoryName } from "../schemas/Torznab.ts";
 
 /** torznab 分类 id → 名称，来自 Jackett categorymappings（注释写明取自 torznab?t=caps） */
 const CATEGORIES = [
@@ -28,6 +33,8 @@ function parseRfc822(raw: string): number {
 }
 
 export const siteMetadata: ISiteMetadata = {
+  ...SchemaMetadata,
+
   version: 1,
   id: "pornotorrent",
   name: "PornoTorrent",
@@ -35,6 +42,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["成人", "XXX"],
 
   type: "public",
+  schema: "Torznab",
   urls: ["uggcf://cbeabgbeerag.pbz.oe/"],
   // Jackett legacylinks，同样 rot13 保存
   legacyUrls: ["uggcf://jjj.cbeabgbeerag.rh/", "uggcf://cbeabgbeerag.arg.oe/"],
@@ -53,28 +61,25 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    keywordPath: "params.q",
+    ...SchemaMetadata.search,
     requestConfig: {
+      ...SchemaMetadata.search.requestConfig,
       url: "/torznab/",
-      responseType: "document", // 返回的是 XML（torznab），Content-Type 为 xml 时按 XML 文档解析
-      params: { t: "search", q: "", limit: 100 },
     },
     selectors: {
+      ...SchemaMetadata.search.selectors,
       rows: { selector: "channel > item" },
-      title: { selector: "title" },
       // Jackett 的 details = guid；该站 torznab 的 guid 就是 magnet，故 url / link 都落在磁力上
       url: { selector: "guid" },
-      link: { selector: "enclosure", attr: "url" },
-      // Jackett：feed 里细分类在前、父类 6000 在后，所以取最后一个
       category: {
+        // Jackett：feed 里细分类在前、父类 6000 在后，所以取最后一个
         selector: "[name='category']:last",
         attr: "value",
-        filters: [(query: string | number) => CATEGORIES.find((c) => c.value === parseInt(`${query}`))?.name ?? "XXX"],
+        filters: [torznabCategoryName(CATEGORIES, "XXX")],
       },
-      size: { selector: "size", filters: [{ name: "parseSize" }] },
+      size: { selector: "size", filters: [{ name: "parseSize" }] }, // <size> 元素（非 attr）
       time: { selector: "pubDate", filters: [parseRfc822] },
-      // Jackett 的 seeders/leechers 是硬编码占位值（seeders: 1 / leechers: 0），
-      // 不是站点真实数据；本仓库不照抄占位值，这里留空。
+      // seeders / leechers：见文件头注释
     },
   },
 

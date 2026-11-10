@@ -40,6 +40,8 @@
  */
 
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+// noinspection ES6PreferShortImport
+import { torznabCategoryName } from "../schemas/Torznab.ts";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import {
   CFBlockedError,
@@ -101,8 +103,10 @@ const CATEGORIES: ISearchCategoryOptions[] = [
   { name: "Imprimante 3D & Objets & Pack & Personnages", value: 8010 },
 ];
 
-const categoryName = (value: string | number): string =>
-  CATEGORIES.find((item) => `${item.value}` === `${value}`)?.name ?? `${value}`;
+// 与 schemas/Torznab.ts 的引擎默认行为一致：feed 里子类在前、父类在后，取第一个 attr；
+// 未收录的 value 原样透出。c411 本身不走 TorznabSite 类（userInfo 是 Bearer + JSON），
+// 但 category 映射闭包与其它 torznab 站共用一份实现。
+const categoryName = torznabCategoryName(CATEGORIES);
 
 /** `/api/user/profile` 的响应结构，字段名取自 tracker-tracker 的 c411 适配器（其 2026-10-20 真机样本） */
 interface IC411Grade {
