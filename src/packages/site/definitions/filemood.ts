@@ -35,6 +35,8 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "table > tbody > tr:has(a.btn-success)" },
       // 详情页链接形如 /<slug>-<40 位 infohash>.html，列表页与详情页用的是同一个地址
       id: { selector: "a.btn-success", attr: "href" },
+      // id 即含 infohash 的地址，把其中的 infohash 显式落到 torrent.infoHash
+      infoHash: { selector: "a.btn-success", attr: "href", filters: [(href: string) => /([a-f0-9]{40})/i.exec(String(href))?.[1] ?? ""] },
       // 不能用 a 的 title 属性：站点的 title 属性被过滤过（"v15.2.5.17803 (x64)" 变成 "v15 17803 x64"），
       // 链接文本才是完整种子名
       title: { selector: "a" },
@@ -44,10 +46,9 @@ export const siteMetadata: ISiteMetadata = {
         selector: "a.btn-success",
         attr: "href",
         filters: [
-          (query: string) => {
-            const infohash = /([a-f0-9]{40})/i.exec(String(query))?.[1];
-            return infohash ? `magnet:?xt=urn:btih:${infohash}` : "";
-          },
+          // 从详情页链接里剥出 40 位 infohash（剥不出来时给空串，下面具名过滤器对空串原样返回 → link 置空）
+          (href: string) => /([a-f0-9]{40})/i.exec(String(href))?.[1] ?? "",
+          { name: "infoHashToMagnet" },
         ],
       },
       size: { selector: "td.dn-size", filters: [{ name: "parseSize" }] },

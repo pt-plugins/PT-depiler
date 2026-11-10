@@ -12,7 +12,7 @@
  *
  * 2026-11-10 起走 `schemas/Torznab.ts` 引擎（schema: "Torznab"）：默认的 requestConfig /
  * 选择器骨架、apikey 未填写拦截与注入、401/403 XML error → NoUserInputError 翻译都在引擎层
- * 完成，本文件只保留与默认不同的部分（id/url/link/size 覆写、分类表、ext_infohash、详情页）。
+ * 完成，本文件只保留与默认不同的部分（id/url/link/size 覆写、分类表、infoHash、详情页）。
  *
  * type 维持 "public" 口径（站点内容不区分用户组、半公开语义归 public——见仓库约定），
  * 但访问 API 需要会员 Key：注册仍开放（/login 页有 signup/register），
@@ -87,8 +87,8 @@ export const siteMetadata: ISiteMetadata = {
       link: { selector: "[name=magneturl]", attr: "value" },
       // Jackett 口径：size attr 是带单位的字符串，走 parseSize（站点不提供纯字节）
       size: { selector: "[name=size]", attr: "value", filters: [{ name: "parseSize" }] },
-      // ITorrent 无 infoHash 字段，外部资源 id 走 ext_ 命名空间（imdbid/tvdbid/tmdbid 同理，可按需再补）
-      ext_infohash: { selector: "[name=infohash]", attr: "value" },
+      // infohash 直接落到 torrent.infoHash（原先走 ext_infohash，2026-11-11 起 ITorrent 已有该可选字段）
+      infoHash: { selector: "[name=infohash]", attr: "value" },
       category: {
         // 同一 item 里可能有多个 <torznab:attr name="category">（先子类后父类），取第一个
         selector: "[name=category]",

@@ -71,6 +71,8 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "channel > item" },
       // Jackett 的 details = guid；该站 torznab 的 guid 就是 magnet，故 url / link 都落在磁力上
       url: { selector: "guid" },
+      // id 兜底取整条 magnet（url），把其中的 infohash 显式落到 torrent.infoHash
+      infoHash: { selector: "guid", filters: [{ name: "magnetToInfoHash" }] },
       category: {
         // Jackett：feed 里细分类在前、父类 6000 在后，所以取最后一个
         selector: "[name='category']:last",

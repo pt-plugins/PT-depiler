@@ -69,8 +69,9 @@ export const siteMetadata: ISiteMetadata = {
       },
       link: {
         selector: "info_hash",
-        filters: [(hash: string) => `magnet:?xt=urn:btih:${hash}`],
+        filters: [{ name: "infoHashToMagnet" }],
       },
+      infoHash: { selector: "info_hash" },
       time: { selector: "added", filters: [{ name: "parseNumber" }] },
       size: { selector: "size", filters: [{ name: "parseNumber" }] },
       seeders: { selector: "seeders", filters: [{ name: "parseNumber" }] },

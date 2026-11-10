@@ -34,6 +34,8 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "table.table-striped > tbody > tr:has(a)" },
       // 该站是 DHT 爬虫，列表页给出的就是 magnet 本体，用它做 id/link（与 url 同源）
       id: { selector: "a[href^='magnet:?xt']", attr: "href" },
+      // id 是整条 magnet，把其中的 infohash 显式落到 torrent.infoHash
+      infoHash: { selector: "a[href^='magnet:?xt']", attr: "href", filters: [{ name: "magnetToInfoHash" }] },
       title: { selector: "a" },
       url: { selector: "a", attr: "href" },
       link: { selector: "a", attr: "href" },

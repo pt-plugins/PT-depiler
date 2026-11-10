@@ -4,7 +4,7 @@
 import Sizzle from "sizzle";
 import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
 import BittorrentSite from "../schemas/AbstractBittorrentSite";
-import { definedFilters } from "../utils";
+import { definedFilters, infoHashToMagnet } from "../utils";
 
 const titleSelector = { selector: "div.postTitle" };
 const categoryOptions = [
@@ -172,7 +172,8 @@ export const siteMetadata: ISiteMetadata = {
           const title = Sizzle(titleSelector.selector, doc)[0].textContent;
           const hash = Sizzle("td:contains('Info Hash:') ~ td", doc)[0].textContent;
           const trackers = Sizzle("td:contains('Tracker:') ~ td", doc).map((td) => td.textContent);
-          return infoHashToPublicMagnet(hash, title, trackers) || "";
+          // 公共方法负责 xt / dn / tr 的拼装与 infohash 格式校验，取不到时置空
+          return infoHashToMagnet(hash, { dn: title, tr: trackers }) || "";
         },
       },
     },
@@ -204,17 +205,4 @@ export default class AudioBookBay extends BittorrentSite {
 
     return torrents;
   }
-}
-
-function infoHashToPublicMagnet(infoHash: string, title: string, trackers: string[]): string | null {
-  if (!infoHash.trim() || !title.trim()) {
-    return null;
-  }
-  const encodedTitle = encodeURIComponent(title);
-  const trackerParams = new URLSearchParams();
-  trackers.forEach((tr) => {
-    trackerParams.append("tr", tr);
-  });
-
-  return `magnet:?xt=urn:btih:${infoHash}&dn=${encodedTitle}&${trackerParams.toString()}`;
 }

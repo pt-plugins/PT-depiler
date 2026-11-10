@@ -52,7 +52,7 @@ export const siteMetadata: ISiteMetadata = {
       link: {
         selector: ":self",
         attr: "id",
-        filters: [(q: string) => "magnet:?xt=urn:btih:" + q.replace("item_", "")],
+        filters: [(q: string) => q.replace("item_", ""), { name: "infoHashToMagnet" }],
       },
       time: {
         selector: "span.info > font:last-of-type",
@@ -79,7 +79,7 @@ export const siteMetadata: ISiteMetadata = {
     urlPattern: ["/showprofile/"],
     selectors: {
       title: { selector: 'font[color="DarkRed"]' },
-      link: { selector: 'td:contains("Hash") + td', filters: [{ name: "prepend", args: ["magnet:?xt=urn:btih:"] }] },
+      link: { selector: 'td:contains("Hash") + td', filters: [{ name: "infoHashToMagnet" }] },
     },
   },
 };
