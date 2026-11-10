@@ -10,13 +10,16 @@
  * `Authorization: Bearer`（本站按 Jackett 口径走 query）。feed 为 application/xml，
  * `responseType: "document"` 下即 Document，选择器照 RSS/torznab 结构写（同 c411 / pandacd）。
  *
+ * 2026-11-10 起走 `schemas/Torznab.ts` 引擎（schema: "Torznab"）：默认的 requestConfig /
+ * 选择器骨架、apikey 未填写拦截与注入、401/403 XML error → NoUserInputError 翻译都在引擎层
+ * 完成，本文件只保留与默认不同的部分（id/url/link/size 覆写、分类表、ext_infohash、详情页）。
+ *
  * type 维持 "public" 口径（站点内容不区分用户组、半公开语义归 public——见仓库约定），
  * 但访问 API 需要会员 Key：注册仍开放（/login 页有 signup/register），
  * Key 在 https://magnetz.eu/account/apps#api-key 生成，每次搜索消耗一次每日配额。
  */
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import BittorrentSite from "../schemas/AbstractBittorrentSite";
-import { NoUserInputError, type ISearchCategoryOptions, type ISiteMetadata } from "../types";
+import { type ISearchCategoryOptions, type ISiteMetadata } from "../types";
+import { SchemaMetadata, torznabCategoryName } from "../schemas/Torznab.ts";
 
 // 取自 https://magnetz.eu/api/torznab?t=caps （经 apikey，与 Jackett d3ff5237 的 categorymappings 一致）
 const categories: ISearchCategoryOptions[] = [
@@ -42,12 +45,15 @@ const categories: ISearchCategoryOptions[] = [
 ];
 
 export const siteMetadata: ISiteMetadata = {
+  ...SchemaMetadata,
+
   version: 1,
   id: "magnetz",
   name: "Magnetz",
   description: "Magnetz 是一个公开的 BT 元搜索引擎，聚合影视、音乐、游戏、软件、电子书等资源（API 搜索需会员 Key）",
 
   type: "public",
+  schema: "Torznab",
   urls: ["https://magnetz.eu/"],
 
   userInputSettingMeta: [
@@ -69,38 +75,29 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    keywordPath: "params.q",
-    requestConfig: {
-      url: "/api/torznab",
-      responseType: "document", // torznab feed（application/xml）
-      params: { t: "search", limit: 100 }, // caps: limits max=100
-    },
+    ...SchemaMetadata.search,
     selectors: {
-      rows: { selector: "rss > channel > item" },
+      ...SchemaMetadata.search.selectors,
       // guid 即详情页 URL（形如 https://magnetz.eu/Zfuh），取末段 sqid 作 id
       id: {
         selector: "guid",
         filters: [(query: string) => query.split("/").filter(Boolean).pop() ?? ""],
       },
-      title: { selector: "title" },
       url: { selector: "comments" }, // details = comments（详情页 URL）
       link: { selector: "[name=magneturl]", attr: "value" },
-      // "Sat, 08 Nov 2025 03:49:12 +0000"（RFC 822，带偏移），parseTime 可直接解析
-      time: { selector: "pubDate", filters: [{ name: "parseTime" }] },
+      // Jackett 口径：size attr 是带单位的字符串，走 parseSize（站点不提供纯字节）
       size: { selector: "[name=size]", attr: "value", filters: [{ name: "parseSize" }] },
-      seeders: { selector: "[name=seeders]", attr: "value", filters: [{ name: "parseNumber" }] },
-      leechers: { selector: "[name=leechers]", attr: "value", filters: [{ name: "parseNumber" }] },
-      completed: { selector: "[name=grabs]", attr: "value", filters: [{ name: "parseNumber" }] },
       // ITorrent 无 infoHash 字段，外部资源 id 走 ext_ 命名空间（imdbid/tvdbid/tmdbid 同理，可按需再补）
       ext_infohash: { selector: "[name=infohash]", attr: "value" },
       category: {
         // 同一 item 里可能有多个 <torznab:attr name="category">（先子类后父类），取第一个
         selector: "[name=category]",
         attr: "value",
-        filters: [(query: string) => categories.find((item) => `${item.value}` === `${query}`)?.name ?? `${query}`],
+        filters: [torznabCategoryName(categories)],
       },
-      // 列表 feed 全站固定 downloadvolumefactor 0 / uploadvolumefactor 1（Jackett 同款写死值），
-      // 由定义层写不进 ITorrent，交由基类缺省处理；author 无来源，留空
+      // 列表 feed 的 downloadvolumefactor/uploadvolumefactor 由引擎默认选择器解析：
+      // feed 携带 attr 时取真实值，未携带时落回基类缺省（Jackett 对本站写死 0/1，未经 key 实测）
+      // author 无来源，留空
     },
   },
 
@@ -116,22 +113,3 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 };
-
-export default class SiteMagnetz extends BittorrentSite {
-  /**
-   * Torznab 要求 apikey（query 参数，与 Jackett 一致）；未填时不发请求，
-   * 直接抛 NoUserInputError——public 站的 loggedCheck 恒真，基类不会替我们拦 401。
-   * （同 beyondhd / infinityhd / huno 的 key 拦截写法。）
-   */
-  public override async request<T>(
-    axiosConfig: AxiosRequestConfig,
-    checkLogin: boolean = true,
-  ): Promise<AxiosResponse<T>> {
-    const apikey = this.userConfig.inputSetting?.apikey?.trim();
-    if (!apikey) {
-      throw new NoUserInputError("API Key"); // 未填写 API Key 时直接拦截，避免请求被误判为解析错误
-    }
-    axiosConfig.params = { ...(axiosConfig.params ?? {}), apikey };
-    return super.request<T>(axiosConfig, checkLogin);
-  }
-}

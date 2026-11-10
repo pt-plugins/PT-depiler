@@ -1,6 +1,6 @@
 ---
 name: ptd-site-definition
-description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src/packages/site/definitions/*.ts）时使用。覆盖：判定站点所属引擎、编写 siteMetadata（id/urls/version/category/search/userInfo/levelRequirements）、编写选择器与 filters、覆写引擎类方法、以及提交前的类型检查与静态校验。Use when adding support for a new tracker site, editing an existing site definition, adapting a NexusPHP / Unit3D / Gazelle / GazelleJSONAPI / AvistazNetwork / Luminance / Rartracker / TCG site, or when the task mentions definitions/、schemas/、siteMetadata、search selectors、userInfo process。
+description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src/packages/site/definitions/*.ts）时使用。覆盖：判定站点所属引擎、编写 siteMetadata（id/urls/version/category/search/userInfo/levelRequirements）、编写选择器与 filters、覆写引擎类方法、以及提交前的类型检查与静态校验。Use when adding support for a new tracker site, editing an existing site definition, adapting a NexusPHP / Unit3D / Gazelle / GazelleJSONAPI / AvistazNetwork / Luminance / Rartracker / TCG / Torznab (generic API protocol) site, or when the task mentions definitions/、schemas/、siteMetadata、search selectors、userInfo process、torznab。
 ---
 
 # PT-depiler 站点定义（site definition）编写
@@ -21,7 +21,7 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 
 ## 工作流
 
-1. **判定引擎**：先确定目标站点由哪个 schema 承载（NexusPHP / Unit3D / Gazelle / GazelleJSONAPI / AvistazNetwork / Luminance / Rartracker / TCG / 仅基类）。判定依据写在各个引擎文档的「判定站点是否属于该引擎」一节。
+1. **判定引擎**：先确定目标站点由哪个 schema 承载（NexusPHP / Unit3D / Gazelle / GazelleJSONAPI / AvistazNetwork / Luminance / Rartracker / TCG / Torznab（通用 API 协议，非站点架构）/ 仅基类）。判定依据写在各个引擎文档的「判定站点是否属于该引擎」一节。
 2. **读该引擎的 reference**：见下方「按需读取」。**不要凭记忆套模板**，不同 schema 的 `SchemaMetadata` 默认值差异很大。
 3. **收集事实**：category 的 value→name、搜索入口、选择器、等级要求必须来自真实页面、接口响应或站点规则页。拿不到就明确写出假设并向用户确认，**严禁为了让文件"看起来完整"而编造数值、选择器或接口路径**。
 4. **写文件**：以同引擎既有定义文件为骨架（`...SchemaMetadata` 展开 + 覆写差异项），只写与默认值不同的部分。
@@ -51,27 +51,28 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
   - API 的 `uploader` 是字符串（`author` 写 `["uploader", "attributes.uploader"]`），`imdbId` 会被 `(int)` 强转（高级检索要先剥 `tt`）；
   - `/api/user` 仅 9.0.0+ 存在，且只有 10 个字段（没有注册时间 / 做种体积 / 平均做种 / 发布数），8.x 只能走 HTML 资料页；
   - 默认 `rows` 只覆盖 7.0.0+ 的 `torrent-search--list__results` 结构，6.x 站点要补 `table.data-table > tbody > tr` 候选。
-- 若同时修改了公共类型/schema，必须同步检查其余定义文件是否受影响（`definitions/` 下 410 个定义文件、10 个 schema）。
+- 若同时修改了公共类型/schema，必须同步检查其余定义文件是否受影响（`definitions/` 下 415 个定义文件、11 个 schema）。
 
 ## 按需读取
 
-| 场景                                                                   | 读取                                                                                             |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| 从零新增一个站点、想知道完整流程与交付前检查                           | [references/workflow.md](references/workflow.md)                                                 |
-| 不确定 `ISiteMetadata` 各字段的含义、默认值与约束                      | [references/metadata-fields.md](references/metadata-fields.md)                                   |
-| 写 selectors、filters、category、searchEntry、userInfo process         | [references/selectors-and-filters.md](references/selectors-and-filters.md)                       |
-| 排查"搜不到/解析为空/提示未登录/结果字段错误"                          | [references/debugging.md](references/debugging.md)                                               |
-| 目标站点是 NexusPHP 系（国内 HDSky/OurBits 类结构）                    | [references/engines/nexusphp.md](references/engines/nexusphp.md)                                 |
+| 场景                                                                                            | 读取                                                                                             |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 从零新增一个站点、想知道完整流程与交付前检查                                                    | [references/workflow.md](references/workflow.md)                                                 |
+| 不确定 `ISiteMetadata` 各字段的含义、默认值与约束                                               | [references/metadata-fields.md](references/metadata-fields.md)                                   |
+| 写 selectors、filters、category、searchEntry、userInfo process                                  | [references/selectors-and-filters.md](references/selectors-and-filters.md)                       |
+| 排查"搜不到/解析为空/提示未登录/结果字段错误"                                                   | [references/debugging.md](references/debugging.md)                                               |
+| 目标站点是 NexusPHP 系（国内 HDSky/OurBits 类结构）                                             | [references/engines/nexusphp.md](references/engines/nexusphp.md)                                 |
 | 目标站点是 Unit3D 系（含 `/api/torrents/filter` 的 API-only 站、6.x / 7.x+ 列表布局与版本差异） | [references/engines/unit3d.md](references/engines/unit3d.md)                                     |
-| 目标站点是 Gazelle 系（音乐 tracker，网页解析）                        | [references/engines/gazelle.md](references/engines/gazelle.md)                                   |
-| 目标站点是 Gazelle 的 JSON API 变体                                    | [references/engines/gazelle-json-api.md](references/engines/gazelle-json-api.md)                 |
-| 目标站点属于 AvistaZ 网络（AvistaZ/AsiaTorrents/CinemaZ/PrivateHD 等） | [references/engines/avistaz-network.md](references/engines/avistaz-network.md)                   |
-| 目标站点是 Luminance 引擎                                              | [references/engines/luminance.md](references/engines/luminance.md)                               |
-| 目标站点是 Rartracker 引擎                                             | [references/engines/rartracker.md](references/engines/rartracker.md)                             |
-| 目标站点是 TCG 引擎                                                    | [references/engines/tcg.md](references/engines/tcg.md)                                           |
-| 私有站但没有现成引擎，直接用私有站模板                                 | [references/engines/abstract-private-site.md](references/engines/abstract-private-site.md)       |
-| 目标站点是 SunnyPT（接口驱动站）                                | [references/sites/sunnypt.md](references/sites/sunnypt.md)                                       |
-| 公共 BT 站（type: "public"）与基类提供的通用能力                       | [references/engines/abstract-bittorrent-site.md](references/engines/abstract-bittorrent-site.md) |
+| 目标站点是 Gazelle 系（音乐 tracker，网页解析）                                                 | [references/engines/gazelle.md](references/engines/gazelle.md)                                   |
+| 目标站点是 Gazelle 的 JSON API 变体                                                             | [references/engines/gazelle-json-api.md](references/engines/gazelle-json-api.md)                 |
+| 目标站点属于 AvistaZ 网络（AvistaZ/AsiaTorrents/CinemaZ/PrivateHD 等）                          | [references/engines/avistaz-network.md](references/engines/avistaz-network.md)                   |
+| 目标站点是 Luminance 引擎                                                                       | [references/engines/luminance.md](references/engines/luminance.md)                               |
+| 目标站点是 Rartracker 引擎                                                                      | [references/engines/rartracker.md](references/engines/rartracker.md)                             |
+| 目标站点是 TCG 引擎                                                                             | [references/engines/tcg.md](references/engines/tcg.md)                                           |
+| 目标站点搜索走 Torznab API（Jackett/Prowlarr 协议），或需要 apikey 注入 / XML error 翻译        | [references/engines/torznab.md](references/engines/torznab.md)                                   |
+| 私有站但没有现成引擎，直接用私有站模板                                                          | [references/engines/abstract-private-site.md](references/engines/abstract-private-site.md)       |
+| 目标站点是 SunnyPT（接口驱动站）                                                                | [references/sites/sunnypt.md](references/sites/sunnypt.md)                                       |
+| 公共 BT 站（type: "public"）与基类提供的通用能力                                                | [references/engines/abstract-bittorrent-site.md](references/engines/abstract-bittorrent-site.md) |
 
 ## 静态校验
 
@@ -100,5 +101,6 @@ pnpm check:site-definition src/packages/site/definitions/<id>.ts   # 只校验�
 - [ ] 所有选择器/接口路径都有真实依据，没有猜测值
 - [ ] Unit3D JSON API 站：分类用 `categories`、`author` 取字符串 `uploader`、`freeleech` 按 `1 − free/100` 计费、`featured` 只做徽章；`/api/user` 只用于 9.0.0+ 站点
 - [ ] Unit3D 列表行选择器与站点版本匹配（6.x 的 `div.data-table-wrapper > table.data-table` 需要 `table.data-table > tbody > tr` 候选）
+- [ ] Torznab 站：`schema: "Torznab"` 由 definition 显式声明（`schemas/Torznab.ts` 的 `SchemaMetadata` 不含 `schema`——Torznab 是通用 API 协议而非站点架构，缺省会按 `type` 回落基类）；主架构为其它引擎的站只复用 helper 不换继承；`size` 口径（带单位 attr vs 纯字节）与 category 取第一个/最后一个已核对
 - [ ] `pnpm check` 通过（含站点定义的结构与 pattern 编译校验）
 - [ ] 若覆写了类方法，确认签名与基类一致（`override` 关键字、参数个数与类型）

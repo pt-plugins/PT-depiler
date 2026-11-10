@@ -1,7 +1,12 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/pandacd.yml
+ *
+ * 2026-11-10 起走 `schemas/Torznab.ts` 引擎（schema: "Torznab"）：requestConfig / rows / title /
+ * link / pubDate / seeders 等选择器骨架全部来自引擎默认值，本文件只保留与默认不同的部分。
+ * 该站无需 apikey（不声明 userInputSettingMeta 即可，引擎不会注入也不会拦截）。
  */
 import { type ISearchCategoryOptions, type ISiteMetadata } from "../types";
+import { SchemaMetadata, torznabCategoryName } from "../schemas/Torznab.ts";
 
 // https://pandacd.io/api/torznab?t=caps （实测该接口无需 apikey）
 const categories: ISearchCategoryOptions[] = [
@@ -11,6 +16,8 @@ const categories: ISearchCategoryOptions[] = [
 ];
 
 export const siteMetadata: ISiteMetadata = {
+  ...SchemaMetadata,
+
   version: 1,
   id: "pandacd",
   name: "PandaCD",
@@ -18,6 +25,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["音乐"],
 
   type: "public",
+  schema: "Torznab",
   urls: ["https://pandacd.io/"],
 
   category: [
@@ -30,32 +38,23 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    keywordPath: "params.q",
-    requestConfig: {
-      url: "/api/torznab",
-      responseType: "document", // 返回 application/xml 的 torznab feed
-      params: { t: "search", limit: 100 }, // t=caps 声明 limits max=100 default=50
-    },
+    ...SchemaMetadata.search,
     selectors: {
-      rows: { selector: "rss > channel > item" },
+      ...SchemaMetadata.search.selectors,
+      // guid 形如 https://pandacd.io/release/17230-happinesslove-and-princess/#t51049
       id: {
-        // guid 形如 https://pandacd.io/release/17230-happinesslove-and-princess/#t51049
         selector: "guid",
         filters: [(query: string) => query.match(/#t(\d+)$/)?.[1] ?? query],
       },
-      title: { selector: "title" },
       url: { selector: "guid" },
-      link: { selector: "enclosure", attr: "url" },
-      time: { selector: "pubDate", filters: [{ name: "parseTime" }] },
-      size: { selector: "[name=size]", attr: "value" }, // 精确字节数
-      seeders: { selector: "[name=seeders]", attr: "value" },
-      leechers: { selector: "[name=leechers]", attr: "value" },
-      completed: { selector: "[name=grabs]", attr: "value" },
+      // ⚠️ 站点给的是纯字节数（torznab 惯例外）：引擎默认的 size 选择器会交给基类对 string 型
+      // 自动 parseSizeString，而 sizePattern 要求单位、纯数字会得 0，这里显式 parseNumber。
+      size: { selector: "[name=size]", attr: "value", filters: [{ name: "parseNumber" }] },
       category: {
         // 同一 item 里有多个 <torznab:attr name="category">（先具体子类、后父类），取第一个
         selector: "[name=category]",
         attr: "value",
-        filters: [(query: string) => categories.find((item) => `${item.value}` === `${query}`)?.name ?? `${query}`],
+        filters: [torznabCategoryName(categories)],
       },
     },
   },
