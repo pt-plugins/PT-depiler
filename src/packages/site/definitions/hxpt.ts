@@ -31,17 +31,19 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
+      // ⚠️ 分类维度暂时不写死。
+      //
+      // 好学已迁到 FluxTorrent 架构，站型是「综合站带教育」，而分类表来自
+      // **站型包模板展开**（`site_type_packs.categories`），不是一张固定表：
+      // general（综合站）包是 10 个顶层类（电影/电视剧/音乐/游戏/软件/动漫/
+      // 纪录片/电子书/体育/综艺），education（教育）包另有 7 个
+      // （学前教育/小学/初中/职高/高中/教育影音/纪录片），两者 id 会撞。
+      // 兼容层的 `category` 参数收的是**站内 id**，写死错一个就筛不到东西。
+      // 拿到站点实际分类表（`GET /api/v1/open/categories`，需 read 权限 Token）
+      // 后再补这里。
       name: "类型",
       key: "category",
-      options: [
-        { name: "学前教育", value: 1 },
-        { name: "小学", value: 2 },
-        { name: "初中", value: 3 },
-        { name: "职高", value: 4 },
-        { name: "高中", value: 5 },
-        { name: "教育影音", value: 6 },
-        { name: "纪录片", value: 7 },
-      ],
+      options: [],
       cross: false,
     },
     {
