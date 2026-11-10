@@ -2,13 +2,21 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/hxpt.yml
  * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/hxpt.json
  * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/hxpt.json
+ *
+ * 2026-11 起站点引擎由 NexusPHP 整体迁移到 FluxTorrent（Rust + Next.js），
+ * 旧的 .php 页面与刮削选择器全部作废；改为走 FluxTorrent 兼容层的只读 JSON
+ * （`/api/v1/compat/nexusphp/*`），鉴权用开放 API Token。
+ *
+ * 分类 id 取自 FluxTorrent 侧 `categories` 表的**站内 id**（1-13 综合类 +
+ * 101-107 教育类），与旧站 NP 分类号（401-407）是两套编号 —— 兼容层的
+ * `category` 参数收的是站内 id。
  */
 import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import { SchemaMetadata } from "../schemas/FluxTorrent.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 1,
+  version: 2,
 
   id: "hxpt",
   name: "好学",
@@ -18,226 +26,109 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0800",
 
   type: "private",
-  schema: "NexusPHP",
+  schema: "FluxTorrent",
 
   urls: ["uggcf://jjj.ukcg.bet/"],
 
   category: [
     {
+      // 分类 id = 好学线上 `categories` 表的**站内 id**（2026-11-10 从生产库核对）。
+      //
+      // 分类表是**站型包模板展开**的，好学现为 general（综合站）站型：
+      //   1-13   综合站 13 类（电影/电视剧/短剧/音乐/游戏/软件/动漫/纪录片/
+      //                     电子书/有声书/体育/综艺/教育资源）
+      //   101-107 教育 7 类（学前教育/小学/初中/职高/高中/教育影音/大学）
+      // 教育类是 101+ 段而不是 1-7 —— 通用分类已占低位 id，两套不撞。
+      // 兼容层的 `category` 参数收站内 id（**不是** NP legacy_id：好学的 NP 号
+      // 401-406 只挂在教育类上，且与「大学」并不一一对应）。
+      //
+      // 当前各分类的实际存量（站点在用的主要是教育类 + 纪录片/动漫/综艺，
+      // 电影/短剧/音乐/游戏/软件/电子书/有声书/体育/教育资源 目前为空）：
+      //   教育影音 18081 · 小学 1684 · 纪录片 1540 · 初中 1075 · 高中 694
+      //   · 大学 155 · 学前教育 149 · 动漫 302 · 综艺 42 · 职高 30 · 电视剧 1
       name: "类型",
-      key: "cat",
+      key: "category",
       options: [
-        { name: "学前教育", value: 401 },
-        { name: "小学部", value: 402 },
-        { name: "初中部", value: 403 },
-        { name: "高职部", value: 404 },
-        { name: "高中部", value: 405 },
-        { name: "教育影音", value: 406 },
+        { name: "电影", value: 1 },
+        { name: "电视剧", value: 2 },
+        { name: "短剧", value: 3 },
+        { name: "音乐", value: 4 },
+        { name: "游戏", value: 5 },
+        { name: "软件", value: 6 },
+        { name: "动漫", value: 7 },
+        { name: "纪录片", value: 8 },
+        { name: "电子书", value: 9 },
+        { name: "有声书", value: 10 },
+        { name: "体育", value: 11 },
+        { name: "综艺", value: 12 },
+        { name: "教育资源", value: 13 },
+        { name: "学前教育", value: 101 },
+        { name: "小学", value: 102 },
+        { name: "初中", value: 103 },
+        { name: "职高", value: 104 },
+        { name: "高中", value: 105 },
+        { name: "教育影音", value: 106 },
+        { name: "大学", value: 107 },
       ],
-      cross: { mode: "append" },
+      cross: false,
     },
     {
-      name: "标签",
-      key: "tag_id",
+      // 兼容层的 promo 是「族」语义，不是档位精确匹配：
+      //   free 族 = {free, x2free}      x2 族 = {x2, x2free, x2half}
+      //   half 族 = {half, x2half}      x2free/x2half 是两族交集的合成档
+      // 所以「免费」会连 2X 免费一起端出来，「2X」会连 2X 免费 / 2X 50% 一起端出来。
+      name: "促销",
+      key: "promo",
       options: [
-        { name: "禁转", value: 1 },
-        { name: "首发", value: 2 },
-        { name: "官方", value: 3 },
-        { name: "DIY", value: 4 },
-        { name: "国语", value: 5 },
-        { name: "中字", value: 6 },
-        { name: "HDR", value: 7 },
-        { name: "语文", value: 8 },
-        { name: "数学", value: 9 },
-        { name: "外语", value: 10 },
-        { name: "历史", value: 11 },
-        { name: "地理", value: 12 },
-        { name: "化学", value: 13 },
-        { name: "生物", value: 14 },
-        { name: "道法", value: 15 },
-        { name: "音乐", value: 16 },
-        { name: "美术", value: 17 },
-        { name: "体育", value: 18 },
-        { name: "自然科学", value: 19 },
-        { name: "信息技术", value: 20 },
-        { name: "兴趣爱好", value: 21 },
+        { name: "免费（含 2X 免费）", value: "free" },
+        { name: "2X 免费", value: "x2free" },
+        { name: "50%（含 2X 50%）", value: "half" },
+        { name: "2X 50%", value: "x2half" },
+        { name: "2X（含 2X 免费 / 2X 50%）", value: "x2" },
+        { name: "30%", value: "p30" },
+        { name: "任意优惠", value: "any" },
+        { name: "无优惠", value: "none" },
       ],
-      cross: false, // 不支持多选
+      cross: { mode: "comma" },
     },
     {
-      name: "媒介",
-      key: "medium",
+      name: "显示断种/活种？",
+      key: "alive",
       options: [
-        { name: "视频", value: 1 },
-        { name: "音频", value: 2 },
-        { name: "书籍", value: 3 },
-        { name: "文档", value: 4 },
-        { name: "笔记", value: 5 },
-        { name: "课件", value: 6 },
-        { name: "软件", value: 7 },
-        { name: "会议", value: 8 },
-        { name: "图片", value: 9 },
-        { name: "其它", value: 10 },
+        { name: "全部", value: 0 },
+        { name: "仅活种", value: 1 },
+        { name: "仅断种", value: 2 },
       ],
-      cross: { mode: "append" },
+      cross: false,
     },
     {
-      name: "制作组",
-      key: "team",
+      // 兼容层的 official 只认 1 / 0（0 = 仅非官种），「全部」必须留空串才不过滤
+      name: "仅官种？",
+      key: "official",
       options: [
-        { name: "HXPT", value: 9 },
-        { name: "HXWEB", value: 8 },
-        { name: "Other", value: 10 },
+        { name: "全部", value: "" },
+        { name: "仅官种", value: "1" },
+        { name: "仅非官种", value: "0" },
       ],
-      cross: { mode: "append" },
+      cross: false,
     },
-    CategoryIncldead,
-    CategorySpstate,
-    CategoryInclbookmarked,
+    {
+      name: "排序",
+      key: "sort",
+      options: [
+        { name: "最新发布", value: "created" },
+        { name: "最新发布（升序）", value: "created_asc" },
+        { name: "做种数", value: "seeders" },
+        { name: "做种数（升序）", value: "seeders_asc" },
+        { name: "大小", value: "size" },
+        { name: "大小（升序）", value: "size_asc" },
+        { name: "完成数", value: "completed" },
+        { name: "完成数（升序）", value: "completed_asc" },
+      ],
+      cross: false,
+    },
   ],
 
-  userInfo: {
-    ...SchemaMetadata.userInfo,
-    selectors: {
-      ...SchemaMetadata.userInfo.selectors!,
-      bonus: {
-        selector: ["td.rowhead:contains('火花') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-    },
-    process: SchemaMetadata.userInfo.process!.map((item) =>
-      item.requestConfig?.url === "/mybonus.php"
-        ? { ...item, requestConfig: { ...item.requestConfig, url: "/mybonusmine.php" } }
-        : item,
-    ),
-  },
-
-  levelRequirements: [
-    {
-      id: 0,
-      name: "User",
-      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
-    },
-    {
-      id: 1,
-      name: "Power User",
-      interval: "P4W",
-      downloaded: "50GB",
-      seedingBonus: 50000,
-      ratio: 1.05,
-      privilege:
-        "得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； " +
-        '可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
-    },
-    {
-      id: 2,
-      name: "Elite User",
-      interval: "P8W",
-      downloaded: "120GB",
-      seedingBonus: 150000,
-      ratio: 1.55,
-      privilege: "Elite User及以上用户封存账号后不会被删除。",
-    },
-    {
-      id: 3,
-      name: "Crazy User",
-      interval: "P15W",
-      downloaded: "512GB",
-      seedingBonus: 250000,
-      ratio: 2.05,
-      privilege: "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
-    },
-    {
-      id: 4,
-      name: "Insane User",
-      interval: "P25W",
-      downloaded: "1TB",
-      seedingBonus: 500000,
-      ratio: 2.55,
-      privilege: "可以查看普通日志。",
-    },
-    {
-      id: 5,
-      name: "Veteran User",
-      interval: "P40W",
-      downloaded: "2TB",
-      seedingBonus: 1000000,
-      ratio: 3.05,
-      isKept: true,
-      privilege: "得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
-    },
-    {
-      id: 6,
-      name: "Extreme User",
-      interval: "P60W",
-      downloaded: "4TB",
-      seedingBonus: 1500000,
-      ratio: 3.55,
-      isKept: true,
-      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
-    },
-    {
-      id: 7,
-      name: "Ultimate User",
-      interval: "P80W",
-      downloaded: "8TB",
-      seedingBonus: 2200000,
-      ratio: 4.05,
-      isKept: true,
-      privilege: "得到五个邀请名额。",
-    },
-    {
-      id: 8,
-      name: "Nexus Master",
-      interval: "P100W",
-      downloaded: "16TB",
-      seedingBonus: 3000000,
-      ratio: 4.55,
-      isKept: true,
-      privilege: "得到十个邀请名额。",
-    },
-    {
-      id: 100,
-      groupType: "vip",
-      name: "贵宾(VIP)",
-      privilege: "和Nexus Master拥有相同权限并被认为是精英成员。免除自动降级。",
-    },
-    {
-      id: 200,
-      groupType: "manager",
-      name: "养老族(Retiree)",
-      privilege: "退休后的管理组成员。",
-    },
-    {
-      id: 201,
-      groupType: "manager",
-      name: "发布员(Uploader)",
-      privilege: "专注的发布者。免除自动降级；可以查看匿名用户的真实身份。",
-    },
-    {
-      id: 202,
-      groupType: "manager",
-      name: "总版主(Moderator)",
-      privilege:
-        "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；可以管理论坛帖子、用户评论；可以查看机密日志；可以删除任何字幕；可以管理日志中的代码、史册；可以查看用户的邀请记录；可以管理用户帐号的一般信息。不能管理友情链接、最近消息、论坛版块；不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
-    },
-    {
-      id: 203,
-      groupType: "manager",
-      name: "管理员(Administrator)",
-      privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
-    },
-    {
-      id: 204,
-      groupType: "manager",
-      name: "维护开发员(Sysop)",
-      privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
-    },
-    {
-      id: 205,
-      groupType: "manager",
-      name: "主管(Staff Leader)",
-      privilege: "网站主管，可以做任何事。",
-    },
-  ],
+  // 等级梯度待确认：迁移后站点的用户组名称与门槛以站点配置为准，
+  // 接口返回的 class / class_name 已是权威值，这里不写死一份可能对不上的梯度。
 };
