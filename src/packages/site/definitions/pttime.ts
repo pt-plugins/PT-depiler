@@ -86,6 +86,7 @@ export const siteMetadata: ISiteMetadata = {
       category: { text: "DEFAULT", selector: ["span.category"], attr: "title" },
       id: { selector: [":self"], attr: "data" },
       link: baseLinkQuery,
+      cover: { selector: "td.torrentimg img", data: "src" },
       url: {
         ...baseLinkQuery,
         filters: [

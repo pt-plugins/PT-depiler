@@ -113,14 +113,14 @@ const showCover = computed(() => !!item.cover && configStore.searchEntifyControl
     <!-- 种子自带的封面：缩略图跨标题与副标题两行，悬停显示大图 -->
     <v-menu v-if="showCover" location="end" open-on-hover>
       <template v-slot:activator="{ props }">
-        <v-img v-bind="props" :src="item.cover" class="t_cover rounded mr-2" cover height="43" width="64">
+        <v-img v-bind="props" :src="item.cover" class="t_cover rounded mr-2" height="43" width="64">
           <template #error>
             <v-icon class="t_cover_error" color="grey" icon="mdi-image-off-outline" />
           </template>
         </v-img>
       </template>
       <v-card>
-        <v-img :src="item.cover" width="480" />
+        <img :src="item.cover" alt="" class="t_cover_preview" />
       </v-card>
     </v-menu>
 
@@ -291,6 +291,15 @@ const showCover = computed(() => !!item.cover && configStore.searchEntifyControl
   .t_cover {
     grid-row: span 2;
   }
+}
+
+// Size the preview by viewport height so covers of any source resolution look alike
+.t_cover_preview {
+  display: block;
+  height: clamp(240px, 55vh, 720px);
+  width: auto;
+  max-width: 60vw;
+  object-fit: contain;
 }
 
 .t_cover_error {

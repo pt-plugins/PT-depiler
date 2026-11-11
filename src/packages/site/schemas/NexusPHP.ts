@@ -406,6 +406,8 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
         text: "",
         elementProcess: subTitleRemoveExtraElement(["a, span, img"], true),
       },
+      // Only present when the site enables "display cover on torrent list" for this search box
+      cover: { selector: "table.torrentname img.nexus-lazy-load", data: "src" },
       progress: {
         ...baseTitleQuery,
         elementProcess: (element) => {

@@ -354,6 +354,7 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
       id: { selector: "id" },
       title: { selector: "file_name" },
       subTitle: { text: "" }, // AvzNet不提供subTitle
+      cover: { selector: "images.0" },
       url: { selector: "url" },
       link: { selector: "download" },
       category: {
