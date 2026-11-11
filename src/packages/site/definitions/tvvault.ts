@@ -98,7 +98,7 @@ function getRipSubtitle(torrent: Element): string {
   if (parts.filter(Boolean).length >= 3) return parts.filter(Boolean).join(" ");
 
   // Some XML responses provide only a combined value, e.g. MKV/H.264/AC3/Web.
-  const known = formats.map((key) => new Set(ripFilters.find((item) => item.key === key)!.options.map((option) =>
+  const known = formats.map((key) => new Set<string>(ripFilters.find((item) => item.key === key)!.options.map((option) =>
     typeof option === "string" ? option : option.value,
   )));
   const candidates = [
