@@ -530,6 +530,7 @@
       "selectedTorrents": "Selected {0} torrents",
       "showSiteName": "Show Site Name",
       "showSocialInformation": "Show Media Rating Information",
+      "showTorrentCover": "Show Torrent Cover",
       "showTorrentSubtitle": "Show Torrent Subtitle",
       "showTorrentTag": "Show Torrent Tags",
       "socialInformationSearchOnNewTab": "Open Media Rating Search in a New Tab",

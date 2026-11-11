@@ -22,6 +22,7 @@ export interface ITorrent {
   id: number | string; // 该种子id
   title: string; // 主标题
   subTitle?: string; // 次标题
+  cover?: string; // 封面图片链接（种子页自带的图片，不是豆瓣/IMDb 海报）
 
   /**
    * 特别注意： link 和 url 两个的含义在 ptpp 和 ptd 中是完全相反的
