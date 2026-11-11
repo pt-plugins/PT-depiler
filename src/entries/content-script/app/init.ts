@@ -7,6 +7,7 @@ import appCss from "./app.css?inline";
 import { createApp } from "vue";
 
 import App from "./App.vue";
+import { updatePageType } from "./utils.ts";
 import { piniaInstance as pinia } from "@/options/plugins/pinia.ts";
 import { i18nInstance as i18n } from "@/options/plugins/i18n.ts";
 import { vuetifyInstance as vuetify } from "@/options/plugins/vuetify.ts";
@@ -94,7 +95,18 @@ export function mountApp(document: Document, data: any = {}) {
 
   // 防止某些网站动态修改 body，从而移除我们的 contentRoot，因此使用 MutationObserver 监听 body 的变化
   // 一旦发现 contentRoot 被移除，则重新挂载应用
+  //
+  // 顺带在这里比对地址：SPA 站（Vue / React）在同一份文档里换路由时不会重新注入 content script，
+  // 侧边栏会一直挂着上一个页面的按钮组（例如从列表页进详情页还显示「高级列表」）。content script 与页面
+  // 分属两个 JS 世界，改不了页面的 history.pushState，只能靠 location.href 的变化察觉路由切换，
+  // 这里借已有的 DOM 变动回调顺带比较一次，不额外起定时器。
+  let lastHref = document.location.href;
   const mutationObserver = new MutationObserver(() => {
+    if (document.location.href !== lastHref) {
+      lastHref = document.location.href;
+      updatePageType(data).catch();
+    }
+
     if (!document.body.contains(contentRoot)) {
       console.debug("[PTD] Content root removed from body, remounting app...");
       app.unmount();
