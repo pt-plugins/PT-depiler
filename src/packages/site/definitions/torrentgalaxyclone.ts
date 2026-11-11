@@ -2,6 +2,7 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/torrentgalaxyclone.yml
  */
 import { type ISiteMetadata } from "../types";
+import { parseTimeToLiveToDate } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,
@@ -39,14 +40,33 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       comments: { selector: "div.tgxtablecell:nth-last-child(4) font a", filters: [{ name: "parseNumber" }] },
-      // 直接取最后一格会把内嵌的 bighide 表格文字一并带上，改取该表格里的 "Added <相对时间>"
+      // 时间有两种形态，实测于 /get-posts/ 列表页（2026-11-11）：
+      //   - 新种子：`<small class="added-date">4 Mins ago</small>`（相对时间，单位首字母大写）
+      //   - 旧种子：`<small class="added-date">07/11/26 14:03</small>`（dd/mm/yy，站点本地时间）
+      // 站点既有的 TTL 解析器只认小写单位（`minute|min|m`，正则无 i 标志），`4 Mins ago` 会解析失败、
+      // 时间为空；而 dd/mm/yy 交给原生 Date 会被当成 mm/dd（`new Date("07/11/26")` → 7 月 11 日），
+      // 偏差数月。因此这里统一收口：绝对时间重排成 yyyy-MM-dd HH:mm:ss 字符串（由基类按 timezoneOffset
+      // 换算，避免在解析层丢失站点时区），相对时间转小写后交给 TTL 解析。
+      // 参考 Jackett 2026-11-10 https://github.com/Jackett/Jackett/commit/1383b41378fdb422b56ea1a0d58ddbb23e30cb5a
+      // （同样把 small.added-date 拆成 date_ago / date_year 两种取值）。
       time: {
-        selector: "div.tgxtablecell.bighide td:nth-last-child(1)",
+        selector: "small.added-date",
         filters: [
-          { name: "replace", args: ["Added", ""] },
-          { name: "parseFuzzyTime" },
-          // 站点偶尔会换文案，解析不出来时置空，避免个别行导致整页搜索失败
-          (time: number | string) => (typeof time === "string" ? undefined : time),
+          (raw: string): string | number | undefined => {
+            const text = String(raw ?? "").trim();
+            if (!text) {
+              return undefined;
+            }
+
+            const absolute = /^(\d{2})\/(\d{2})\/(\d{2})(?:\s+(\d{2}):(\d{2}))?$/.exec(text);
+            if (absolute) {
+              const [, dd, mm, yy, hh = "00", mi = "00"] = absolute;
+              return `20${yy}-${mm}-${dd} ${hh}:${mi}:00`;
+            }
+
+            const ttl = parseTimeToLiveToDate(text.toLowerCase());
+            return typeof ttl === "number" ? ttl : undefined;
+          },
         ],
       },
       category: { selector: 'a[href^="/get-posts/category:"]' },
