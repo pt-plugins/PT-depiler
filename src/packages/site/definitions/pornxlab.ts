@@ -51,6 +51,7 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "div.image-container > div.image-wrapper" },
       // 每行只有一张缩略图，编号即种子内部 id（见 parseImageId）
       id: { selector: "img", attr: "src", filters: [parseImageId] },
+      cover: { selector: "img", attr: "src" },
       title: { selector: "a.overlay", filters: [stripLeadingBracket] },
       url: { selector: "a.overlay", attr: "href" },
       size: { selector: "div.catalog span.size", filters: [parseSizeString] },

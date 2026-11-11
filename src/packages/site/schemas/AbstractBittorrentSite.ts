@@ -613,6 +613,7 @@ export default class BittorrentSite {
     torrent.id ??= tryToNumber(torrent.url || torrent.link); // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
     typeof torrent.url != "undefined" && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
     typeof torrent.link != "undefined" && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
+    torrent.cover && (torrent.cover = this.fixLink(torrent.cover, requestConfig!));
     if (typeof (torrent.size as unknown) === "string") {
       torrent.size = parseSizeString(torrent.size as unknown as string);
     }
