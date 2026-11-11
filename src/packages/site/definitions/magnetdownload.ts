@@ -3,6 +3,7 @@
  */
 import BittorrentSite from "../schemas/AbstractBittorrentSite";
 import { type ISiteMetadata, type ITorrent } from "../types";
+import { infoHashToMagnet } from "../utils/filter.ts";
 
 const MONTHS: Record<string, number> = {
   jan: 0,
@@ -130,7 +131,8 @@ export default class MagnetDownload extends BittorrentSite {
     });
     const infoHash = data?.result?.[0]?.info_hash ?? "";
 
-    torrent.link = infoHash ? `magnet:?xt=urn:btih:${infoHash}` : torrent.link;
+    // 拿到合法 infohash 才拼 magnet（infoHashToMagnet 会先校验格式），否则保留原 link
+    torrent.link = infoHashToMagnet(infoHash) ?? torrent.link;
     return torrent.link ?? "";
   }
 }

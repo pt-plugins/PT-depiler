@@ -221,6 +221,8 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "rss > channel > item" },
       // Jackett: infohash / imdbid / tmdbid 都取自 <torznab:attr name="...">
       id: { selector: "[name=infohash]", attr: "value" },
+      // id 即 infohash，同步显式落到 torrent.infoHash
+      infoHash: { selector: "[name=infohash]", attr: "value" },
       title: { selector: "title" },
       // Jackett 的 details = <link>（详情页），download = <enclosure url>
       url: { selector: "link" },

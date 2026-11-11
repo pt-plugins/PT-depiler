@@ -25,6 +25,8 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "rss > channel > item" },
       // tv:info_hash 才是真正的种子 hash；guid 是 showRSS 自己的 episode hash，两者在同一 item 里并不相同
       id: { selector: "tv\\:info_hash" },
+      // id 即 info_hash，同步显式落到 torrent.infoHash
+      infoHash: { selector: "tv\\:info_hash" },
       // Jackett 的 title 取 raw_title（完整发布名），而 <title> 是站点简写（如 "The Voice (UK) 14x07 1080p"）
       title: { selector: "tv\\:raw_title" },
       // 站点没有单种子详情页（Jackett 的 details 用 "/" 占位），故不定义 url

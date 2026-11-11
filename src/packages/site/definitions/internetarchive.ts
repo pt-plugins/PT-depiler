@@ -2,6 +2,7 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/internetarchive.yml
  */
 import { type ISiteMetadata } from "../types";
+import { infoHashToMagnet } from "../utils/filter.ts";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,
@@ -75,13 +76,12 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "title", filters: [(q: any) => (Array.isArray(q) ? q[0] : q)] }, // IA 的 title 可能是数组
       url: { selector: "identifier", filters: [(q: string) => `https://archive.org/details/${q}`] },
       link: {
-        // btih 存在时用 magnet，缺失时回落到 .torrent（对应 Jackett 的 infohash + download 两个字段）
+        // btih 存在时用 magnet，缺失/非法时回落到 .torrent（对应 Jackett 的 infohash + download 两个字段）
         selector: ":self",
         filters: [
           (doc: any) =>
-            doc?.btih
-              ? `magnet:?xt=urn:btih:${doc.btih}`
-              : `https://archive.org/download/${doc?.identifier}/${doc?.identifier}_archive.torrent`,
+            infoHashToMagnet(doc?.btih) ??
+            `https://archive.org/download/${doc?.identifier}/${doc?.identifier}_archive.torrent`,
         ],
       },
       time: { selector: "publicdate", filters: [{ name: "parseTime" }] },

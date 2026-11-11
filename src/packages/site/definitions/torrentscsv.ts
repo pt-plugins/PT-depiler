@@ -30,8 +30,9 @@ export const siteMetadata: ISiteMetadata = {
       url: { text: "https://torrents-csv.com/" }, // 该站种子不存在独立介绍页
       link: {
         selector: "infohash",
-        filters: [(q: string) => `magnet:?xt=urn:btih:${q}`],
+        filters: [{ name: "infoHashToMagnet" }],
       },
+      infoHash: { selector: "infohash" },
       time: { selector: "created_unix" },
       size: { selector: "size_bytes" },
       seeders: { selector: "seeders" },
@@ -47,6 +48,8 @@ export const siteMetadata: ISiteMetadata = {
       selectors: {
         rows: { selector: "main.container div.card" },
         id: { selector: "a[href^='magnet']", attr: "href" },
+        // 列表页 id 即整条 magnet，把其中的 infohash 显式落到 torrent.infoHash
+        infoHash: { selector: "a[href^='magnet']", attr: "href", filters: [{ name: "magnetToInfoHash" }] },
         title: { selector: "a[href^='magnet']" },
         url: { text: "https://torrents-csv.com/" }, // 该站种子不存在独立介绍页
         link: { selector: "a[href^='magnet']", attr: "href" },

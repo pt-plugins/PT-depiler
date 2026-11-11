@@ -33,6 +33,20 @@ export interface ITorrent {
   url?: string;
   link?: string;
 
+  /**
+   * 种子的 infohash（BEP 3，BitTorrent v1）：
+   *  - 通常为 40 位 hex，旧的 32 位 base32 形态也允许；
+   *  - 只是种子内容的唯一标识，不承载 passkey 等站点私有信息，可放心用于拼公开 magnet
+   *    （见 utils/filter.ts 的 infoHashToMagnet）。
+   */
+  infoHash?: string;
+
+  /**
+   * 种子的 infohash（BEP 52，BitTorrent v2，SHA-256，64 位 hex）。
+   * 混合种子（hybrid）与上面的 infoHash 同时存在，magnet 中对应 `urn:btmh:1220<hash>` 形态。
+   */
+  infoHashV2?: string;
+
   time?: number; // 发布时间戳（毫秒级）
   size?: number; // 大小
   author?: number | string; // 发布人

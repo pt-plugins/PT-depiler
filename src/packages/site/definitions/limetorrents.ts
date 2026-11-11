@@ -76,10 +76,9 @@ export const siteMetadata: ISiteMetadata = {
         selector: "a.csprite_dl14",
         attr: "href",
         filters: [
-          (href: string) => {
-            const hash = href.match(/torrent\/([0-9A-Fa-f]{40})\.torrent/)?.[1];
-            return hash ? `magnet:?xt=urn:btih:${hash}` : href;
-          },
+          // 从 itorrents 生成站链接里剥出 40 位 infohash（剥不出来时原样交由具名过滤器兜底回落）
+          (href: string) => href.match(/torrent\/([0-9A-Fa-f]{40})\.torrent/)?.[1] ?? href,
+          { name: "infoHashToMagnet" },
         ],
       },
       time: {
@@ -142,10 +141,9 @@ export const siteMetadata: ISiteMetadata = {
         selector: 'a.csprite_dltorrent[href*=".torrent"]',
         attr: "href",
         filters: [
-          (href: string) => {
-            const hash = href.match(/torrent\/([0-9A-Fa-f]{40})\.torrent/)?.[1];
-            return hash ? `magnet:?xt=urn:btih:${hash}` : href;
-          },
+          // 从 itorrents 生成站链接里剥出 40 位 infohash（剥不出来时原样交由具名过滤器兜底回落）
+          (href: string) => href.match(/torrent\/([0-9A-Fa-f]{40})\.torrent/)?.[1] ?? href,
+          { name: "infoHashToMagnet" },
         ],
       },
       time: {
