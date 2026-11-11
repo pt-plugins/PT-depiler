@@ -33,16 +33,20 @@
  * 站点「我的时魔」页展示的是含官种 / 勋章 / 后宫 / 捐赠加成的合计值（旧 /v1/web 的
  * `hour_table.total`），实验室接口没有这个口径，因此两者可能相差一个加成系数。
  *
- * 不声明 `list` / `detail`（这两个是给 content script 用的页面适配）：前台是纯 SPA，DOM 里没有
- * 可解析的种子信息；详情数据在实验室接口上，而 content script 跑在站点前台的页面里，跨域请求
- * 那个接口域名会被 CORS 挡住（它不对浏览器放开 CORS）。所以只做扩展侧能做的部分
- * —— 搜索、用户信息、下载链接 —— 不去写注定失败的页面选择器。
+ * 页面适配（content script）：`list`（`/torrents`、`/torrents/{分区}`）与 `detail`（`/detail/{id}`）都按前台
+ * DOM 声明，让注入的脚本在这两类页面提供批量下载 / 复制链接 / 远程推送；字段只从 URL / DOM 取。
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { NoUserInputError, type ISearchInput, type ISiteMetadata, type ITorrent } from "../types";
-import { buildCategoryOptionsFromDict, parseTimeToLiveToSeconds, parseTimeWithZone, restoreSecureLink } from "../utils";
+import {
+  buildCategoryOptionsFromDict,
+  parseTimeToLiveToDate,
+  parseTimeToLiveToSeconds,
+  parseTimeWithZone,
+  restoreSecureLink,
+} from "../utils";
 
 /** 实验室接口根地址：独立域名按仓库惯例 rot13 存放，运行时还原（不出现明文网址） */
 const API_BASE = `${restoreSecureLink("uggcf://ncv.cvttb.zr/")}v1/api`;
@@ -170,6 +174,29 @@ const parseSiteDuration = (value: unknown): number => {
 };
 
 /**
+ * 从 `/detail/{id}` 形式的地址里取种子 id：列表页取标题链接的 href，详情页取当前页地址，两处共用。
+ *
+ * 不写成 `parseNumber`（取字符串里第一个数字）：站点要是把 href 换成绝对地址、域名里又带数字（镜像站），
+ * 就会取到域名里的数字；也不值得为它串 replace + parseNumber 两个 filter。
+ */
+const detailIdFromUrl = (value: unknown): string => String(value ?? "").match(/\/detail\/(\d+)/)?.[1] ?? "";
+
+/**
+ * 列表页 / 详情页给的是相对时间（`1天2小时前`、`2月12天前`），用仓库的 `parseTimeToLiveToDate` 折算成时间戳。
+ *
+ * 不能把它直接交给基类的 `parseTimeWithZone`：那个函数对解析不出的字符串会走 `format(new Date(值), ...)`，
+ * 抛 `RangeError: Invalid time value` 带崩整页解析（基类只挡了空串）。所以这里解析不出来就返回空串，
+ * 让基类按「时间未知」丢掉这个字段。详情页不跑时区换算，返回值即最终值。
+ */
+const parseListedTime = (value: unknown): number | string => {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+
+  const timestamp = parseTimeToLiveToDate(text);
+  return typeof timestamp === "number" && Number.isFinite(timestamp) ? timestamp : "";
+};
+
+/**
  * 高级搜索词改写：`douban|1291546` / `imdb|tt0111161` 要放进接口对应的 id 字段。
  * 接口的 `q` 是标题 / 副标题模糊搜，拿 id 去搜什么也搜不到，所以要把它删掉。
  */
@@ -254,6 +281,92 @@ export const siteMetadata: ISiteMetadata = {
       // 下载链接要按种子现签，见 getTorrentDownloadLink
       ext_douban: { selector: "media.douban", filters: [{ name: "extDoubanId" }] },
       ext_imdb: { selector: "media.imdb", filters: [{ name: "extImdbId" }] },
+    },
+  },
+
+  /**
+   * 前台种子列表页：`/torrents`、`/torrents/{分区}`（movie / tv / children …）以及带筛选参数的 `/torrents?xxx`。
+   *
+   * 只服务于 content script 的 DOM 解析 —— 搜索本身走实验室接口，所以 `mergeSearchSelectors: false`，
+   * 免得把接口的 JSON 选择器（`data.items` 之类）混进来。
+   *
+   * 统计列（评论 / 时间 / 大小 / 做种 / 下载 / 完成）里做种、下载、完成共用 `torrent-col-n` 这一个 class，
+   * 只有 `data-label` 能区分，所以统一按 `data-label` 取。按 `tag=` 之类的筛选页也走这套选择器。
+   */
+  list: [
+    {
+      urlPattern: ["/torrents(?:[/?#]|$)"],
+      mergeSearchSelectors: false,
+      selectors: {
+        // 列表页顶部的搜索框，点「在插件中搜索」时带上当前关键词（该 input 没有 name，只能按 id 取）
+        keywords: { selector: "input#torrent-q", elementProcess: (el: HTMLInputElement) => el.value },
+        rows: { selector: "table.torrent-list > tbody > tr" },
+        // 种子名那格里有两条链接：分区 chip 与标题，只有标题链到 /detail/{id}
+        id: { selector: "td.torrent-name a[href*='/detail/']", attr: "href", filters: [detailIdFromUrl] },
+        title: { selector: "td.torrent-name a[href*='/detail/']" },
+        subTitle: { selector: "td.torrent-name span.muted" },
+        // 站内是根相对地址（`/detail/57233`），由 transformListPage 按当前页地址补全
+        url: { selector: "td.torrent-name a[href*='/detail/']", attr: "href" },
+        // 分区：与接口 section_id 的展示口径一致（标题右侧的分类 chip「动画 / 冒险」不取）
+        category: { selector: "td.torrent-name a.torrent-sec-chip" },
+        comments: { selector: 'td[data-label="评论"]' },
+        time: { selector: 'td[data-label="时间"]', filters: [parseListedTime] },
+        size: { selector: 'td[data-label="大小"]', filters: [{ name: "parseSize" }] },
+        seeders: { selector: 'td[data-label="做种"]' },
+        leechers: { selector: 'td[data-label="下载"]' },
+        completed: { selector: 'td[data-label="完成"]' },
+        author: { selector: 'td[data-label="发布人"]' },
+      },
+    },
+  ],
+
+  /**
+   * 详情页：`/detail/{id}`（接口条目里的 `page_url` 就是这个形状）。
+   *
+   * 字段全部用通用选择器取：
+   * - 标题在 `h1` 里，混着「收费」标记和右侧的分类 / 促销 chip，用 `elementProcess` 摘掉再取文本；
+   * - 分区 / 大小等来自 `dl.meta-grid`，按 `dt` 文案取相邻的 `dd`；
+   * - 下载地址页面里没有（见下面 `link` 的说明），复制 / 推送时才由 `getTorrentDownloadLink` 现签。
+   */
+  detail: {
+    urlPattern: ["/detail/\\d+"],
+    selectors: {
+      // 路由里的数字就是种子 id；transformDetailPage 会 clone 文档，优先用当前页地址，别赌 clone 保留了 URL
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => (typeof location !== "undefined" ? location.href : element?.URL) ?? "",
+        filters: [detailIdFromUrl],
+      },
+      title: {
+        selector: "header.torrent-head h1",
+        elementProcess: (el: HTMLElement) => {
+          const clone = el.cloneNode(true) as HTMLElement;
+          clone.querySelectorAll(".torrent-paid-icon, .torrent-type-chip").forEach((node) => node.remove());
+          return clone.textContent ?? "";
+        },
+      },
+      subTitle: { selector: "header.torrent-head p.torrent-sub span.muted" },
+      // `dl.meta-grid` 是「标签 → 值」的单元格列表（分区 / 来源 / 编码 / 分辨率 / 制作组 / 大小 …），缺项时会
+      // 少一个单元格，所以按 `dt` 文案取相邻的 `dd`（`:contains` 是仓库里既有的写法，见 0dayfiles / 0magnet）
+      category: { selector: "dl.meta-grid dt:contains('分区') + dd" },
+      size: { selector: "dl.meta-grid dt:contains('大小') + dd", filters: [{ name: "parseSize" }] },
+      // 「由 匿名 发布于 1天2小时前」：作者与时间在同一行，按这两个固定字样切开
+      author: {
+        selector: "header.torrent-head p.torrent-by",
+        elementProcess: (el: HTMLElement) => el.textContent?.match(/由\s*([^\s]+)\s*发布于/)?.[1] ?? "",
+      },
+      time: {
+        selector: "header.torrent-head p.torrent-by",
+        elementProcess: (el: HTMLElement) => el.textContent?.split("发布于").pop() ?? "",
+        filters: [parseListedTime],
+      },
+      seeders: { selector: 'button.head-stat[data-tip="做种"]' },
+      leechers: { selector: 'button.head-stat[data-tip="下载"]' },
+      completed: { selector: 'button.head-stat[data-tip="完成"]' },
+      // 前台没有能直接解析出来的下载地址（下载按钮是 <button>，没有 href，地址是站点现调接口签的），
+      // 所以这里只能给空串占位：content script 用 `typeof link !== "undefined"` 判断「这页解析成功」，
+      // 真正的地址在复制 / 推送时由 getTorrentDownloadLink 调实验室接口现签。
+      link: { text: "" },
     },
   },
 
@@ -464,7 +577,7 @@ export default class Piggo extends PrivateSite {
   }
 
   /**
-   * 下载链接：搜索结果里没有，按种子调 `/torrents/{id}/download-link` 现签一个。
+   * 下载链接：搜索结果与详情页 DOM 都没有现成地址，按种子调 `/torrents/{id}/download-link` 现签一个。
    * 签出来的是普通 GET 地址（约 24 小时有效，成功 announce 后作废），**不能带令牌**，
    * 所以这里只把 URL 交回去，由下载器自己 GET。
    */
