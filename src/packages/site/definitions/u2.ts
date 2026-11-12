@@ -23,6 +23,7 @@ export const siteMetadata: ISiteMetadata = {
 
   trackerUrls: ["https://daydream.dmhy.best/"],
 
+  // U2 与 dmhy 共用同一套站点图标，直接引用 dmhy 的本地资产，不再重复放一份 u2.*
   favicon: "./dmhy.ico",
 
   category: [
