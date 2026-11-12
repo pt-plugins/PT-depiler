@@ -366,7 +366,8 @@ export const siteMetadata: ISiteMetadata = {
           },
           invites: {
             text: 0,
-            selector: "a.tTipWrap[href='/invite.php'] > b",
+            // Account 区 Invites："4 sent · 5 left to send"，取剩余可邀请数（left to send）
+            selector: "dl.ipx-kv > dt:contains('Invites') + dd > span.ipx-muted",
             filters: [{ name: "parseNumber" }],
           },
           isDonor: {
