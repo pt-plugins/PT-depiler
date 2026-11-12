@@ -12,15 +12,6 @@ import {
 import { parseTimeToLiveToDate } from "../utils";
 import { set } from "es-toolkit/compat";
 
-const IPT_SELECTORS = {
-  ROWS: ["table#torrents > tbody > tr:has(td.al)"],
-  SIZE: ["> td:nth-child(6)", "td:contains('MB')", "td:contains('GB')", "td:contains('TB')"],
-  SEEDERS: ["td:nth-last-child(2)", "td:contains('seeders')", "td.seeders"],
-  LEECHERS: ["td:nth-last-child(1)", "td:contains('leechers')", "td.leechers"],
-  COMPLETED: ["td:nth-last-child(3)", "td:contains('snatched')", "td.completed"],
-  CATEGORY: ["td:eq(0) img", "td:first-child img"],
-};
-
 const categoryPart: Pick<ISearchCategories, "cross" | "generateRequestConfig"> = {
   cross: { mode: "custom" },
   generateRequestConfig: (value: TSelectSearchCategoryValue): IAdvancedSearchRequestConfig => {
@@ -184,7 +175,7 @@ export const siteMetadata: ISiteMetadata = {
     requestDelay: 1000,
     selectors: {
       rows: {
-        selector: IPT_SELECTORS.ROWS,
+        selector: ["table#torrents > tbody > tr:has(td.al)"],
       },
       id: {
         selector: " > td.al > a",
@@ -220,7 +211,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       size: {
-        selector: IPT_SELECTORS.SIZE,
+        selector: ["> td:nth-child(6)", "td:contains('MB')", "td:contains('GB')", "td:contains('TB')"],
         filters: [{ name: "parseSize" }],
       },
       author: {
@@ -235,17 +226,17 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      category: { selector: IPT_SELECTORS.CATEGORY, attr: "alt" },
+      category: { selector: ["td:eq(0) img", "td:first-child img"], attr: "alt" },
       seeders: {
-        selector: IPT_SELECTORS.SEEDERS,
+        selector: ["td:nth-last-child(2)", "td:contains('seeders')", "td.seeders"],
         filters: [{ name: "parseNumber" }],
       },
       leechers: {
-        selector: IPT_SELECTORS.LEECHERS,
+        selector: ["td:nth-last-child(1)", "td:contains('leechers')", "td.leechers"],
         filters: [{ name: "parseNumber" }],
       },
       completed: {
-        selector: IPT_SELECTORS.COMPLETED,
+        selector: ["td:nth-last-child(3)", "td:contains('snatched')", "td.completed"],
         filters: [{ name: "parseNumber" }],
       },
       comments: {
@@ -323,55 +314,84 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/user.php" },
         assertion: { id: "params.u" },
+        // 2026-11 站点资料页改版（upf-* 布局，ipt-profile.css?v=6），旧 up-* 选择器全部失效
         selectors: {
           messageCount: {
             text: 0,
-            selector: ["td[style*='background: red'] a[href*='messages.php']"],
+            // 站内信入口由 /messages.php 迁移到 /inbox，未读提示在悬浮 tip 文案里
+            selector: "a[href='/inbox'] .tTip",
+            filters: [
+              (query: string) => {
+                if (/no new/i.test(query)) return 0;
+                const queryMatch = query.match(/(\d+)/);
+                return queryMatch ? parseInt(queryMatch[1]) : 1; // 有新消息但无计数时按 1 处理（站点未给出 >0 时的确切文案）
+              },
+            ],
+          },
+          name: { selector: "h1.upf-name" },
+          uploaded: {
+            selector: "div.upf-stat--up span.ipx-stat__sub",
             filters: [{ name: "parseNumber" }],
           },
-          name: { selector: "h1.up-username" },
-          uploaded: {
-            selector: "div[style*='up-stat-up'] ~ div.up-stat-sub",
-            filters: [{ name: "parseNumber" }], // 1234567890 B
-          },
           downloaded: {
-            selector: "div[style*='up-stat-down'] ~ div.up-stat-sub",
+            selector: "div.upf-stat--down span.ipx-stat__sub",
             filters: [{ name: "parseNumber" }],
           },
           ratio: {
-            selector: "div.up-stat-value:has(svg.up-ratio-icon) > span",
+            selector: "div.upf-stat--ratio span.ipx-stat__value",
             filters: [{ name: "parseNumber" }],
           },
-          levelName: { selector: "span.up-class-badge" },
+          levelName: { selector: "span.ipx-pill.upf-class" },
           bonus: {
             selector: "a[href='/mybonus.php']",
             filters: [{ name: "parseNumber" }],
           },
           joinTime: {
-            selector: "span.up-field-label:contains('Join Date') + span span.elapsedDate",
-            attr: "title",
-            filters: [{ name: "parseTime", args: ["EEEE, MMMM d, yyyy 'at' h:mmaa"] }],
+            selector: "p.upf-meta > span:first time",
+            attr: "datetime", // ISO 8601（站点时区 +0000），parseTime 默认格式可直接解析
+            filters: [{ name: "parseTime" }],
           },
           lastAccessAt: {
-            selector: "span.up-field-label:contains('Last Seen') + span span.elapsedDate",
-            attr: "title",
-            filters: [{ name: "parseTime", args: ["EEEE, MMMM d, yyyy 'at' h:mmaa"] }],
+            selector: "p.upf-meta > span:eq(1) time",
+            attr: "datetime",
+            filters: [{ name: "parseTime" }],
           },
           seeding: {
-            selector: "span.up-field-label:contains('Seeding') + span a[href^='/peers']",
+            selector: "dd.upf-peers a[href^='/peers']:first b",
             filters: [{ name: "parseNumber" }],
           },
-          uploads: { selector: "span a[href^='/t?u=']" },
-          seedingSize: { text: "N/A" },
+          uploads: {
+            selector: "a[href^='/t?u='] b",
+            filters: [{ name: "parseNumber" }],
+          },
           invites: {
             text: 0,
-            selector: ["a.tTipWrap[href='/invite.php'] > b"],
+            // Account 区 Invites："4 sent · 5 left to send"，取剩余可邀请数（left to send）
+            selector: "dl.ipx-kv > dt:contains('Invites') + dd > span.ipx-muted",
             filters: [{ name: "parseNumber" }],
           },
           isDonor: {
             text: false,
-            selector: "h1.up-username > img[alt='Donor']",
+            // 站点样式注释：VIP status pill (replaces the donor heart when VIP is active)
+            selector: "a.hdr-vip",
             elementProcess: () => true,
+          },
+        },
+      },
+      {
+        requestConfig: { url: "/peers" },
+        assertion: { id: "params.u" },
+        // /peers?u=<id> 顶部统计区：Seeding 数量与做种体积；"To seed"（未满足 1:1 或 14 天）记为未完成 H&R
+        selectors: {
+          seedingSize: {
+            text: "N/A",
+            selector: "dl.pr-stats > div:first-child dd.pr-stats__sub", // 0 B
+            filters: [{ name: "parseSize" }],
+          },
+          hnrUnsatisfied: {
+            text: 0,
+            selector: "dl.pr-stats > div:has(dt:contains('To seed')) > dd:first-of-type",
+            filters: [{ name: "parseNumber" }],
           },
         },
       },
