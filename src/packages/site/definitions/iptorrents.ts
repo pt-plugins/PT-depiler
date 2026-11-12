@@ -380,12 +380,17 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/peers" },
         assertion: { id: "params.u" },
-        // /peers?u=<id> 顶部统计区：Seeding 数量与做种体积
+        // /peers?u=<id> 顶部统计区：Seeding 数量与做种体积；"To seed"（未满足 1:1 或 14 天）记为未完成 H&R
         selectors: {
           seedingSize: {
             text: "N/A",
             selector: "dl.pr-stats > div:first-child dd.pr-stats__sub", // 0 B
             filters: [{ name: "parseSize" }],
+          },
+          hnrUnsatisfied: {
+            text: 0,
+            selector: "dl.pr-stats > div:has(dt:contains('To seed')) > dd:first-of-type",
+            filters: [{ name: "parseNumber" }],
           },
         },
       },
