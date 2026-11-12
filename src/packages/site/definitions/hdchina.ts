@@ -132,6 +132,9 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["影视", "音乐", "纪录片", "综合"],
   timezoneOffset: "+0800",
   collaborator: ["IITII"],
+  // 本地图标沿用既有的 public/icons/site/hdchina.jpg（32×32）。
+  // 注意：该文件的实际内容是 ICO（魔数 00 00 01 00）而非 JPEG，只是沿用了 .jpg 扩展名；
+  // 因为自动解析只查 `<id>.png / .ico / .svg`，.jpg 必须靠这里显式声明才能命中，勿删。
   favicon: "./hdchina.jpg",
 
   type: "private",
