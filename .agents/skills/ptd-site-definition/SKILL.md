@@ -101,6 +101,6 @@ pnpm check:site-definition src/packages/site/definitions/<id>.ts   # 只校验�
 - [ ] 所有选择器/接口路径都有真实依据，没有猜测值
 - [ ] Unit3D JSON API 站：分类用 `categories`、`author` 取字符串 `uploader`、`freeleech` 按 `1 − free/100` 计费、`featured` 只做徽章；`/api/user` 只用于 9.0.0+ 站点
 - [ ] Unit3D 列表行选择器与站点版本匹配（6.x 的 `div.data-table-wrapper > table.data-table` 需要 `table.data-table > tbody > tr` 候选）
-- [ ] Torznab 站：`schema: "Torznab"` 由 definition 显式声明（`schemas/Torznab.ts` 的 `SchemaMetadata` 不含 `schema`——Torznab 是通用 API 协议而非站点架构，缺省会按 `type` 回落基类）；主架构为其它引擎的站只复用 helper 不换继承；`size` 口径（带单位 attr vs 纯字节）与 category 取第一个/最后一个已核对
+- [ ] Torznab 站：`schema: "Torznab"` 由 definition 显式声明（`schemas/Torznab.ts` 的 `SchemaMetadata` 不含 `schema`——Torznab 是通用 API 协议而非站点架构，缺省会按 `type` 回落基类）；主架构为其它引擎的站只复用 helper 不换继承；`size` 已由 `parseTorznabSize` 兼容纯字节/带单位两种口径（只有 `<size>` 元素型 feed 才需覆写）；category 的数字→名称映射必须用 `torznabCategoryName` 覆写（默认只给数字 id），取第一个/最后一个已核对；错误响应是 HTTP 200 + 根级 `<error>`（引擎已翻译，勿只看状态码）
 - [ ] `pnpm check` 通过（含站点定义的结构与 pattern 编译校验）
 - [ ] 若覆写了类方法，确认签名与基类一致（`override` 关键字、参数个数与类型）

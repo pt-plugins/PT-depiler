@@ -47,9 +47,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [(query: string) => query.match(/#t(\d+)$/)?.[1] ?? query],
       },
       url: { selector: "guid" },
-      // ⚠️ 站点给的是纯字节数（torznab 惯例外）：引擎默认的 size 选择器会交给基类对 string 型
-      // 自动 parseSizeString，而 sizePattern 要求单位、纯数字会得 0，这里显式 parseNumber。
-      size: { selector: "[name=size]", attr: "value", filters: [{ name: "parseNumber" }] },
+      // size 不再覆写：站点给的是纯字节数，引擎默认的 parseTorznabSize 已同时兼容纯字节与带单位字符串。
       category: {
         // 同一 item 里有多个 <torznab:attr name="category">（先具体子类、后父类），取第一个
         selector: "[name=category]",
