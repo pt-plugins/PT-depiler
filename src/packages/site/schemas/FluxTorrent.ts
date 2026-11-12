@@ -92,6 +92,10 @@ export interface IFluxTorrentUser {
   /** 只上传未下载时分享率为无穷大 */
   ratio_infinite?: boolean;
   ratio_display?: string;
+  /** 做种体积（字节）；老版本兼容层没有该字段 */
+  seeding_size?: number;
+  /** 注册时间（RFC3339）；老版本兼容层没有该字段 */
+  join_at?: string;
 }
 
 /** 业务错误码：与站点开放 API 的错误码表一致 */
@@ -138,7 +142,18 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
           url: "/api/v1/compat/nexusphp/user.json",
           responseType: "json",
         },
-        fields: ["id", "name", "levelId", "levelName", "uploaded", "downloaded", "ratio", "bonus"],
+        fields: [
+          "id",
+          "name",
+          "levelId",
+          "levelName",
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "bonus",
+          "seedingSize",
+          "joinTime",
+        ],
       },
     ],
     selectors: {
@@ -149,6 +164,11 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
       uploaded: { selector: "uploaded" },
       downloaded: { selector: "downloaded" },
       bonus: { selector: "seedbonus" },
+      // 做种体积站点直接给字节数，不用再换算；老版本兼容层的 user.json
+      // 没有这两个字段，取不到时留空，不能让整条资料判成解析失败。
+      seedingSize: { selector: "seeding_size" },
+      // 注册时间是 RFC3339（如 2025-07-15T20:45:13+00:00），换成毫秒时间戳
+      joinTime: { selector: "join_at", filters: [{ name: "parseTime" }] },
     },
   },
   userInputSettingMeta: [
