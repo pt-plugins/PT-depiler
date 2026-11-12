@@ -364,7 +364,6 @@ export const siteMetadata: ISiteMetadata = {
             selector: "a[href^='/t?u='] b",
             filters: [{ name: "parseNumber" }],
           },
-          seedingSize: { text: "N/A" },
           invites: {
             text: 0,
             selector: "a.tTipWrap[href='/invite.php'] > b",
@@ -375,6 +374,18 @@ export const siteMetadata: ISiteMetadata = {
             // 站点样式注释：VIP status pill (replaces the donor heart when VIP is active)
             selector: "a.hdr-vip",
             elementProcess: () => true,
+          },
+        },
+      },
+      {
+        requestConfig: { url: "/peers" },
+        assertion: { id: "params.u" },
+        // /peers?u=<id> 顶部统计区：Seeding 数量与做种体积
+        selectors: {
+          seedingSize: {
+            text: "N/A",
+            selector: "dl.pr-stats > div:first-child dd.pr-stats__sub", // 0 B
+            filters: [{ name: "parseSize" }],
           },
         },
       },
