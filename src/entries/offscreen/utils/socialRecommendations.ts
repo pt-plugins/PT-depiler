@@ -1,6 +1,6 @@
 import axios from "axios";
 import PQueue from "p-queue";
-import { getSocialRecommendations } from "@ptd/social";
+import { getSocialRecommendations, selectRecommendationRating } from "@ptd/social";
 import type { ISocialRecommendationItem } from "@ptd/social";
 
 import { onMessage } from "@/messages.ts";
@@ -77,6 +77,9 @@ function isDoubanPosterUrl(poster?: string) {
 }
 
 async function getSocialInformationSafely(item: ISocialRecommendationItem) {
+  if (item.site === "anilist") {
+    return undefined;
+  }
   try {
     return await getSocialInformation(item.site, item.id, {
       requireMetadata: !item.releaseYear || !item.region || !item.genres?.length,
@@ -146,24 +149,169 @@ async function fetchPosterDataUrl(
   return undefined;
 }
 
+interface ILocalizedAnime {
+  title?: string;
+  summary?: string;
+  genres?: string[];
+}
+
+const localizedAnimeCache = new Map<string, { expiresAt: number; match: Promise<ILocalizedAnime | undefined> }>();
+
+function normalizeAnimeTitle(title: string) {
+  return title
+    .normalize("NFKC")
+    .toLowerCase()
+    .split(/[~～]/, 1)[0]
+    .replace(/(?:season\s*(\d+)|(\d+)(?:nd|rd|th)\s*season|第\s*(\d+)\s*期)\s*[。.!！]?$/, "$1$2$3")
+    .replace(/\b(ii|iii|iv)\s*$/, (part) => ({ ii: "2", iii: "3", iv: "4" })[part.trim()] ?? part)
+    .replace(/[^\p{L}\p{N}]/gu, "");
+}
+
+function chineseText(value?: string) {
+  const text = value?.trim();
+  return text &&
+    /\p{Script=Han}/u.test(text) &&
+    !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(text)
+    ? text
+    : undefined;
+}
+
+async function findDoubanAnime(
+  item: ISocialRecommendationItem,
+  releaseDate: string,
+): Promise<ILocalizedAnime | undefined> {
+  const base = "https://m.douban.com/rexxar/api/v2";
+  const options = { headers: { Referer: "https://m.douban.com/" }, timeout: 2e3 };
+  const titles = new Set(item.titles.map(normalizeAnimeTitle));
+  const seen = new Set<string>();
+
+  for (const query of item.titles.slice(0, 2)) {
+    const result = await axios
+      .get<{ items?: Array<{ target_type?: string; target?: { id?: string } }> }>(`${base}/search/weixin`, {
+        ...options,
+        params: { q: (query.length > 70 ? query.split(/[~～]/, 1)[0] : query).trim() },
+      })
+      .catch(() => undefined);
+    const ids = (result?.data.items ?? [])
+      .flatMap(({ target_type, target }) => (target_type === "tv" && target?.id ? [String(target.id)] : []))
+      .filter((id) => !seen.has(id))
+      .slice(0, 2);
+    ids.forEach((id) => seen.add(id));
+    const details = await Promise.allSettled(
+      ids.map((id) =>
+        axios.get<{
+          title?: string;
+          original_title?: string;
+          aka?: string[];
+          genres?: string[];
+          pubdate?: string[];
+          intro?: string;
+        }>(`${base}/tv/${id}`, options),
+      ),
+    );
+
+    for (const detail of details) {
+      if (detail.status !== "fulfilled") {
+        continue;
+      }
+      const { title, original_title, aka, pubdate, genres, intro } = detail.value.data;
+      const names = [original_title ?? "", ...(aka ?? [])];
+      const dateMatches = pubdate?.some(
+        (date) => Math.abs(Date.parse(date.slice(0, 10)) - Date.parse(releaseDate)) <= 86_400_000,
+      );
+      if (
+        title &&
+        genres?.includes("动画") &&
+        dateMatches &&
+        names.some((name) => titles.has(normalizeAnimeTitle(name)))
+      ) {
+        return {
+          title: chineseText(title),
+          summary: chineseText(intro),
+          genres: genres.filter((genre) => genre !== "动画" && chineseText(genre)),
+        };
+      }
+    }
+  }
+  return undefined;
+}
+
+async function findBangumiAnime(originalTitle: string, releaseDate: string): Promise<ILocalizedAnime | undefined> {
+  const { data } = await axios.post<{
+    data?: Array<{ name: string; name_cn?: string; date?: string; summary?: string }>;
+  }>(
+    "https://api.bgm.tv/v0/search/subjects?limit=5",
+    { keyword: originalTitle, filter: { type: [2] } },
+    { timeout: 1800 },
+  );
+  const match = data.data?.find(
+    (entry) => entry.date === releaseDate && normalizeAnimeTitle(entry.name) === normalizeAnimeTitle(originalTitle),
+  );
+  return match ? { title: chineseText(match.name_cn), summary: chineseText(match.summary) } : undefined;
+}
+
+function getLocalizedAnime(item: ISocialRecommendationItem) {
+  const { id, originalTitle, releaseDate } = item;
+  if (item.site !== "anilist" || item.hasChineseAnimeDetails || !originalTitle || !releaseDate) {
+    return undefined;
+  }
+  const cached = localizedAnimeCache.get(id);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.match;
+  }
+  if (localizedAnimeCache.size >= 50) {
+    localizedAnimeCache.delete(localizedAnimeCache.keys().next().value!);
+  }
+
+  const match = findDoubanAnime(item, releaseDate)
+    .catch(() => undefined)
+    .then(async (douban) => {
+      if (douban?.title && douban.summary) {
+        return douban;
+      }
+      const bangumi = await findBangumiAnime(originalTitle, releaseDate).catch(() => undefined);
+      return {
+        title: douban?.title ?? bangumi?.title,
+        summary: douban?.summary ?? bangumi?.summary,
+        genres: douban?.genres,
+      };
+    });
+  localizedAnimeCache.set(id, { expiresAt: Date.now() + 60 * 60 * 1000, match });
+  return match;
+}
+
 async function enrichRecommendation(
   item: ISocialRecommendationItem,
   enrichment: TRecommendationEnrichmentMode,
 ): Promise<ISocialRecommendationItem> {
   const needsSocialInformation =
-    !item.poster || !item.summary || !item.releaseYear || !item.region || !item.genres?.length || !item.ratingScore;
-  const socialInformation = needsSocialInformation ? await getSocialInformationSafely(item) : undefined;
+    !item.poster ||
+    !item.summary ||
+    !item.releaseYear ||
+    !item.region ||
+    !item.genres?.length ||
+    item.ratingCount == null;
+  const [socialInformation, localizedAnime] = await Promise.all([
+    needsSocialInformation ? getSocialInformationSafely(item) : undefined,
+    getLocalizedAnime(item),
+  ]);
   const poster = await fetchPosterDataUrl(enrichment, item.poster, socialInformation?.poster);
+  const localizedTitle = localizedAnime?.title?.trim();
 
   return {
     ...item,
     poster: poster || (isDoubanPosterUrl(item.poster) ? undefined : item.poster),
-    summary: socialInformation?.summary || item.summary,
-    releaseYear: socialInformation?.releaseYear || item.releaseYear,
+    title: localizedTitle || item.title,
+    titles: localizedTitle ? [...new Set([localizedTitle, ...item.titles])] : item.titles,
+    summary: localizedAnime?.summary?.trim() || socialInformation?.summary || item.summary,
+    releaseYear: item.releaseYear || socialInformation?.releaseYear,
     region: socialInformation?.region || item.region,
-    genres: socialInformation?.genres?.length ? socialInformation.genres : item.genres,
-    ratingScore: socialInformation?.ratingScore || item.ratingScore,
-    ratingCount: socialInformation?.ratingCount || item.ratingCount,
+    genres: localizedAnime?.genres?.length
+      ? [...new Set([...localizedAnime.genres, ...(item.genres ?? [])])]
+      : socialInformation?.genres?.length
+        ? socialInformation.genres
+        : item.genres,
+    ...selectRecommendationRating(item, socialInformation),
   };
 }
 
