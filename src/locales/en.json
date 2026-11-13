@@ -758,7 +758,7 @@
       "siteSearchConfig": "Site Search Configuration",
       "tagLabel": "Tags Filter",
       "titleDisplayMode": "Torrent title display",
-      "titleDisplayModeMessage": "Ellipsis at end keeps a single line and ends with …; Ellipsis in middle keeps the beginning and the end (so release group suffixes stay visible) and omits the middle with …; Scrolling hides the overflow by default and, on hover, scrolls back and forth according to the title length (8–30s).",
+      "titleDisplayModeMessage": "Ellipsis at end keeps a single line and ends with …; Ellipsis in middle keeps the beginning and the end (so release group suffixes stay visible) and omits the middle with …; Scrolling hides the overflow by default and, on hover, scrolls back and forth according to the title length (one full pass in 2–5s).",
       "titleDisplayModeOptions": {
         "end": "Ellipsis at end",
         "middle": "Ellipsis in middle",

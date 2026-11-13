@@ -144,8 +144,8 @@ const middleTitleParts = computed(() => {
   return { head: text.slice(0, splitAt), tail: text.slice(splitAt) };
 });
 
-/** 滚动模式的时长：标题越长滚得越久，避免长标题一闪而过 */
-const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(titleText.value.length * 0.3)))}s`);
+/** 滚动模式的时长：标题越长滚得越久，但一次完整滚动控制在 2–5 秒内 */
+const scrollDuration = computed(() => `${Math.min(5, Math.max(2, Math.round(titleText.value.length / 20)))}s`);
 </script>
 
 <template>
