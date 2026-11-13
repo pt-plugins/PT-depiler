@@ -62,7 +62,7 @@ const ripFilters = [
 ] as const;
 
 // XML field names have not been verified: the sample pasted into chat lost its XML tags.
-function field(element: Element | null, ...names: string[]): string {
+function field(element: Element | null, names: string[]): string {
   if (!element) return "";
   const wanted = names.map((name) => name.toLowerCase());
   for (const child of Array.from(element.children)) {
@@ -74,8 +74,8 @@ function field(element: Element | null, ...names: string[]): string {
   return "";
 }
 
-function numberField(element: Element | null, ...names: string[]): number | undefined {
-  const raw = field(element, ...names).replace(/,/g, "");
+function numberField(element: Element | null, names: string[]): number | undefined {
+  const raw = field(element, names).replace(/,/g, "");
   return raw && Number.isFinite(Number(raw)) ? Number(raw) : undefined;
 }
 
@@ -94,7 +94,7 @@ function getRipSubtitle(torrent: Element): string {
     ["format", "videoformat", "codec", "video", "videocodec"],
     ["aformat", "audioformat", "audio", "audiocodec"],
     ["media", "source"],
-  ].map((names) => containers.map((container) => field(container, ...names)).find(Boolean) ?? "");
+  ].map((names) => containers.map((container) => field(container, names)).find(Boolean) ?? "");
   if (parts.filter(Boolean).length >= 3) return parts.filter(Boolean).join(" ");
 
   // Some XML responses provide only a combined value, e.g. MKV/H.264/AC3/Web.
@@ -102,7 +102,7 @@ function getRipSubtitle(torrent: Element): string {
     typeof option === "string" ? option : option.value,
   )));
   const candidates = [
-    field(torrent, "rip", "ripinfo", "ripspecifics", "releaseformat", "format", "specs"),
+    field(torrent, ["rip", "ripinfo", "ripspecifics", "releaseformat", "format", "specs"]),
     ...containers.flatMap((container) => Array.from(container.getElementsByTagName("*"))
       .filter((child) => !child.children.length)
       .map((child) => child.textContent?.trim() ?? "")),
@@ -136,7 +136,7 @@ function parseXmlSearch(xml: Document, siteUrl: string, authkey: string, torrent
 
   const torrents = Array.from(root.getElementsByTagName("*")).filter((element) => {
     if (["torrent", "release"].includes(element.localName.toLowerCase())) return true;
-    const details = field(element, "details", "detailsurl", "link", "url");
+    const details = field(element, ["details", "detailsurl", "link", "url"]);
     try {
       return new URL(details).searchParams.has("torrentid");
     } catch {
@@ -147,14 +147,14 @@ function parseXmlSearch(xml: Document, siteUrl: string, authkey: string, torrent
   return torrents.flatMap((element): ITorrent[] => {
     let group: Element | null = element.parentElement;
     while (group && !["group", "show", "series", "torrentgroup"].includes(group.localName.toLowerCase())) {
-      const groupLink = field(group, "details", "detailsurl", "link", "url");
+      const groupLink = field(group, ["details", "detailsurl", "link", "url"]);
       if (groupLink && /torrents\.php\?id=\d+(?:$|&amp;|&)/.test(groupLink) && !groupLink.includes("torrentid=")) break;
       group = group.parentElement;
     }
 
-    const rawDetails = field(element, "details", "detailsurl", "link", "url");
+    const rawDetails = field(element, ["details", "detailsurl", "link", "url"]);
     let detailId = "";
-    let groupId = field(group, "id", "groupid", "showid");
+    let groupId = field(group, ["id", "groupid", "showid"]);
     try {
       const parsed = new URL(rawDetails, siteUrl);
       // Never follow an untrusted host with personal download credentials.
@@ -164,23 +164,23 @@ function parseXmlSearch(xml: Document, siteUrl: string, authkey: string, torrent
     } catch {
       return [];
     }
-    const id = field(element, "torrentid") || detailId || field(element, "id");
+    const id = field(element, ["torrentid"]) || detailId || field(element, ["id"]);
     if (!id || !/^\d+$/.test(id)) return [];
 
     const details = new URL("torrents.php", siteUrl);
     details.searchParams.set("id", groupId || id);
     if (groupId && groupId !== id) details.searchParams.set("torrentid", id);
 
-    const groupTitle = field(group, "name", "title", "groupname", "showname");
-    const releaseTitle = field(element, "name", "title", "description", "release", "releasename");
+    const groupTitle = field(group, ["name", "title", "groupname", "showname"]);
+    const releaseTitle = field(element, ["name", "title", "description", "release", "releasename"]);
     const title = [groupTitle, groupTitle && releaseTitle.startsWith(groupTitle) ? "" : releaseTitle].filter(Boolean).join(" ");
     if (!title) return [];
 
-    const rawSize = field(element, "size", "bytes", "filesize", "sizebytes");
+    const rawSize = field(element, ["size", "bytes", "filesize", "sizebytes"]);
     const subTitle = getRipSubtitle(element);
     const numericSize = Number(rawSize);
     const size = /^\d+$/.test(rawSize) ? numericSize : parseSizeString(rawSize);
-    const time = numberField(element, "timestamp", "addedtimestamp", "uploadedtimestamp", "time", "added", "date");
+    const time = numberField(element, ["timestamp", "addedtimestamp", "uploadedtimestamp", "time", "added", "date"]);
 
     const torrent: ITorrent = {
       site: "tvvault",
@@ -191,16 +191,16 @@ function parseXmlSearch(xml: Document, siteUrl: string, authkey: string, torrent
       category: "TV",
       ...(size > 0 ? { size } : {}),
       ...(time && time > 0 ? { time: time < 1e12 ? time * 1000 : time } : {}),
-      seeders: numberField(element, "seeders", "seeds"),
-      leechers: numberField(element, "leechers", "leeches"),
-      completed: numberField(element, "snatches", "snatched", "grabs", "completed"),
+      seeders: numberField(element, ["seeders", "seeds"]),
+      leechers: numberField(element, ["leechers", "leeches"]),
+      completed: numberField(element, ["snatches", "snatched", "grabs", "completed"]),
     };
 
-    const imdb = field(group, "imdbid", "imdb");
+    const imdb = field(group, ["imdbid", "imdb"]);
     if (imdb) torrent.ext_imdb = imdb;
 
     // XML search may omit <download>. Use the explicitly configured personal credentials only.
-    const providedDownload = field(element, "download", "downloadurl");
+    const providedDownload = field(element, ["download", "downloadurl"]);
     if (providedDownload) {
       try {
         const parsed = new URL(providedDownload, siteUrl);
