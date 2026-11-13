@@ -141,6 +141,15 @@ const middleTitleParts = computed(() => {
     splitAt += separatorOffset;
   }
 
+  // 两段是独立的 flex item，若切点落在空白上，普通空格会被 CSS 折叠掉（短标题不需省略时也会丢空格）。
+  // 把整段空白留给 head（配合 .t_title_middle_head 的 white-space: pre 保留行尾空格），tail 从下一个非空白字符开始。
+  while (splitAt < text.length && /\s/.test(text[splitAt])) {
+    splitAt++;
+  }
+  if (splitAt >= text.length) {
+    return { head: text, tail: "" };
+  }
+
   return { head: text.slice(0, splitAt), tail: text.slice(splitAt) };
 });
 
@@ -353,7 +362,8 @@ const scrollDuration = computed(() => `${Math.min(5, Math.max(2, Math.round(titl
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  // pre 保留切点处的行尾空格，保证两段拼接后与原文一致（nowrap 会把它折叠掉）
+  white-space: pre;
 }
 
 .t_title_middle_tail {
