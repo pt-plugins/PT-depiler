@@ -241,8 +241,9 @@ interface ITmdbLdJson {
   description?: string;
   genre?: string[];
   aggregateRating?: {
-    ratingValue?: number;
-    ratingCount?: number;
+    // JSON-LD 的评分与评分人数可能是数字，也可能是字符串（如 "7.5"），取值处统一 Number() 转换
+    ratingValue?: number | string;
+    ratingCount?: number | string;
   };
   countryOfOrigin?: Array<{ name?: string }>;
   startDate?: string;
@@ -285,8 +286,9 @@ export async function fetchInformation(
     resDict.releaseYear = (ldJson.startDate ?? ldJson.datePublished ?? "").slice(0, 4);
     resDict.region = ldJson.countryOfOrigin?.[0]?.name ?? "";
     resDict.genres = ldJson.genre ?? [];
-    resDict.ratingScore = ldJson.aggregateRating?.ratingValue ?? 0;
-    resDict.ratingCount = ldJson.aggregateRating?.ratingCount ?? 0;
+    // 与 douban 的内置解析器同理：ISocialInformation 约定评分为数字，JSON-LD 里却可能是字符串
+    resDict.ratingScore = Number(ldJson.aggregateRating?.ratingValue ?? 0);
+    resDict.ratingCount = Number(ldJson.aggregateRating?.ratingCount ?? 0);
   } catch (error) {
     console.warn(error);
   } finally {
