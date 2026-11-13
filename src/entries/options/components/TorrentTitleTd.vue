@@ -186,7 +186,7 @@ const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(tit
               ><bdi>{{ middleTitleParts.tail }}</bdi></span
             >
           </template>
-          <!-- 滚动：标题放得下时由 min-width: 100% 让位移归零，不会出现空白 -->
+          <!-- 滚动：默认隐藏超出部分，悬停时才往返滚动；标题放得下时由 min-width: 100% 让位移归零 -->
           <span
             v-else-if="titleDisplayMode === 'scroll'"
             class="t_title_scroll_inner"
@@ -371,7 +371,7 @@ const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(tit
   direction: ltr;
 }
 
-// 滚动：标题放得下时位移为 0（min-width: 100%），放不下才左右往返滚动，悬停暂停
+// 滚动：默认隐藏超出部分；悬停时按标题长度往返滚动，移开即回到开头（min-width: 100% 让放得下的标题不产生位移）
 .t_title_scroll {
   display: block;
   overflow: hidden;
@@ -383,11 +383,10 @@ const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(tit
   display: inline-block;
   min-width: 100%;
   white-space: nowrap;
-  animation: t_title_scroll 12s ease-in-out infinite alternate;
 }
 
 .t_title_scroll:hover .t_title_scroll_inner {
-  animation-play-state: paused;
+  animation: t_title_scroll 12s ease-in-out infinite alternate;
 }
 
 @keyframes t_title_scroll {
@@ -405,6 +404,10 @@ const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(tit
 @media (prefers-reduced-motion: reduce) {
   .t_title_scroll {
     text-overflow: ellipsis;
+  }
+
+  .t_title_scroll:hover .t_title_scroll_inner {
+    animation: none;
   }
 
   .t_title_scroll_inner {
