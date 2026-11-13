@@ -14,8 +14,6 @@ import {
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
 import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 import type { ISearchResultTorrent } from "@/shared/types.ts";
@@ -74,9 +72,7 @@ const fullTableHeader = computed(
         key: "title",
         align: "start",
         minWidth: "30rem",
-        ...(configStore.searchEntifyControl.limitTorrentTitleTdWidth || display.smAndDown.value
-          ? { maxWidth: "32vw" }
-          : {}),
+        ...(display.smAndDown.value ? { maxWidth: "32vw" } : {}),
         props: { disabled: true },
       },
       { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
@@ -107,11 +103,9 @@ const fullTableHeader = computed(
 );
 
 const tableHeader = computed(() => {
-  return useTableActionColumn(
-    fullTableHeader.value.filter(
-      (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
-    ) as DataTableHeader[],
-  );
+  return fullTableHeader.value.filter(
+    (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
+  ) as DataTableHeader[];
 });
 
 /**
@@ -317,20 +311,7 @@ function promoCellText(item: ISearchResultTorrent): string {
   return text || "-";
 }
 
-const {
-  tableRef: fitTableRef,
-  fittedHeaders,
-  tableClass: fitTableClass,
-  fitColumns: fitTableColumns,
-} = useTableColumnFit(tableHeader);
-
-/** 标题列不限宽时，列宽适应会把空间都让给标题，提示用户开启「限制种子标题宽度」 */
-function fitColumns() {
-  fitTableColumns();
-  if (!configStore.searchEntifyControl.limitTorrentTitleTdWidth && !display.smAndDown.value) {
-    runtimeStore.showSnackbar(t("SearchEntity.index.fitColumnsHint"), { color: "info" });
-  }
-}
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -522,7 +503,6 @@ function fitColumns() {
           </template>
         </v-combobox>
 
-        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilterRef"

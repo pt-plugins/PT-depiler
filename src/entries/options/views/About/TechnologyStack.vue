@@ -7,7 +7,6 @@ import type { DataTableHeader } from "vuetify";
 
 import { dependencies, devDependencies } from "~/../package.json";
 import { REPO_URL } from "~/helper.ts";
-import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
 import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 const { t } = useI18n();
@@ -73,7 +72,6 @@ const {
   tableRef: fitTableRef,
   fittedHeaders,
   tableClass: fitTableClass,
-  fitColumns,
 } = useTableColumnFit(TechnologyStackTableHeader);
 </script>
 
@@ -119,11 +117,6 @@ const {
         item-value="id"
         must-sort
       >
-        <template #footer.prepend>
-          <TableColumnFitButton @click="fitColumns" />
-          <v-spacer />
-        </template>
-
         <template #item.url="{ item }">
           <a :href="item.url" rel="noopener noreferrer nofollow" target="_blank">{{ item.url }}</a>
         </template>

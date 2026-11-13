@@ -8,8 +8,6 @@ import { sendMessage } from "@/messages.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
 import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
@@ -28,13 +26,14 @@ const runtimeStore = useRuntimeStore();
 const isLoading = ref<boolean>(false);
 const backupHistory = shallowRef<IBackupFileInfo[]>([]);
 
-const tableHeaders = computed(() =>
-  useTableActionColumn([
-    { title: t("SetBackup.HistoryDialog.table.filename"), key: "filename", align: "start" },
-    { title: t("SetBackup.HistoryDialog.table.size"), key: "size", align: "end" },
-    { title: t("SetBackup.HistoryDialog.table.time"), key: "time", align: "start" },
-    { title: t("common.action"), key: "action", sortable: false },
-  ] as DataTableHeader[]),
+const tableHeaders = computed(
+  () =>
+    [
+      { title: t("SetBackup.HistoryDialog.table.filename"), key: "filename", align: "start" },
+      { title: t("SetBackup.HistoryDialog.table.size"), key: "size", align: "end" },
+      { title: t("SetBackup.HistoryDialog.table.time"), key: "time", align: "start" },
+      { title: t("common.action"), key: "action", sortable: false },
+    ] as DataTableHeader[],
 );
 const tableSelected = ref<string[]>([]);
 
@@ -84,7 +83,7 @@ async function dialogLeave() {
   tableSelected.value = [];
 }
 
-const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeaders);
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeaders);
 </script>
 
 <template>
@@ -113,7 +112,6 @@ const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColu
           icon="mdi-delete"
           @click="deleteBackupHistory(tableSelected)"
         />
-        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
 
         <v-data-table
           ref="fitTableRef"

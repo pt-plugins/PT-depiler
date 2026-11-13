@@ -8,8 +8,6 @@ import type { DataTableHeader } from "vuetify";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
 import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { downloadBlob, formatDate } from "@/options/utils.ts";
 import type { ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
@@ -29,15 +27,16 @@ const showDeleteDialog = ref(false);
 const solutionId = ref<TSolutionKey>("");
 
 const tableSelected = ref<TSolutionKey[]>([]);
-const tableHeader = computed(() =>
-  useTableActionColumn([
-    { title: "№", key: "sort", align: "center", width: 150 },
-    { title: t("common.name"), key: "name", align: "start", width: 150 },
-    { title: t("SetSearchSolution.solution"), key: "solution", align: "start", minWidth: 400, sortable: false },
-    { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", width: 120 },
-    { title: t("SetSearchSolution.table.default"), key: "isDefault", align: "center", width: 120, sortable: false },
-    { title: t("common.action"), key: "action", sortable: false, width: 200 },
-  ] as DataTableHeader[]),
+const tableHeader = computed(
+  () =>
+    [
+      { title: "№", key: "sort", align: "center", width: 150 },
+      { title: t("common.name"), key: "name", align: "start", width: 150 },
+      { title: t("SetSearchSolution.solution"), key: "solution", align: "start", minWidth: 400, sortable: false },
+      { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", width: 120 },
+      { title: t("SetSearchSolution.table.default"), key: "isDefault", align: "center", width: 120, sortable: false },
+      { title: t("common.action"), key: "action", sortable: false, width: 200 },
+    ] as DataTableHeader[],
 );
 const tableFilter = ref("");
 
@@ -169,7 +168,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
   }
 }
 
-const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -218,7 +217,6 @@ const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColu
 
         <NavButton :text="t('common.howToUse')" color="light-blue" disabled icon="mdi-help-circle" />
 
-        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <v-text-field

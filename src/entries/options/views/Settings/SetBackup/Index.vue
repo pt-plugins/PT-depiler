@@ -7,8 +7,6 @@ import type { DataTableHeader } from "vuetify";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
 import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatDate } from "@/options/utils.ts";
 import { BackupFields, type IBackupServerMetadata, type TBackupServerKey } from "@/shared/types.ts";
@@ -33,23 +31,24 @@ const showEditDialog = ref<boolean>(false);
 const showRestoreDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
-const fullTableHeader = computed(() =>
-  useTableActionColumn([
-    { title: t("common.type"), key: "type", align: "center" },
-    { title: t("common.name"), key: "name", align: "start" },
-    {
-      title: t("SetBackup.table.backupFields"),
-      key: "backupFields",
-      align: "start",
-      sortable: false,
-      cellProps: { class: "pt-1" },
-    },
-    { title: t("SetBackup.table.backupInterval"), key: "backupInterval", align: "center" },
-    { title: t("SetBackup.table.retention"), key: "retention", align: "center" },
-    { title: t("SetBackup.table.lastBackupAt"), key: "lastBackupAt", align: "end" },
-    { title: t("common.enable"), key: "enabled", align: "center" },
-    { title: t("common.action"), key: "action", sortable: false },
-  ] as DataTableHeader[]),
+const fullTableHeader = computed(
+  () =>
+    [
+      { title: t("common.type"), key: "type", align: "center" },
+      { title: t("common.name"), key: "name", align: "start" },
+      {
+        title: t("SetBackup.table.backupFields"),
+        key: "backupFields",
+        align: "start",
+        sortable: false,
+        cellProps: { class: "pt-1" },
+      },
+      { title: t("SetBackup.table.backupInterval"), key: "backupInterval", align: "center" },
+      { title: t("SetBackup.table.retention"), key: "retention", align: "center" },
+      { title: t("SetBackup.table.lastBackupAt"), key: "lastBackupAt", align: "end" },
+      { title: t("common.enable"), key: "enabled", align: "center" },
+      { title: t("common.action"), key: "action", sortable: false },
+    ] as DataTableHeader[],
 );
 const tableSelected = ref<TBackupServerKey[]>([]);
 
@@ -114,12 +113,7 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
   return await metadataStore.removeBackupServer(id);
 }
 
-const {
-  tableRef: fitTableRef,
-  fittedHeaders,
-  tableClass: fitTableClass,
-  fitColumns,
-} = useTableColumnFit(fullTableHeader);
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(fullTableHeader);
 </script>
 
 <template>
@@ -152,7 +146,6 @@ const {
           @click="() => (showRestoreDialog = true)"
         />
 
-        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <v-text-field clearable density="compact" hide-details label="Search" max-width="500" single-line />

@@ -6,7 +6,6 @@ import type { DataTableHeader } from "vuetify";
 import { sendMessage } from "@/messages.ts";
 import { ILoggerItem } from "@/shared/types.ts";
 import { formatDate } from "@/options/utils.ts";
-import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
 import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 const { t } = useI18n();
@@ -47,7 +46,7 @@ onUnmounted(() => {
   loggerTimer = undefined;
 });
 
-const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -63,11 +62,6 @@ const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColu
     hover
     must-sort
   >
-    <template #footer.prepend>
-      <TableColumnFitButton @click="fitColumns" />
-      <v-spacer />
-    </template>
-
     <template #item.id="{ item }">
       <code class="text-no-wrap">{{ item.id }}</code>
     </template>

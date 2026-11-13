@@ -1,40 +1,56 @@
-import { computed, shallowRef, toValue, type ComponentPublicInstance, type MaybeRefOrGetter } from "vue";
+import {
+  computed,
+  nextTick,
+  onScopeDispose,
+  shallowRef,
+  toValue,
+  watch,
+  type ComponentPublicInstance,
+  type MaybeRefOrGetter,
+} from "vue";
 import type { DataTableHeader } from "vuetify";
+
+import { useConfigStore } from "@/options/stores/config.ts";
 
 /** 表头单元格上标记列 key 的属性，用于在 DOM 中找到对应的 <th> */
 const KEY_ATTR = "data-fit-key";
 
 /**
- * 「列宽适应内容」：按内容（表头文字与当前渲染出的各行单元格）测出每列的理想宽度，
- * 再把它们铺满表格的宽度：
- * - 内容比表格窄时，剩余的宽度按各列宽度的比例分给所有列；
- * - 内容比表格宽时，窄的列保持内容宽度，只把最宽的几列截成同一个宽度。
+ * 统一处理数据表格的列（见 SetBase - UI 中的「数据表格」）：
  *
- * 结果以百分比保存，窗口宽度变化时由浏览器按比例缩放，不重新测量；
- * 结果不持久化，显示的列变化（列选择器、操作列位置等）后回到表格默认的排版。
+ * 1. 操作列（key 为 `action`）：
+ *    - `tableActionColumnPosition`：操作列位于行首还是行尾
+ *    - `tableActionColumnFixed`：表格过宽（横向滚动）时固定操作列，固定方向与所在位置一致
+ * 2. `tableColumnFit`：列宽适应内容。按内容（表头文字与当前渲染出的各行单元格）测出每列的理想宽度，
+ *    再把它们铺满表格的宽度：
+ *    - 内容比表格窄时，剩余的宽度按各列宽度的比例分给所有列；
+ *    - 内容比表格宽时，窄的列保持内容宽度，只把最宽的几列截成同一个宽度。
+ *
+ *    表格加载、行变化（翻页、排序、筛选、数据增减）与显示的列变化时自动重新适应；
+ *    结果以百分比保存，窗口宽度变化时由浏览器按比例缩放，不重新测量。
  *
  * 用法：
  * ```ts
- * const { tableRef, fittedHeaders, tableClass, fitColumns } = useTableColumnFit(() => tableHeader.value);
+ * const { tableRef, fittedHeaders, tableClass } = useTableColumnFit(tableHeader);
  * ```
  * ```vue
  * <v-data-table ref="tableRef" :headers="fittedHeaders" :class="tableClass" />
- * <TableColumnFitButton @click="fitColumns" />
  * ```
  */
 export function useTableColumnFit(headers: MaybeRefOrGetter<readonly DataTableHeader[]>) {
+  const configStore = useConfigStore();
   const tableRef = shallowRef<ComponentPublicInstance | null>(null);
   const fitted = shallowRef<{ signature: string; widths: Record<string, string> } | null>(null);
 
-  const signature = computed(() =>
-    toValue(headers)
-      .map((header) => header.key)
-      .join("\n"),
+  const arrangedHeaders = computed(() =>
+    arrangeActionColumn(toValue(headers), configStore.tableActionColumnPosition, configStore.tableActionColumnFixed),
   );
-  const isFitted = computed(() => fitted.value?.signature === signature.value);
+
+  const signature = computed(() => arrangedHeaders.value.map((header) => header.key).join("\n"));
+  const isFitted = computed(() => configStore.tableColumnFit && fitted.value?.signature === signature.value);
 
   const fittedHeaders = computed<DataTableHeader[]>(() =>
-    toValue(headers).map((header) => {
+    arrangedHeaders.value.map((header) => {
       const next: DataTableHeader = {
         ...header,
         headerProps: { ...header.headerProps, [KEY_ATTR]: header.key },
@@ -61,7 +77,7 @@ export function useTableColumnFit(headers: MaybeRefOrGetter<readonly DataTableHe
     // Vuetify 内置的勾选、展开等列（key 以 data-table- 开头）与固定列保持原宽：
     // 多个固定列时 Vuetify 要求列宽为数值，不能改成百分比
     const definitions = new Map(
-      toValue(headers)
+      arrangedHeaders.value
         .filter((header) => header.key && !header.key.startsWith("data-table-") && !header.fixed)
         .map((header) => [header.key!, header]),
     );
@@ -69,6 +85,8 @@ export function useTableColumnFit(headers: MaybeRefOrGetter<readonly DataTableHe
     if (fitCells.length === 0) return;
 
     const tableWidth = wrapper.clientWidth;
+    // 表格未显示（如在关闭的对话框、未激活的页签里）时无从测量
+    if (tableWidth <= 0) return;
 
     // 测量期间让表格按内容的 max-content 排版，此时每个 <th> 的宽度即该列最宽内容的宽度（含内边距）。
     // 同步完成，期间浏览器不会绘制。
@@ -103,10 +121,75 @@ export function useTableColumnFit(headers: MaybeRefOrGetter<readonly DataTableHe
       const width = widths[index];
       result[cell.getAttribute(KEY_ATTR)!] = `${((width / tableWidth) * 100).toFixed(3)}%`;
     });
+    // 结果不变时不更新，避免表头重新渲染
+    if (isFitted.value && JSON.stringify(fitted.value!.widths) === JSON.stringify(result)) return;
     fitted.value = { signature: signature.value, widths: result };
   }
 
-  return { tableRef, fittedHeaders, tableClass, isFitted, fitColumns };
+  // 只在 tbody 的行增减或被替换时重新适应；单元格内容的更新（如下载器的实时速度）不触发
+  let observer: MutationObserver | undefined;
+  let frame = 0;
+  function scheduleFit() {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(fitColumns);
+  }
+
+  watch(
+    [() => configStore.tableColumnFit, tableRef, signature],
+    async ([enabled, table]) => {
+      observer?.disconnect();
+      observer = undefined;
+      cancelAnimationFrame(frame);
+      if (!enabled || !table) return;
+
+      await nextTick();
+      const element = (table.$el as HTMLElement | undefined)?.querySelector(".v-table__wrapper > table");
+      if (!element) return;
+      observer = new MutationObserver((mutations) => {
+        if (mutations.some((mutation) => ["TABLE", "TBODY"].includes((mutation.target as Element).tagName))) {
+          scheduleFit();
+        }
+      });
+      observer.observe(element, { childList: true, subtree: true });
+      scheduleFit();
+    },
+    { immediate: true, flush: "post" },
+  );
+
+  onScopeDispose(() => {
+    observer?.disconnect();
+    cancelAnimationFrame(frame);
+  });
+
+  return { tableRef, fittedHeaders, tableClass };
+}
+
+/** 按设置调整操作列（key 为 `action`）的位置与固定，不修改传入的表头定义 */
+function arrangeActionColumn(
+  headers: readonly DataTableHeader[],
+  position: "start" | "end",
+  fixed: boolean,
+): DataTableHeader[] {
+  const actionIndex = headers.findIndex((header) => header.key === "action");
+  if (actionIndex === -1) {
+    return [...headers];
+  }
+
+  const actionHeader: DataTableHeader = { ...headers[actionIndex] };
+  if (fixed) {
+    actionHeader.fixed = position;
+  }
+
+  const otherHeaders = headers.filter((_, index) => index !== actionIndex);
+  if (position === "start") {
+    return [actionHeader, ...otherHeaders];
+  }
+  // 放在行尾时，仍排在 Vuetify 内置的展开列等（key 以 data-table- 开头）之前
+  let insertAt = otherHeaders.length;
+  while (insertAt > 0 && String(otherHeaders[insertAt - 1].key ?? "").startsWith("data-table-")) {
+    insertAt -= 1;
+  }
+  return [...otherHeaders.slice(0, insertAt), actionHeader, ...otherHeaders.slice(insertAt)];
 }
 
 /**

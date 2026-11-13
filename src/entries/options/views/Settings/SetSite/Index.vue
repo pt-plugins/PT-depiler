@@ -11,8 +11,6 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
 import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import AddDialog from "./AddDialog.vue";
@@ -68,10 +66,7 @@ const tableHeader = computed(() => {
     });
   }
 
-  return useTableActionColumn([
-    ...baseHeaders,
-    { title: t("common.action"), key: "action", sortable: false },
-  ] as DataTableHeader[]);
+  return [...baseHeaders, { title: t("common.action"), key: "action", sortable: false }] as DataTableHeader[];
 });
 
 const booleanUserConfigKeywords = ["isOffline", "allowSearch", "allowQueryUserInfo"];
@@ -186,7 +181,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
   ];
 }
 
-const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -231,7 +226,6 @@ const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColu
           @click="showRebuildMapDialog = true"
         />
 
-        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilterRef"

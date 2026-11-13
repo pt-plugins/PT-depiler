@@ -12,6 +12,8 @@ import { useMetadataStore } from "./metadata.ts";
 const deprecatedConfigKeys = [
   "myDataTableControl.tableFontSize", // v0.0.4.961 废弃
   "myDataTableControl.joinTimeWeekOnly", // 已废弃，使用 joinTimeFormat 替代
+  "myDataTableControl.limitLevelNameTdWidth", // 已废弃，由 tableColumnFit 替代
+  "searchEntifyControl.limitTorrentTitleTdWidth", // 已废弃，由 tableColumnFit 替代
 ];
 
 export const defaultTimelineBackgroundColor = "#455A64";
@@ -78,6 +80,7 @@ export const useConfigStore = defineStore("config", {
     enableTableMultiSort: false,
     tableActionColumnPosition: "end",
     tableActionColumnFixed: false,
+    tableColumnFit: false,
 
     contextMenus: {
       enabled: true,
@@ -192,7 +195,6 @@ export const useConfigStore = defineStore("config", {
       showUnreadMessage: true,
       showUserName: true,
       normalizeLevelName: true,
-      limitLevelNameTdWidth: true,
       showLevelRequirement: true,
       onlyShowUserLevelRequirement: true,
       showNextLevelInTable: false,
@@ -266,7 +268,6 @@ export const useConfigStore = defineStore("config", {
       showSocialInformation: true,
       socialInformationSearchOnNewTab: true,
       uploadAtFormatAsAlive: false,
-      limitTorrentTitleTdWidth: true,
       highlightSameSizeTorrent: false,
       maxTagCountBeforeGroup: 0,
       hiddenTagNames: [],

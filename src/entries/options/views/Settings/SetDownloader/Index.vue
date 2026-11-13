@@ -13,8 +13,6 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import type { TDownloaderKey } from "@/shared/types.ts";
 import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
-import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
 import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import AddDialog from "./AddDialog.vue";
@@ -49,17 +47,18 @@ const downloaderMetadata = computedAsync(async () => {
   return downloaderMetaData;
 }, {});
 
-const fullTableHeader = computed(() =>
-  useTableActionColumn([
-    { title: "№", key: "sortIndex", align: "end", width: "100" },
-    { title: t("common.type"), key: "type", align: "center" },
-    { title: t("SetDownloader.common.name"), key: "name", align: "start" },
-    { title: t("SetDownloader.common.address"), key: "address", align: "start" },
-    { title: t("common.username"), key: "username", align: "start" },
-    { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
-    { title: t("SetDownloader.index.table.autodl"), key: "feature.DefaultAutoStart", align: "center" },
-    { title: t("common.action"), key: "action", sortable: false },
-  ] as DataTableHeader[]),
+const fullTableHeader = computed(
+  () =>
+    [
+      { title: "№", key: "sortIndex", align: "end", width: "100" },
+      { title: t("common.type"), key: "type", align: "center" },
+      { title: t("SetDownloader.common.name"), key: "name", align: "start" },
+      { title: t("SetDownloader.common.address"), key: "address", align: "start" },
+      { title: t("common.username"), key: "username", align: "start" },
+      { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
+      { title: t("SetDownloader.index.table.autodl"), key: "feature.DefaultAutoStart", align: "center" },
+      { title: t("common.action"), key: "action", sortable: false },
+    ] as DataTableHeader[],
 );
 const tableSelected = ref<TDownloaderKey[]>([]);
 
@@ -128,12 +127,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   return await metadataStore.removeDownloader(downloaderId);
 }
 
-const {
-  tableRef: fitTableRef,
-  fittedHeaders,
-  tableClass: fitTableClass,
-  fitColumns,
-} = useTableColumnFit(fullTableHeader);
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(fullTableHeader);
 </script>
 
 <template>
@@ -161,7 +155,6 @@ const {
           @click="showDefaultDownloaderEditDialog = true"
         />
 
-        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <v-text-field
