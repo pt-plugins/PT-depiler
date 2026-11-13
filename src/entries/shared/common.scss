@@ -95,7 +95,8 @@
 
   > thead > tr > th,
   > tbody > tr > td {
-    overflow: hidden;
+    // 只裁剪横向：纵向溢出的内容（如站点图标上的未读消息徽标）不应被裁掉
+    overflow-x: clip;
     text-overflow: ellipsis;
   }
 }
