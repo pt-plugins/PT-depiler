@@ -549,6 +549,12 @@
         "noUpload": "上传不计流量",
         "uploadTimes": "上传量 ×{0}"
       },
+      "titleDisplayMode": "种子标题显示方式",
+      "titleDisplayModeOptions": {
+        "end": "末端省略",
+        "middle": "中间省略",
+        "scroll": "滚动"
+      },
       "uploadAtFormatAsAlive": "上传时间显示为相对时间"
     },
     "siteFilter": {
@@ -725,6 +731,7 @@
       "autoDetectOfficialGroupFromTitle": "自动识别种子标题中的官方组信息，并形成标签",
       "autoLoadInitialMediaWall": "自动加载首屏媒体墙",
       "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙",
+      "displayLabel": "标题显示",
       "filterLabel": "结果筛选",
       "forceImdbIdMatchFilter": "使用 IMDb 搜索时，在搜索结果中滤去站点返回的IMDb号不匹配的结果",
       "hiddenTagNames": "隐藏标签（每行一个）",
@@ -750,6 +757,13 @@
       "siteQueueConcurrency": "请求队列长度",
       "siteSearchConfig": "站点搜索配置",
       "tagLabel": "标签筛选",
+      "titleDisplayMode": "种子标题显示方式",
+      "titleDisplayModeMessage": "「末端省略」保持单行，超出部分在末尾以 … 收尾；「中间省略」保留标题开头与结尾（可直接看到小组等后缀），中间以 … 省略；「滚动」在标题放不下时自动左右往返滚动，鼠标悬停暂停。",
+      "titleDisplayModeOptions": {
+        "end": "末端省略",
+        "middle": "中间省略",
+        "scroll": "滚动"
+      },
       "treatTTQueryAsImdbSearch": "是否将 tt\\d\\{7,8\\} 的搜索词直接视为 IMDb 搜索"
     },
     "tab": {

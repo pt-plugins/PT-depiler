@@ -2,6 +2,7 @@
 import { reactive, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { useDisplay } from "vuetify";
 
 import { socialBuildUrlMap } from "@ptd/social";
 import { isPromotionTagName, tagsToPromotion, type ITorrent, type ITorrentTag } from "@ptd/site";
@@ -18,6 +19,7 @@ const { item, showSocial = true } = defineProps<{
 const { t } = useI18n();
 const router = useRouter();
 const configStore = useConfigStore();
+const display = useDisplay();
 
 interface ISocialInformationData extends ISocialInformation {
   loading?: boolean;
@@ -106,6 +108,44 @@ function canAdvanceSearch(site: TSupportSocialSite) {
 }
 
 const showCover = computed(() => !!item.cover && configStore.searchEntifyControl.showTorrentCover);
+
+/** 标题的展示文本（通过 content-script 拖拽等方式获取的不完整种子可能只有 url / link） */
+const titleText = computed(() => item.title ?? item.url ?? item.link ?? "");
+
+/** 标题超长时的显示方式，见 设置 - 搜索 - 种子标题显示方式 */
+const titleDisplayMode = computed<"end" | "middle" | "scroll">(() => {
+  const mode = configStore.searchEntifyControl.titleDisplayMode;
+  return mode === "middle" || mode === "scroll" ? mode : "end";
+});
+
+/**
+ * 中间省略时尾部保留的字符数：尾部用于查看小组等后缀，宽屏多留一些；
+ * 窄屏下标题列只有 32vw，缩短尾部以免把标题开头挤没。
+ */
+const middleTailLength = computed(() => (display.smAndDown.value ? 14 : 24));
+
+/**
+ * 把标题切成「开头 + 结尾」两段，切点尽量落在分隔符上，避免把小组名等后缀切成两半。
+ * 空间充足时两段会原样拼回完整标题，不需要额外的省略号。
+ */
+const middleTitleParts = computed(() => {
+  const text = titleText.value;
+  const tailLength = middleTailLength.value;
+  if (text.length <= tailLength + 8) {
+    return { head: text, tail: "" };
+  }
+
+  let splitAt = text.length - tailLength;
+  const separatorOffset = text.slice(splitAt, splitAt + 8).search(/[\s._()[\]-]/);
+  if (separatorOffset !== -1) {
+    splitAt += separatorOffset;
+  }
+
+  return { head: text.slice(0, splitAt), tail: text.slice(splitAt) };
+});
+
+/** 滚动模式的时长：标题越长滚得越久，避免长标题一闪而过 */
+const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(titleText.value.length * 0.3)))}s`);
 </script>
 
 <template>
@@ -129,12 +169,31 @@ const showCover = computed(() => !!item.cover && configStore.searchEntifyControl
       <span class="text-truncate flex-1-1-0">
         <a
           :href="item.url"
-          :title="item.title"
-          class="t_title text-decoration-none text-high-emphasis text-body-large text-truncate"
+          :title="titleText"
+          :class="{
+            'text-truncate': titleDisplayMode === 'end' || (titleDisplayMode === 'middle' && !middleTitleParts.tail),
+            t_title_middle: titleDisplayMode === 'middle' && middleTitleParts.tail,
+            t_title_scroll: titleDisplayMode === 'scroll',
+          }"
+          class="t_title text-decoration-none text-high-emphasis text-body-large"
           rel="noopener noreferrer nofollow"
           target="_blank"
         >
-          {{ item.title ?? item.url ?? item.link }}
+          <!-- 中间省略：开头可收缩并在末尾显示省略号，结尾（小组后缀）固定保留 -->
+          <template v-if="titleDisplayMode === 'middle' && middleTitleParts.tail">
+            <span class="t_title_middle_head">{{ middleTitleParts.head }}</span>
+            <span class="t_title_middle_tail"
+              ><bdi>{{ middleTitleParts.tail }}</bdi></span
+            >
+          </template>
+          <!-- 滚动：标题放得下时由 min-width: 100% 让位移归零，不会出现空白 -->
+          <span
+            v-else-if="titleDisplayMode === 'scroll'"
+            class="t_title_scroll_inner"
+            :style="{ animationDuration: scrollDuration }"
+            >{{ titleText }}</span
+          >
+          <template v-else>{{ titleText }}</template>
         </a>
       </span>
 
@@ -280,6 +339,79 @@ const showCover = computed(() => !!item.cover && configStore.searchEntifyControl
 // flex item 默认 min-width: auto 会阻止 text-overflow: ellipsis 收缩截断,需显式归零
 .t_main .text-truncate.flex-1-1-0 {
   min-width: 0;
+}
+
+// 中间省略：开头可收缩并在末尾显示省略号，结尾（小组后缀）固定保留
+.t_title_middle {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.t_title_middle_head {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.t_title_middle_tail {
+  flex: 0 0 auto;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  // 尾部超宽时从左端截断（省略号出现在左侧），保证最末尾的小组后缀始终可见；
+  // 真正的文本用 bdi 重新声明 ltr，避免 rtl 基线把标点搬到错误的一端
+  direction: rtl;
+}
+
+.t_title_middle_tail > bdi {
+  direction: ltr;
+}
+
+// 滚动：标题放得下时位移为 0（min-width: 100%），放不下才左右往返滚动，悬停暂停
+.t_title_scroll {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  container-type: inline-size;
+}
+
+.t_title_scroll_inner {
+  display: inline-block;
+  min-width: 100%;
+  white-space: nowrap;
+  animation: t_title_scroll 12s ease-in-out infinite alternate;
+}
+
+.t_title_scroll:hover .t_title_scroll_inner {
+  animation-play-state: paused;
+}
+
+@keyframes t_title_scroll {
+  0%,
+  8% {
+    transform: translateX(0);
+  }
+  92%,
+  100% {
+    transform: translateX(calc(-100% + 100cqw));
+  }
+}
+
+// 尊重系统的「减少动态效果」：不滚动，退回末端省略
+@media (prefers-reduced-motion: reduce) {
+  .t_title_scroll {
+    text-overflow: ellipsis;
+  }
+
+  .t_title_scroll_inner {
+    display: inline;
+    min-width: 0;
+    animation: none;
+  }
 }
 
 // 有封面时：左列放封面（跨两行），右列依次放标题行与标签/副标题行
