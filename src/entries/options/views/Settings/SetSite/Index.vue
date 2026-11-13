@@ -11,7 +11,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
@@ -66,10 +66,7 @@ const tableHeader = computed(() => {
     });
   }
 
-  return useTableActionColumn([
-    ...baseHeaders,
-    { title: t("common.action"), key: "action", sortable: false },
-  ] as DataTableHeader[]);
+  return [...baseHeaders, { title: t("common.action"), key: "action", sortable: false }] as DataTableHeader[];
 });
 
 const booleanUserConfigKeywords = ["isOffline", "allowSearch", "allowQueryUserInfo"];
@@ -183,6 +180,8 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
     },
   ];
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -286,8 +285,10 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
-      :headers="tableHeader"
+      :headers="fittedHeaders"
       :items="allAddedSiteInfo"
       :items-per-page="configStore.tableBehavior.SetSite.itemsPerPage"
       :custom-filter="tableFilterFn"

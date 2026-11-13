@@ -7,6 +7,7 @@ import type { DataTableHeader } from "vuetify";
 
 import { dependencies, devDependencies } from "~/../package.json";
 import { REPO_URL } from "~/helper.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 const { t } = useI18n();
 
@@ -66,6 +67,12 @@ const TechnologyStackTableHeader = [
 ] as DataTableHeader[];
 
 const tableDependencies = computed(() => Object.values(technologyData.value));
+
+const {
+  tableRef: fitTableRef,
+  fittedHeaders,
+  tableClass: fitTableClass,
+} = useTableColumnFit(TechnologyStackTableHeader);
 </script>
 
 <template>
@@ -100,7 +107,9 @@ const tableDependencies = computed(() => Object.values(technologyData.value));
     <v-card-title>{{ t("TechnologyStack.dependency") }}</v-card-title>
     <v-card-text>
       <v-data-table
-        :headers="TechnologyStackTableHeader"
+        ref="fitTableRef"
+        :class="fitTableClass"
+        :headers="fittedHeaders"
         :items="tableDependencies"
         :items-per-page="-1"
         :sort-by="[{ key: 'name', order: 'asc' }]"

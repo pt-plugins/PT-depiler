@@ -6,6 +6,7 @@ import type { DataTableHeader } from "vuetify";
 import { sendMessage } from "@/messages.ts";
 import { ILoggerItem } from "@/shared/types.ts";
 import { formatDate } from "@/options/utils.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 const { t } = useI18n();
 const logger = shallowRef<ILoggerItem[]>([]);
@@ -44,13 +45,17 @@ onUnmounted(() => {
   clearInterval(loggerTimer);
   loggerTimer = undefined;
 });
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
   <v-alert :title="t('route.About.Logger')" type="info" />
 
   <v-data-table
-    :headers="tableHeader"
+    ref="fitTableRef"
+    :class="fitTableClass"
+    :headers="fittedHeaders"
     :items="logger"
     :sort-by="[{ key: 'time', order: 'desc' }]"
     class="table-stripe table-header-no-wrap"

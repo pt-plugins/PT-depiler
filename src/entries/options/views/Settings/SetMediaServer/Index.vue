@@ -7,7 +7,7 @@ import type { IMediaServerBaseConfig } from "@ptd/mediaServer";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import type { TDownloaderKey, TMediaServerKey } from "@/shared/types.ts";
 
 import AddDialog from "./AddDialog.vue";
@@ -24,15 +24,16 @@ const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
-const fullTableHeader = computed(() =>
-  useTableActionColumn([
-    { title: t("common.type"), key: "type", align: "center" },
-    { title: t("SetDownloader.common.name"), key: "name", align: "start" },
-    { title: t("SetDownloader.common.address"), key: "address", align: "start" },
-    { title: t("SetMediaServer.Index.status"), key: "status", align: "center", sortable: false },
-    { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
-    { title: t("common.action"), key: "action", sortable: false },
-  ] as DataTableHeader[]),
+const fullTableHeader = computed(
+  () =>
+    [
+      { title: t("common.type"), key: "type", align: "center" },
+      { title: t("SetDownloader.common.name"), key: "name", align: "start" },
+      { title: t("SetDownloader.common.address"), key: "address", align: "start" },
+      { title: t("SetMediaServer.Index.status"), key: "status", align: "center", sortable: false },
+      { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
+      { title: t("common.action"), key: "action", sortable: false },
+    ] as DataTableHeader[],
 );
 
 /** 服务器状态列：逐台 ping 一次，记录是否可达与耗时 */
@@ -93,6 +94,8 @@ function overviewMediaServer(mediaServerId: TMediaServerKey) {
 async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
   return await metadataStore.removeMediaServer(mediaServerId);
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(fullTableHeader);
 </script>
 
 <template>
@@ -118,8 +121,10 @@ async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
-      :headers="fullTableHeader"
+      :headers="fittedHeaders"
       :items="metadataStore.getMediaServers"
       class="table-stripe table-header-no-wrap"
       hover

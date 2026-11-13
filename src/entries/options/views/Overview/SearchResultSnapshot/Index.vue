@@ -8,7 +8,7 @@ import type { DataTableHeader } from "vuetify";
 import { formatDate } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { type TSearchSnapshotKey } from "@/shared/types.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
@@ -23,27 +23,28 @@ const metadataStore = useMetadataStore();
 const showEditNameDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
-const tableHeader = computed(() =>
-  useTableActionColumn([
-    { title: t("SearchResultSnapshot.table.header.name"), key: "name", align: "start" },
-    { title: t("SearchResultSnapshot.table.header.recordCount"), key: "recordCount", align: "end", width: 100 },
-    {
-      title: t("SearchResultSnapshot.table.header.createdAt"),
-      key: "createdAt",
-      align: "center",
-      width: 150,
-      minWidth: 150,
-    },
-    {
-      title: t("common.action"),
-      key: "action",
-      align: "center",
-      width: 125,
-      minWidth: 125,
-      sortable: false,
-      alwaysShow: true,
-    },
-  ] as DataTableHeader[]),
+const tableHeader = computed(
+  () =>
+    [
+      { title: t("SearchResultSnapshot.table.header.name"), key: "name", align: "start" },
+      { title: t("SearchResultSnapshot.table.header.recordCount"), key: "recordCount", align: "end", width: 100 },
+      {
+        title: t("SearchResultSnapshot.table.header.createdAt"),
+        key: "createdAt",
+        align: "center",
+        width: 150,
+        minWidth: 150,
+      },
+      {
+        title: t("common.action"),
+        key: "action",
+        align: "center",
+        width: 125,
+        minWidth: 125,
+        sortable: false,
+        alwaysShow: true,
+      },
+    ] as DataTableHeader[],
 );
 const tableSelected = ref<TSearchSnapshotKey[]>([]);
 const tableWaitFilter = ref("");
@@ -73,6 +74,8 @@ function tryToDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey[]) {
 async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey) {
   return await metadataStore.removeSearchSnapshotData(searchSnapshotId);
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -103,8 +106,10 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
-      :headers="tableHeader"
+      :headers="fittedHeaders"
       :items="metadataStore.getSearchSnapshotList"
       :items-per-page="configStore.tableBehavior.SearchResultSnapshot.itemsPerPage"
       :search="tableFilter"

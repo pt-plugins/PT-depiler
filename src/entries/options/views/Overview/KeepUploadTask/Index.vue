@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
+import type { DataTableHeader } from "vuetify";
 import { useI18n } from "vue-i18n";
 import type { CAddTorrentOptions } from "@ptd/downloader";
 import { datePathTemplateVars, expandPathTemplate } from "@ptd/downloader/utils/pathTemplate.ts";
@@ -10,7 +11,7 @@ import { formatSize, formatDate } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
@@ -28,14 +29,14 @@ const loading = ref(false);
 const tableKey = ref(0); // 用于强制刷新表格
 
 const headers = computed(() => {
-  const tableHeaders = useTableActionColumn([
+  const tableHeaders: DataTableHeader[] = [
     { title: t("KeepUploadTask.table.site"), key: "site", align: "center" as const, sortable: false },
     { title: t("KeepUploadTask.table.title"), key: "title", align: "start" as const },
     { title: t("KeepUploadTask.table.size"), key: "size", align: "end" as const },
     { title: t("KeepUploadTask.table.count"), key: "count", align: "center" as const },
     { title: t("KeepUploadTask.table.time"), key: "time", align: "center" as const },
     { title: t("common.action"), key: "action", align: "center" as const, sortable: false },
-  ]);
+  ];
 
   // 本表格使用 show-expand，展开列由 v-data-table 追加在表头末尾。
   // 操作列固定在行尾时，需要让展开列一并固定在行尾（并给出固定宽度），否则展开列会被操作列遮挡。
@@ -214,6 +215,8 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
     runtimeStore.showSnackbar(t("KeepUploadTask.copyError"), { color: "error" });
   }
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(headers);
 </script>
 
 <template>
@@ -252,10 +255,12 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       :key="tableKey"
       v-model="selectedTasks"
       v-model:expanded="expanded"
-      :headers="headers"
+      :headers="fittedHeaders"
       :items="tasks"
       :items-per-page="configStore.tableBehavior.KeepUploadTask.itemsPerPage"
       :loading="loading"

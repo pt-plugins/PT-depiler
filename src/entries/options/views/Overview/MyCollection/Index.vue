@@ -8,7 +8,7 @@ import { sendMessage } from "@/messages.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import type { ITorrentFavoriteItem, TTorrentFavoriteKey } from "@/shared/types.ts";
 
 import ActionTd from "@/options/views/Overview/SearchEntity/ActionTd.vue";
@@ -30,18 +30,19 @@ const loading = ref(false);
 const tableWaitFilter = ref("");
 const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成
 
-const tableHeader = computed(() =>
-  useTableActionColumn([
-    { title: t("common.site"), key: "site", align: "center", sortable: false, width: 80 },
-    // 与搜索结果页一致：标题列限宽（长标题截断），其余列给固定宽度，避免标题被挤成一两行文字
-    { title: t("MyCollection.table.title"), key: "title", align: "start", minWidth: "18rem", maxWidth: "30vw" },
-    { title: t("MyCollection.table.category"), key: "category", align: "center", width: 90 },
-    { title: t("MyCollection.table.favCategories"), key: "favCategories", align: "center", width: 140 },
-    { title: t("MyCollection.table.size"), key: "size", align: "end", width: 100 },
-    { title: t("MyCollection.table.time"), key: "time", align: "center", width: 150 },
-    { title: t("MyCollection.table.createdAt"), key: "createdAt", align: "center", width: 160 },
-    { title: t("common.action"), key: "action", align: "center", width: 150, minWidth: 150, sortable: false },
-  ] as DataTableHeader[]),
+const tableHeader = computed(
+  () =>
+    [
+      { title: t("common.site"), key: "site", align: "center", sortable: false, width: 80 },
+      // 与搜索结果页一致：标题列限宽（长标题截断），其余列给固定宽度，避免标题被挤成一两行文字
+      { title: t("MyCollection.table.title"), key: "title", align: "start", minWidth: "18rem", maxWidth: "30vw" },
+      { title: t("MyCollection.table.category"), key: "category", align: "center", width: 90 },
+      { title: t("MyCollection.table.favCategories"), key: "favCategories", align: "center", width: 140 },
+      { title: t("MyCollection.table.size"), key: "size", align: "end", width: 100 },
+      { title: t("MyCollection.table.time"), key: "time", align: "center", width: 150 },
+      { title: t("MyCollection.table.createdAt"), key: "createdAt", align: "center", width: 160 },
+      { title: t("common.action"), key: "action", align: "center", width: 150, minWidth: 150, sortable: false },
+    ] as DataTableHeader[],
 );
 
 // 已有收藏分类（不含未分类），既用于筛选也用于表格中的分类 chip
@@ -134,6 +135,8 @@ async function clearAll() {
   selectedKeys.value = [];
   runtimeStore.showSnackbar(t("MyCollection.deleteSuccess"), { color: "success" });
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -210,8 +213,10 @@ async function clearAll() {
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="selectedKeys"
-      :headers="tableHeader"
+      :headers="fittedHeaders"
       :items="filteredFavorites"
       :items-per-page="configStore.tableBehavior.MyCollection.itemsPerPage"
       :loading="loading"

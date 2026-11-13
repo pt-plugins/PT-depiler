@@ -8,7 +8,7 @@ import { sendMessage } from "@/messages.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
@@ -26,13 +26,14 @@ const runtimeStore = useRuntimeStore();
 const isLoading = ref<boolean>(false);
 const backupHistory = shallowRef<IBackupFileInfo[]>([]);
 
-const tableHeaders = computed(() =>
-  useTableActionColumn([
-    { title: t("SetBackup.HistoryDialog.table.filename"), key: "filename", align: "start" },
-    { title: t("SetBackup.HistoryDialog.table.size"), key: "size", align: "end" },
-    { title: t("SetBackup.HistoryDialog.table.time"), key: "time", align: "start" },
-    { title: t("common.action"), key: "action", sortable: false },
-  ] as DataTableHeader[]),
+const tableHeaders = computed(
+  () =>
+    [
+      { title: t("SetBackup.HistoryDialog.table.filename"), key: "filename", align: "start" },
+      { title: t("SetBackup.HistoryDialog.table.size"), key: "size", align: "end" },
+      { title: t("SetBackup.HistoryDialog.table.time"), key: "time", align: "start" },
+      { title: t("common.action"), key: "action", sortable: false },
+    ] as DataTableHeader[],
 );
 const tableSelected = ref<string[]>([]);
 
@@ -81,6 +82,8 @@ async function dialogLeave() {
   backupHistory.value = [];
   tableSelected.value = [];
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeaders);
 </script>
 
 <template>
@@ -111,8 +114,10 @@ async function dialogLeave() {
         />
 
         <v-data-table
+          ref="fitTableRef"
+          :class="fitTableClass"
           v-model="tableSelected"
-          :headers="tableHeaders"
+          :headers="fittedHeaders"
           :items="backupHistory"
           :sort-by="[{ key: 'time', order: 'desc' }]"
           :loading="isLoading"

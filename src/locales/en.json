@@ -393,7 +393,6 @@
         "alive": "Relative Time",
         "aliveWeek": "Relative Weeks"
       },
-      "limitLevelNameTdWidth": "Limit level column width",
       "multiOpen": "Open in batch",
       "noSiteSelectedCancelOpen": "No site to open",
       "noSiteSelectedCancelRefresh": "No site selected, refresh cancelled",
@@ -526,7 +525,6 @@
       "billableSizeHint": "Actual billable size of the selected torrents (weighted by download volume factor; unknown factors count as 1)",
       "filterLabel": "Filter search results",
       "highlightSameSizeTorrent": "Mark same-size torrents when sorted by size",
-      "limitTorrentTitleTdWidth": "Limit torrent title column width",
       "selectedTorrents": "Selected {0} torrents",
       "showSiteName": "Show Site Name",
       "showSocialInformation": "Show Media Rating Information",
@@ -806,6 +804,8 @@
       "tableActionColumnPosition": "Action column position",
       "tableActionColumnPositionEnd": "Row end (default)",
       "tableActionColumnPositionStart": "Row start",
+      "tableColumnFit": "Fit table columns to content",
+      "tableColumnFitNote": "Sizes the columns by their header and the rows shown, then spreads them over the table width: when everything fits, each column grows in proportion; when it does not, only the widest columns (usually the title) are narrowed, and the action column stays whole. Recalculated when you change page, sort, filter or the shown columns.",
       "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority.",
       "useLargeIcon": "Use large icon buttons"
     },

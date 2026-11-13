@@ -14,7 +14,7 @@ import {
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 import type { ISearchResultTorrent } from "@/shared/types.ts";
 
@@ -72,9 +72,7 @@ const fullTableHeader = computed(
         key: "title",
         align: "start",
         minWidth: "30rem",
-        ...(configStore.searchEntifyControl.limitTorrentTitleTdWidth || display.smAndDown.value
-          ? { maxWidth: "32vw" }
-          : {}),
+        ...(display.smAndDown.value ? { maxWidth: "32vw" } : {}),
         props: { disabled: true },
       },
       { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
@@ -105,11 +103,9 @@ const fullTableHeader = computed(
 );
 
 const tableHeader = computed(() => {
-  return useTableActionColumn(
-    fullTableHeader.value.filter(
-      (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
-    ) as DataTableHeader[],
-  );
+  return fullTableHeader.value.filter(
+    (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
+  ) as DataTableHeader[];
 });
 
 /**
@@ -314,6 +310,8 @@ function promoCellText(item: ISearchResultTorrent): string {
     .join(" · ");
   return text || "-";
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -527,11 +525,13 @@ function promoCellText(item: ISearchResultTorrent): string {
       <QuickFilterNotice :selected-torrents="tableSelectedRaw" />
 
       <v-data-table
+        ref="fitTableRef"
+        :class="fitTableClass"
         id="ptd-search-entity-table"
         v-model="tableSelectedRaw"
         :custom-filter="tableFilterFn"
         :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
-        :headers="tableHeader"
+        :headers="fittedHeaders"
         :items="runtimeStore.search.searchResult"
         :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
         :search="tableFilterRef"

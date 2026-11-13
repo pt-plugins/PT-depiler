@@ -12,7 +12,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -34,11 +34,9 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 const display = useDisplay();
 
-// 等级列是否限制宽度：用户开启「限制等级栏宽度」，或处于小屏时生效（与搜索结果页的标题列行为一致）。
+// 等级列是否限制宽度：小屏时生效（与搜索结果页的标题列行为一致）。
 // 表头 maxWidth 与单元格截断共用此条件，避免出现「限宽不裁剪」或「裁剪不限宽」的错位。
-const limitLevelNameTdWidth = computed(
-  () => configStore.myDataTableControl.limitLevelNameTdWidth || display.smAndDown.value,
-);
+const limitLevelNameTdWidth = computed(() => display.smAndDown.value);
 
 const currentDate = new Date();
 
@@ -80,12 +78,10 @@ const fullTableHeader = computed(
 );
 
 const tableHeader = computed(() => {
-  return useTableActionColumn(
-    fullTableHeader.value.filter(
-      (item: TExtendDataTableHeader) =>
-        item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
-    ) as DataTableHeader[],
-  );
+  return fullTableHeader.value.filter(
+    (item: TExtendDataTableHeader) =>
+      item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
+  ) as DataTableHeader[];
 });
 
 const tableNonBooleanControlKey = [
@@ -234,6 +230,8 @@ function viewStatistic() {
 }
 
 const showExportDialog = ref(false);
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -447,10 +445,12 @@ const showExportDialog = ref(false);
       </v-row>
     </v-card-title>
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
       :custom-filter="tableFilterFn"
       :filter-keys="['site'] /* 对每个item值只检索一次 */"
-      :headers="tableHeader"
+      :headers="fittedHeaders"
       :items="tableData"
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :multi-sort="configStore.enableTableMultiSort"

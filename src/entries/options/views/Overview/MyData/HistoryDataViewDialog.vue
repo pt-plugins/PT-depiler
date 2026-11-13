@@ -6,7 +6,7 @@ import type { DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
 import { downloadBlob, formatSize, formatDate } from "@/options/utils.ts";
-import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatRatio } from "./utils/format.ts";
 import { loadSiteHistoryData } from "./utils/lastUserData.ts";
 
@@ -28,18 +28,19 @@ interface IShowUserInfo extends IUserInfo {
 }
 
 const siteHistoryData = shallowRef<IShowUserInfo[]>([]);
-const tableHeader = computed(() =>
-  useTableActionColumn([
-    { title: t("common.date"), key: "date", align: "center" },
-    { title: t("common.username"), key: "name", align: "center", sortable: false },
-    { title: t("MyData.table.levelName"), key: "levelName", align: "start", sortable: false },
-    { title: t("MyData.table.userData"), key: "uploaded", align: "end", sortable: false },
-    { title: t("levelRequirement.ratio"), key: "ratio", align: "end", sortable: false },
-    { title: t("levelRequirement.seeding"), key: "seeding", align: "end", sortable: false },
-    { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end", sortable: false },
-    { title: t("levelRequirement.bonus"), key: "bonus", align: "end", sortable: false },
-    { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false },
-  ] as DataTableHeader[]),
+const tableHeader = computed(
+  () =>
+    [
+      { title: t("common.date"), key: "date", align: "center" },
+      { title: t("common.username"), key: "name", align: "center", sortable: false },
+      { title: t("MyData.table.levelName"), key: "levelName", align: "start", sortable: false },
+      { title: t("MyData.table.userData"), key: "uploaded", align: "end", sortable: false },
+      { title: t("levelRequirement.ratio"), key: "ratio", align: "end", sortable: false },
+      { title: t("levelRequirement.seeding"), key: "seeding", align: "end", sortable: false },
+      { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end", sortable: false },
+      { title: t("levelRequirement.bonus"), key: "bonus", align: "end", sortable: false },
+      { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false },
+    ] as DataTableHeader[],
 );
 const tableSelected = ref<string[]>([]);
 
@@ -81,6 +82,8 @@ function afterEnter() {
     });
   }
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -99,8 +102,10 @@ function afterEnter() {
       <v-divider />
       <v-card-text>
         <v-data-table
+          ref="fitTableRef"
+          :class="fitTableClass"
           v-model="tableSelected"
-          :headers="tableHeader"
+          :headers="fittedHeaders"
           :items="siteHistoryData"
           :sort-by="[{ key: 'date', order: 'desc' }]"
           class="table-stripe"

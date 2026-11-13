@@ -70,3 +70,32 @@
     margin: 0;
   }
 }
+
+/* 列宽适应内容（见 options/directives/useTableColumnFit.ts）：
+ * 测量时让表格按内容的 max-content 排版，并隐藏跨列的行（展开行、分组行、无数据行），
+ * 避免它们把宽度摊到各列上；适应后用 fixed 排版固定百分比列宽，放不下的内容裁剪。 */
+.table-column-fit-measure > .v-table__wrapper > table {
+  table-layout: auto !important;
+  width: max-content !important;
+
+  > thead > tr > th,
+  > tbody > tr > td {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  > tbody > tr:not(.v-data-table__tr) {
+    display: none !important;
+  }
+}
+
+.table-column-fitted > .v-table__wrapper > table {
+  table-layout: fixed;
+
+  > thead > tr > th,
+  > tbody > tr > td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
