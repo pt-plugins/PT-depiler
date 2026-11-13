@@ -549,6 +549,12 @@
         "noUpload": "No upload credit",
         "uploadTimes": "Upload counts ×{0}"
       },
+      "titleDisplayMode": "Torrent title display",
+      "titleDisplayModeOptions": {
+        "end": "Ellipsis at end",
+        "middle": "Ellipsis in middle",
+        "scroll": "Scrolling"
+      },
       "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
     },
     "siteFilter": {
@@ -725,6 +731,7 @@
       "autoDetectOfficialGroupFromTitle": "Auto Detect Official Tag From Torrent Title",
       "autoLoadInitialMediaWall": "Automatically load the initial media wall",
       "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page",
+      "displayLabel": "Title display",
       "filterLabel": "Result Filter",
       "forceImdbIdMatchFilter": "When searching by IMDb, filter out results whose IMDb ID returned by the site does not match",
       "hiddenTagNames": "Hidden tags (one per line)",
@@ -750,6 +757,13 @@
       "siteQueueConcurrency": "Request Queue Concurrency",
       "siteSearchConfig": "Site Search Configuration",
       "tagLabel": "Tags Filter",
+      "titleDisplayMode": "Torrent title display",
+      "titleDisplayModeMessage": "Ellipsis at end keeps a single line and ends with …; Ellipsis in middle keeps the beginning and the end (so release group suffixes stay visible) and omits the middle with …; Scrolling hides the overflow by default and, on hover, scrolls back and forth according to the title length (one full pass in 2–5s).",
+      "titleDisplayModeOptions": {
+        "end": "Ellipsis at end",
+        "middle": "Ellipsis in middle",
+        "scroll": "Scrolling"
+      },
       "treatTTQueryAsImdbSearch": "Treat tt\\d\\{7,8\\} search terms directly as IMDb search"
     },
     "tab": {

@@ -61,6 +61,13 @@ export const useConfigStore = defineStore("config", {
         needsSave = true;
       }
 
+      // 标题显示方式只允许 end / middle / scroll（防止旧版本/手工改动写入非法值）
+      const titleDisplayMode = state.searchEntifyControl?.titleDisplayMode;
+      if (titleDisplayMode !== undefined && !["end", "middle", "scroll"].includes(titleDisplayMode)) {
+        state.searchEntifyControl.titleDisplayMode = "end";
+        needsSave = true;
+      }
+
       if (needsSave) {
         context.store.$save();
       }
@@ -80,7 +87,7 @@ export const useConfigStore = defineStore("config", {
     enableTableMultiSort: false,
     tableActionColumnPosition: "end",
     tableActionColumnFixed: false,
-    tableColumnFit: false,
+    tableColumnFit: true,
 
     contextMenus: {
       enabled: true,
@@ -265,6 +272,7 @@ export const useConfigStore = defineStore("config", {
       promotionDisplay: "tags",
       showTorrentSubtitle: true,
       showTorrentCover: false,
+      titleDisplayMode: "end",
       showSocialInformation: true,
       socialInformationSearchOnNewTab: true,
       uploadAtFormatAsAlive: false,

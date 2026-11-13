@@ -63,6 +63,13 @@ const promotionDisplay = computed<"tags" | "factor" | "both" | "none">(() => {
 });
 const showPromoColumn = computed(() => promotionDisplay.value === "factor" || promotionDisplay.value === "both");
 
+/** 种子标题超长时的显示方式（设置页与搜索页显示偏好共用同一配置） */
+const titleDisplayModeOptions = computed(() => [
+  { title: t("SearchEntity.index.titleDisplayModeOptions.end"), value: "end" },
+  { title: t("SearchEntity.index.titleDisplayModeOptions.middle"), value: "middle" },
+  { title: t("SearchEntity.index.titleDisplayModeOptions.scroll"), value: "scroll" },
+]);
+
 const fullTableHeader = computed(
   () =>
     [
@@ -201,7 +208,7 @@ function cancelSearchQueue() {
   runtimeStore.search.isSearching = false;
 }
 
-const tableNonBooleanControlKey = ["maxTagCountBeforeGroup", "hiddenTagNames", "promotionDisplay"];
+const tableNonBooleanControlKey = ["maxTagCountBeforeGroup", "hiddenTagNames", "promotionDisplay", "titleDisplayMode"];
 
 // 过滤出表格控制中非布尔类型的键
 const filteredTableBooleanControlKeys = computed(() => {
@@ -452,6 +459,17 @@ const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useT
             </v-btn-group>
           </template>
           <v-list>
+            <v-list-item class="mb-1">
+              <v-select
+                v-model="configStore.searchEntifyControl.titleDisplayMode"
+                :items="titleDisplayModeOptions"
+                :label="t('SearchEntity.index.titleDisplayMode')"
+                color="success"
+                density="compact"
+                hide-details
+                @update:model-value="() => configStore.$save()"
+              />
+            </v-list-item>
             <v-list-item v-for="item in filteredTableBooleanControlKeys" :key="item" :value="item">
               <template v-slot:prepend>
                 <v-list-item-action start class="ml-2">
