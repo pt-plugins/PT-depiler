@@ -153,7 +153,7 @@ const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(tit
     <!-- 种子自带的封面：缩略图跨标题与副标题两行，悬停显示大图 -->
     <v-menu v-if="showCover" location="end" open-on-hover>
       <template v-slot:activator="{ props }">
-        <v-img v-bind="props" :src="item.cover" class="t_cover rounded mr-2" height="43" width="64">
+        <v-img v-bind="props" :src="item.cover" class="t_cover rounded">
           <template #error>
             <v-icon class="t_cover_error" color="grey" icon="mdi-image-off-outline" />
           </template>
@@ -426,6 +426,14 @@ const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(tit
   .t_cover {
     grid-row: span 2;
   }
+}
+
+// 影视剧海报常见 2:3（876 × 1314）：高度保持 43px，宽度按比例计算并保证至少 30px
+.t_cover {
+  height: 43px;
+  width: calc(43px * 876 / 1314);
+  min-width: 30px;
+  margin-right: 6px;
 }
 
 // Size the preview by viewport height so covers of any source resolution look alike
