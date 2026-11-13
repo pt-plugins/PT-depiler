@@ -1,5 +1,5 @@
 name: 功能请求 / Feature request
-description: 发起新功能请求，或对原 PT-Plugin-Plus 中已有、PTD 尚未实现的功能提出迁移需求 / Request a new feature, or ask to migrate one that PT-Plugin-Plus already has but PTD does not
+description: 发起新功能请求或对现有功能提出改进建议 / Request a new feature or suggest an improvement to an existing one
 title: "[Feature] "
 type: feature
 labels: ["enhancement"]
@@ -13,7 +13,7 @@ body:
         >
         > 本模板以中文撰写，但**允许使用英文提交**：标题与各项正文都可以用英文填写，必填项与勾选项要求不变。
 
-        - 本模板用于：**新功能请求**、**功能改进**，以及**原 PT-Plugin-Plus（PTPP）中已有功能向 PTD 的迁移需求**。
+        - 本模板用于：**新功能请求**、**功能改进**。
         - ⚠️ 注意：**自定义站点、自定义站点插件等部分功能不会实现**，请勿提出。
         - 站点数据获取 / 搜索 / 等级时魔异常请使用 **「站点问题反馈」**；与站点无关的 Bug 请使用 **「Bug 反馈」**；请求支持新站点请使用 **「站点适配」**。
 
@@ -31,10 +31,9 @@ body:
     id: request_type
     attributes:
       label: 需求类型（必填） / Request type (required)
-      description: 若为 PTPP 已有功能迁移，请选择第二项，并填写下面的 PTPP 专用问题 / For a PTPP feature migration, choose the second option and fill in the PTPP-specific fields below.
+      description: 请选择最贴近的一项 / Pick the option that fits best
       options:
-        - 全新功能（PTPP 与 PTD 均未实现） / New feature (in neither PTPP nor PTD)
-        - PTPP 已有功能迁移（原 PT-Plugin-Plus 已实现，PTD 尚未实现） / Migrate an existing PTPP feature (implemented in PT-Plugin-Plus, missing in PTD)
+        - 全新功能 / New feature
         - 对现有功能的改进 / 行为调整 — improve or adjust existing behaviour
         - 其他（请在下方说明） / Other (please explain below)
     validations:
@@ -44,7 +43,7 @@ body:
     id: problem
     attributes:
       label: 需求描述与原因（必填） / Problem and motivation (required)
-      description: 请简明扼要地描述问题所在，以及为什么需要这个功能；若是 PTPP 已有功能迁移，请一并说明它解决什么问题 / Describe the problem and why the feature is needed; for a PTPP migration, also explain what it solved there.
+      description: 请简明扼要地描述问题所在，以及为什么需要这个功能 / Describe the problem and why the feature is needed.
       placeholder: |
         现状 / 遇到的问题：...
         希望解决：...
@@ -67,26 +66,6 @@ body:
     attributes:
       label: 考虑过的替代方案 / Alternatives considered
       description: 如果有参考实现、截图、上游项目或其它插件的链接，请在此附上 / Link any reference implementation, screenshot, upstream project or similar plugin here.
-    validations:
-      required: false
-
-  - type: textarea
-    id: ptpp_behavior
-    attributes:
-      label: 【PTPP 迁移专用】这一功能在原 PT-Plugin-Plus 中是怎么展现的？ / [PTPP migration] How does it look in the original PT-Plugin-Plus?
-      description: 仅当「需求类型」选择「PTPP 已有功能迁移」时填写；请说明功能入口与操作流程，并提供截图 / Only for "Migrate an existing PTPP feature" — describe where it lives and how it works, and attach screenshots.
-      placeholder: |
-        入口位置：例如 设置 → xxx 页面、种子列表右键菜单
-        操作流程：...
-        截图：拖拽图片到此处上传
-    validations:
-      required: false
-
-  - type: textarea
-    id: ptd_suggestion
-    attributes:
-      label: 【PTPP 迁移专用】你对这一功能在 PTD 中实现有什么更好的建议？ / [PTPP migration] Any better ideas for implementing it in PTD?
-      description: 例如希望结合 PTD 现有的搜索方案、下载器、备份等机制做得更好 / For example, how it could build on PTD's search profiles, downloaders or backup mechanisms.
     validations:
       required: false
 
