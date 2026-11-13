@@ -44,6 +44,20 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    /**
+     * HDTime 的 /index.php 会被 Cloudflare 拦截，返回「系统维护中」页面，导致默认流程拿不到用户 id。
+     * 这里把默认流程第一步（获取 id）换成 /messages.php：它同样带 #info_block（内含当前用户的
+     * userdetails.php?id=xxx 链接，`baseUserIdSelector` 可直接取出 id），且不像无 id 的
+     * /userdetails.php 那样会在站点系统日志里留下访问记录。其余步骤保持不变。
+     * refs: https://github.com/pt-plugins/PT-depiler/issues/1701
+     */
+    process: (SchemaMetadata.userInfo.process ?? []).map((step, index) =>
+      index === 0 ? { ...step, requestConfig: { ...step.requestConfig, url: "/messages.php" } } : step,
+    ),
+  },
+
   levelRequirements: [
     {
       id: 1,
