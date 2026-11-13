@@ -1371,6 +1371,13 @@
         "loading": "Loading hot recommendations...",
         "noRating": "No rating",
         "noSummary": "No summary",
+        "ratingCount": "{count} ratings",
+        "ratingSource": {
+          "anilist": "AniList",
+          "bangumi": "Bangumi",
+          "douban": "Douban"
+        },
+        "unknownRatingCount": "Rating count unavailable",
         "refresh": "Refresh hot recommendations",
         "title": "Hot Recommendations"
       },

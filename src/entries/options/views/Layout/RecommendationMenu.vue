@@ -14,7 +14,7 @@ const emit = defineEmits<{
   search: [title: string];
 }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const isRecommendationMenuOpen = ref(false);
 const isLoadingRecommendations = ref(false);
@@ -57,9 +57,11 @@ async function loadRecommendations(flush = false) {
       return;
     }
 
-    if (!result.hasFailedSources || recommendationItems.value.length === 0) {
-      recommendationItems.value = result.items;
-    }
+    const updatedCategories = new Set(result.items.map((item) => item.category));
+    recommendationItems.value = [
+      ...result.items,
+      ...recommendationItems.value.filter((item) => !updatedCategories.has(item.category)),
+    ];
     if (result.hasFailedSources && recommendationItems.value.length === 0) {
       recommendationError.value = t("layout.header.hotRecommendations.loadFailed");
     }
@@ -74,6 +76,24 @@ async function loadRecommendations(flush = false) {
       isLoadingRecommendations.value = false;
     }
   }
+}
+
+function formatRecommendationRating(item: ISocialRecommendationItem) {
+  if (item.ratingScore == null) {
+    return t("layout.header.hotRecommendations.noRating");
+  }
+  const source = t(`layout.header.hotRecommendations.ratingSource.${item.site}`);
+  const score = new Intl.NumberFormat(locale.value.replace("_", "-"), {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(item.ratingScore);
+  const votes =
+    item.ratingCount == null
+      ? t("layout.header.hotRecommendations.unknownRatingCount")
+      : t("layout.header.hotRecommendations.ratingCount", {
+          count: new Intl.NumberFormat(locale.value.replace("_", "-")).format(item.ratingCount),
+        });
+  return `${source} ${score} · ${votes}`;
 }
 
 function hasIncompleteRecommendations() {
@@ -256,13 +276,18 @@ watch(isRecommendationMenuOpen, (isOpen) => {
 
                 <v-list-item-title class="hot-recommendation-title-row text-body-medium">
                   <span class="hot-recommendation-title text-truncate">{{ item.title }}</span>
-                  <span class="hot-recommendation-rating">
-                    <v-icon icon="mdi-star" color="amber-darken-2" size="x-small" class="mr-1" />
-                    {{
-                      item.ratingScore ? item.ratingScore.toFixed(1) : t("layout.header.hotRecommendations.noRating")
-                    }}
-                  </span>
                 </v-list-item-title>
+                <div class="hot-recommendation-rating">
+                  <v-icon
+                    v-if="item.ratingScore != null"
+                    icon="mdi-star"
+                    color="amber-darken-2"
+                    size="x-small"
+                    aria-hidden="true"
+                  />
+                  <v-icon v-else icon="mdi-star-outline" size="x-small" aria-hidden="true" />
+                  {{ formatRecommendationRating(item) }}
+                </div>
 
                 <div class="hot-recommendation-meta">
                   <span v-if="item.releaseYear" class="hot-recommendation-chip hot-recommendation-chip-year">
@@ -328,9 +353,9 @@ watch(isRecommendationMenuOpen, (isOpen) => {
 }
 
 .hot-recommendation-rating {
-  display: inline-flex;
-  flex: none;
+  display: flex;
   align-items: center;
+  gap: 4px;
   color: rgba(var(--v-theme-on-surface), 0.64);
   font-size: 0.75rem;
 }

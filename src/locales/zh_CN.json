@@ -1368,6 +1368,13 @@
         "loading": "正在加载热门推荐...",
         "noRating": "暂无评分",
         "noSummary": "暂无简介",
+        "ratingCount": "{count} 人评价",
+        "ratingSource": {
+          "anilist": "AniList",
+          "bangumi": "Bangumi",
+          "douban": "豆瓣"
+        },
+        "unknownRatingCount": "人数未知",
         "refresh": "刷新热门推荐",
         "title": "热门推荐"
       },
