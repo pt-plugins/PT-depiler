@@ -386,16 +386,15 @@ const scrollDuration = computed(() => `${Math.min(30, Math.max(8, Math.round(tit
 }
 
 .t_title_scroll:hover .t_title_scroll_inner {
-  animation: t_title_scroll 12s ease-in-out infinite alternate;
+  // linear + 无起始停留：悬停后立即开始滚动；停留/缓动会让长标题在前一两秒看起来“没反应”
+  animation: t_title_scroll 12s linear infinite alternate;
 }
 
 @keyframes t_title_scroll {
-  0%,
-  8% {
+  from {
     transform: translateX(0);
   }
-  92%,
-  100% {
+  to {
     transform: translateX(calc(-100% + 100cqw));
   }
 }
