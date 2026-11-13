@@ -268,6 +268,9 @@ function createMessageWrapper<PM extends ProtocolMap>(original: {
     // 深拷贝数据，避免 Vue 响应式 Proxy 或其他不可序列化对象进入消息链路引发 DataCloneError。
     // 原实现仅对 firefox 生效，Chrome/Edge 下同样存在该问题（见 issue #1431），
     // 故对所有浏览器统一执行深拷贝。
+    //
+    // ⚠️ onMessage 的**返回值**同样由浏览器序列化（Chrome 用 JSON、Firefox 用 structured clone），
+    // 同样不能是响应式 ref / Proxy，否则 Firefox 下回包克隆失败、调用方永远拿不到数据（issue #1716）。
     if (typeof data !== "undefined") {
       data = JSON.parse(JSON.stringify(data));
     }
