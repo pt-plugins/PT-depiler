@@ -7,6 +7,8 @@ import type { DataTableHeader } from "vuetify";
 
 import { dependencies, devDependencies } from "~/../package.json";
 import { REPO_URL } from "~/helper.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 const { t } = useI18n();
 
@@ -66,6 +68,13 @@ const TechnologyStackTableHeader = [
 ] as DataTableHeader[];
 
 const tableDependencies = computed(() => Object.values(technologyData.value));
+
+const {
+  tableRef: fitTableRef,
+  fittedHeaders,
+  tableClass: fitTableClass,
+  fitColumns,
+} = useTableColumnFit(TechnologyStackTableHeader);
 </script>
 
 <template>
@@ -100,7 +109,9 @@ const tableDependencies = computed(() => Object.values(technologyData.value));
     <v-card-title>{{ t("TechnologyStack.dependency") }}</v-card-title>
     <v-card-text>
       <v-data-table
-        :headers="TechnologyStackTableHeader"
+        ref="fitTableRef"
+        :class="fitTableClass"
+        :headers="fittedHeaders"
         :items="tableDependencies"
         :items-per-page="-1"
         :sort-by="[{ key: 'name', order: 'asc' }]"
@@ -108,6 +119,11 @@ const tableDependencies = computed(() => Object.values(technologyData.value));
         item-value="id"
         must-sort
       >
+        <template #footer.prepend>
+          <TableColumnFitButton @click="fitColumns" />
+          <v-spacer />
+        </template>
+
         <template #item.url="{ item }">
           <a :href="item.url" rel="noopener noreferrer nofollow" target="_blank">{{ item.url }}</a>
         </template>

@@ -8,6 +8,8 @@ import type { IMediaServerBaseConfig } from "@ptd/mediaServer";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import type { TDownloaderKey, TMediaServerKey } from "@/shared/types.ts";
 
 import AddDialog from "./AddDialog.vue";
@@ -93,6 +95,13 @@ function overviewMediaServer(mediaServerId: TMediaServerKey) {
 async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
   return await metadataStore.removeMediaServer(mediaServerId);
 }
+
+const {
+  tableRef: fitTableRef,
+  fittedHeaders,
+  tableClass: fitTableClass,
+  fitColumns,
+} = useTableColumnFit(fullTableHeader);
 </script>
 
 <template>
@@ -114,12 +123,15 @@ async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
           icon="mdi-access-point-check"
           @click="checkAllStatus"
         />
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
       </v-row>
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
-      :headers="fullTableHeader"
+      :headers="fittedHeaders"
       :items="metadataStore.getMediaServers"
       class="table-stripe table-header-no-wrap"
       hover

@@ -13,6 +13,8 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -234,6 +236,8 @@ function viewStatistic() {
 }
 
 const showExportDialog = ref(false);
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -366,6 +370,7 @@ const showExportDialog = ref(false);
           </template>
         </v-combobox>
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <v-text-field
@@ -447,10 +452,12 @@ const showExportDialog = ref(false);
       </v-row>
     </v-card-title>
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
       :custom-filter="tableFilterFn"
       :filter-keys="['site'] /* 对每个item值只检索一次 */"
-      :headers="tableHeader"
+      :headers="fittedHeaders"
       :items="tableData"
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :multi-sort="configStore.enableTableMultiSort"

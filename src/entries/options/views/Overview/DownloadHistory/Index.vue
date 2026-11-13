@@ -7,6 +7,8 @@ import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/types.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
@@ -95,6 +97,8 @@ onMounted(() => {
 onUnmounted(() => {
   clearWatchingMap();
 });
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -128,6 +132,7 @@ onUnmounted(() => {
           @click="deleteDownloadHistory(tableSelected)"
         />
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <!-- 筛选框 -->
@@ -147,10 +152,12 @@ onUnmounted(() => {
     </v-card-title>
     <v-card-text>
       <v-data-table
+        ref="fitTableRef"
+        :class="fitTableClass"
         v-model="tableSelected"
         :custom-filter="tableFilterFn"
         :filter-keys="['id'] /* 对每个item值只检索一次 */"
-        :headers="tableHeader"
+        :headers="fittedHeaders"
         :items="downloadHistoryList"
         :items-per-page="configStore.tableBehavior.DownloadHistory.itemsPerPage"
         :multi-sort="configStore.enableTableMultiSort"

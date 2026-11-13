@@ -15,6 +15,8 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 import type { ISearchResultTorrent } from "@/shared/types.ts";
 
@@ -314,6 +316,21 @@ function promoCellText(item: ISearchResultTorrent): string {
     .join(" · ");
   return text || "-";
 }
+
+const {
+  tableRef: fitTableRef,
+  fittedHeaders,
+  tableClass: fitTableClass,
+  fitColumns: fitTableColumns,
+} = useTableColumnFit(tableHeader);
+
+/** 标题列不限宽时，列宽适应会把空间都让给标题，提示用户开启「限制种子标题宽度」 */
+function fitColumns() {
+  fitTableColumns();
+  if (!configStore.searchEntifyControl.limitTorrentTitleTdWidth && !display.smAndDown.value) {
+    runtimeStore.showSnackbar(t("SearchEntity.index.fitColumnsHint"), { color: "info" });
+  }
+}
 </script>
 
 <template>
@@ -505,6 +522,7 @@ function promoCellText(item: ISearchResultTorrent): string {
           </template>
         </v-combobox>
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilterRef"
@@ -527,11 +545,13 @@ function promoCellText(item: ISearchResultTorrent): string {
       <QuickFilterNotice :selected-torrents="tableSelectedRaw" />
 
       <v-data-table
+        ref="fitTableRef"
+        :class="fitTableClass"
         id="ptd-search-entity-table"
         v-model="tableSelectedRaw"
         :custom-filter="tableFilterFn"
         :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
-        :headers="tableHeader"
+        :headers="fittedHeaders"
         :items="runtimeStore.search.searchResult"
         :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
         :search="tableFilterRef"

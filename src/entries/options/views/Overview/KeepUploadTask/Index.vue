@@ -11,6 +11,8 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
@@ -214,6 +216,8 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
     runtimeStore.showSnackbar(t("KeepUploadTask.copyError"), { color: "error" });
   }
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(headers);
 </script>
 
 <template>
@@ -238,6 +242,8 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
           @click="clearAllTasks"
         />
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
+
         <v-divider vertical class="mx-2" />
 
         <NavButton
@@ -252,10 +258,12 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       :key="tableKey"
       v-model="selectedTasks"
       v-model:expanded="expanded"
-      :headers="headers"
+      :headers="fittedHeaders"
       :items="tasks"
       :items-per-page="configStore.tableBehavior.KeepUploadTask.itemsPerPage"
       :loading="loading"

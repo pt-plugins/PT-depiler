@@ -9,6 +9,8 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { downloadBlob, formatDate } from "@/options/utils.ts";
 import type { ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
@@ -166,6 +168,8 @@ async function copySearchSolution(solutionId: TSolutionKey) {
     await metadataStore.addSearchSolution(copied);
   }
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -214,6 +218,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
 
         <NavButton :text="t('common.howToUse')" color="light-blue" disabled icon="mdi-help-circle" />
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <v-text-field
@@ -230,9 +235,11 @@ async function copySearchSolution(solutionId: TSolutionKey) {
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
       :filter-keys="['name']"
-      :headers="tableHeader"
+      :headers="fittedHeaders"
       :items="metadataStore.getSearchSolutions"
       :items-per-page="configStore.tableBehavior.SetSearchSolution.itemsPerPage"
       :search="tableFilter"

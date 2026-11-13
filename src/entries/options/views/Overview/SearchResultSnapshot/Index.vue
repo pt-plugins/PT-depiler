@@ -9,6 +9,8 @@ import { formatDate } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { type TSearchSnapshotKey } from "@/shared/types.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
@@ -73,6 +75,8 @@ function tryToDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey[]) {
 async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey) {
   return await metadataStore.removeSearchSnapshotData(searchSnapshotId);
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -88,6 +92,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
           @click="tryToDeleteSearchSnapshot(tableSelected)"
         />
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilter"
@@ -103,8 +108,10 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
-      :headers="tableHeader"
+      :headers="fittedHeaders"
       :items="metadataStore.getSearchSnapshotList"
       :items-per-page="configStore.tableBehavior.SearchResultSnapshot.itemsPerPage"
       :search="tableFilter"

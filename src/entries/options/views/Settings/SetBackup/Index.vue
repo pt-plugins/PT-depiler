@@ -8,6 +8,8 @@ import type { DataTableHeader } from "vuetify";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatDate } from "@/options/utils.ts";
 import { BackupFields, type IBackupServerMetadata, type TBackupServerKey } from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
@@ -111,6 +113,13 @@ function deleteBackupServer(ids: TBackupServerKey[]) {
 async function confirmDeleteBackupServer(id: TBackupServerKey) {
   return await metadataStore.removeBackupServer(id);
 }
+
+const {
+  tableRef: fitTableRef,
+  fittedHeaders,
+  tableClass: fitTableClass,
+  fitColumns,
+} = useTableColumnFit(fullTableHeader);
 </script>
 
 <template>
@@ -143,6 +152,7 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
           @click="() => (showRestoreDialog = true)"
         />
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <v-text-field clearable density="compact" hide-details label="Search" max-width="500" single-line />
@@ -150,8 +160,10 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
-      :headers="fullTableHeader"
+      :headers="fittedHeaders"
       :filter-keys="['id']"
       :items="metadataStore.getBackupServers"
       item-value="id"

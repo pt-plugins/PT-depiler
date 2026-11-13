@@ -14,6 +14,8 @@ import type { TDownloaderKey } from "@/shared/types.ts";
 import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
@@ -125,6 +127,13 @@ function deleteDownloader(downloaderId: TDownloaderKey[]) {
 async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   return await metadataStore.removeDownloader(downloaderId);
 }
+
+const {
+  tableRef: fitTableRef,
+  fittedHeaders,
+  tableClass: fitTableClass,
+  fitColumns,
+} = useTableColumnFit(fullTableHeader);
 </script>
 
 <template>
@@ -152,6 +161,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
           @click="showDefaultDownloaderEditDialog = true"
         />
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <v-text-field
@@ -209,10 +219,12 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="tableSelected"
       :custom-filter="tableFilterFn"
       :filter-keys="['id']"
-      :headers="fullTableHeader"
+      :headers="fittedHeaders"
       :items="metadataStore.getDownloaders"
       :items-per-page="configStore.tableBehavior.SetDownloader.itemsPerPage"
       :search="tableFilterRef"

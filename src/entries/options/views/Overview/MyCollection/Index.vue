@@ -9,6 +9,8 @@ import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import type { ITorrentFavoriteItem, TTorrentFavoriteKey } from "@/shared/types.ts";
 
 import ActionTd from "@/options/views/Overview/SearchEntity/ActionTd.vue";
@@ -134,6 +136,8 @@ async function clearAll() {
   selectedKeys.value = [];
   runtimeStore.showSnackbar(t("MyCollection.deleteSuccess"), { color: "success" });
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -164,6 +168,7 @@ async function clearAll() {
         <!-- 集中下载收藏的种子（例如等到站免时批量推送到下载器）；星标可批量为选中的收藏改分类/备注 -->
         <ActionTd :torrent-items="selectedFavorites" @favorite-saved="loadFavorites" />
 
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
         <v-spacer />
 
         <v-select
@@ -210,8 +215,10 @@ async function clearAll() {
     </v-card-title>
 
     <v-data-table
+      ref="fitTableRef"
+      :class="fitTableClass"
       v-model="selectedKeys"
-      :headers="tableHeader"
+      :headers="fittedHeaders"
       :items="filteredFavorites"
       :items-per-page="configStore.tableBehavior.MyCollection.itemsPerPage"
       :loading="loading"

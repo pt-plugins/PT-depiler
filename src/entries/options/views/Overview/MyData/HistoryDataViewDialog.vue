@@ -7,6 +7,8 @@ import type { DataTableHeader } from "vuetify";
 import { sendMessage } from "@/messages.ts";
 import { downloadBlob, formatSize, formatDate } from "@/options/utils.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 import { formatRatio } from "./utils/format.ts";
 import { loadSiteHistoryData } from "./utils/lastUserData.ts";
 
@@ -81,6 +83,8 @@ function afterEnter() {
     });
   }
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeader);
 </script>
 
 <template>
@@ -99,8 +103,10 @@ function afterEnter() {
       <v-divider />
       <v-card-text>
         <v-data-table
+          ref="fitTableRef"
+          :class="fitTableClass"
           v-model="tableSelected"
-          :headers="tableHeader"
+          :headers="fittedHeaders"
           :items="siteHistoryData"
           :sort-by="[{ key: 'date', order: 'desc' }]"
           class="table-stripe"
@@ -215,6 +221,7 @@ function afterEnter() {
               @click="deleteSiteUserInfo(tableSelected)"
             />
             <NavButton color="info" icon="mdi-export" :text="t('common.export')" @click="exportSiteHistoryData" />
+            <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
             <v-spacer />
           </template>
         </v-data-table>

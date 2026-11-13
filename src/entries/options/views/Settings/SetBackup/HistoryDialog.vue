@@ -9,6 +9,8 @@ import { formatDate, formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
+import TableColumnFitButton from "@/options/components/TableColumnFitButton.vue";
+import { useTableColumnFit } from "@/options/directives/useTableColumnFit.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
@@ -81,6 +83,8 @@ async function dialogLeave() {
   backupHistory.value = [];
   tableSelected.value = [];
 }
+
+const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass, fitColumns } = useTableColumnFit(tableHeaders);
 </script>
 
 <template>
@@ -109,10 +113,13 @@ async function dialogLeave() {
           icon="mdi-delete"
           @click="deleteBackupHistory(tableSelected)"
         />
+        <TableColumnFitButton class="align-self-center ml-1" @click="fitColumns" />
 
         <v-data-table
+          ref="fitTableRef"
+          :class="fitTableClass"
           v-model="tableSelected"
-          :headers="tableHeaders"
+          :headers="fittedHeaders"
           :items="backupHistory"
           :sort-by="[{ key: 'time', order: 'desc' }]"
           :loading="isLoading"
