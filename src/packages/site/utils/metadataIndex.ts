@@ -1,8 +1,8 @@
 // noinspection ES6PreferShortImport
 
-import { checkSiteMetadataAllow } from "./helper";
-import type { ISiteMetadata } from "../types/site";
-import type { ISiteMetadataIndexEntry } from "../types/metadataIndex";
+import { checkSiteMetadataAllow } from "./helper.ts";
+import type { ISiteMetadata } from "../types/site.ts";
+import type { ISiteMetadataIndexEntry } from "../types/metadataIndex.ts";
 
 /**
  * 索引收录的「固定属性」字段名。
