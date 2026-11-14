@@ -203,8 +203,8 @@ importers:
         specifier: ^0.8.3
         version: 0.8.3
       filesize:
-        specifier: ^11.0.29
-        version: 11.0.29
+        specifier: ^11.0.30
+        version: 11.0.30
       idb:
         specifier: ^8.0.4
         version: 8.0.4
@@ -1865,8 +1865,8 @@ packages:
     resolution: {integrity: sha512-pdgqcVlu789LoYmu0kz4pxSphL0pX/UVFFDJ/kTHk+1ZRc43UiokPZFsRV8OGxW49khh11rj54AhqczGIwLa+g==}
     engines: {node: '>=20'}
 
-  filesize@11.0.29:
-    resolution: {integrity: sha512-+Mkmp8keoklLzAnvP/RQGDUEWEpjGmhvm4d4U739C1ZnkqxqoSqdLHnjv9/4QX6lltKSRk6qzQI7+94JVDtuCA==}
+  filesize@11.0.30:
+    resolution: {integrity: sha512-qaIUqg5pU4bdTZQG8w+v5IhPAlOHm/ifT+1NlBuPTlmIAKeBwG1CEYkaLYNLJCfDOGWb7QqXUyQnsYlIC7pAwA==}
     engines: {node: '>= 10.8.0'}
 
   firefox-profile@4.7.0:
@@ -4383,7 +4383,7 @@ snapshots:
 
   filename-reserved-regex@4.1.0: {}
 
-  filesize@11.0.29: {}
+  filesize@11.0.30: {}
 
   firefox-profile@4.7.0:
     dependencies:
