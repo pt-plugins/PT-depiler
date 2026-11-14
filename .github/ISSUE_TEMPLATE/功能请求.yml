@@ -1,5 +1,5 @@
 name: 功能请求 / Feature request
-description: 发起新功能请求或对现有功能提出改进建议 / Request a new feature or suggest an improvement to an existing one
+description: 发起新功能请求或对现有功能提出改进建议 / Request a new feature or suggest an improvement
 title: "[Feature] "
 type: feature
 labels: ["enhancement"]
@@ -7,22 +7,18 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 提交前请先确认模板选对了
+        > 🌐 English submissions are welcome — 标题与各项正文均可使用英文。
 
-        > 🌐 **English submissions are welcome.** You may write the title and every answer in English — required fields and checkboxes are unchanged.
-        >
-        > 本模板以中文撰写，但**允许使用英文提交**：标题与各项正文都可以用英文填写，必填项与勾选项要求不变。
-
-        - 本模板用于：**新功能请求**、**功能改进**。
-        - ⚠️ 注意：**自定义站点、自定义站点插件等部分功能不会实现**，请勿提出。
-        - 站点数据获取 / 搜索 / 等级时魔异常请使用 **「站点问题反馈」**；与站点无关的 Bug 请使用 **「Bug 反馈」**；请求支持新站点请使用 **「站点适配」**。
+        - 本模板用于**新功能请求**与**功能改进**。
+        - **自定义站点、自定义站点插件等部分功能不会实现**，请勿提出。
+        - 站点数据、搜索、等级时魔异常请用「站点问题反馈」；与站点无关的 Bug 请用「Bug 反馈」；请求支持新站点请用「站点适配」。
 
   - type: checkboxes
     id: precheck
     attributes:
-      label: 提交前确认（请全部勾选） / Pre-submission checklist (tick all)
+      label: 提交前确认（请全部勾选） / Pre-submission checklist
       options:
-        - label: 我已搜索过现有 issue 与 CHANGELOG，确认该功能尚未实现、也没有重复请求 / I searched existing issues and the CHANGELOG — this is neither implemented nor already requested.
+        - label: 已搜索现有 issue 与 CHANGELOG，确认该功能尚未实现、也没有重复请求 / Searched existing issues and the CHANGELOG; neither implemented nor already requested.
           required: true
         - label: 我理解「自定义站点 / 自定义站点插件」等部分功能不会实现 / I understand that some features (custom sites, custom site plugins, …) will not be implemented.
           required: true
@@ -31,10 +27,10 @@ body:
     id: request_type
     attributes:
       label: 需求类型（必填） / Request type (required)
-      description: 请选择最贴近的一项 / Pick the option that fits best
+      description: 选择最贴近的一项 / Pick the closest option.
       options:
         - 全新功能 / New feature
-        - 对现有功能的改进 / 行为调整 — improve or adjust existing behaviour
+        - 对现有功能的改进 / Improvement to existing behaviour
         - 其他（请在下方说明） / Other (please explain below)
     validations:
       required: true
@@ -43,7 +39,7 @@ body:
     id: problem
     attributes:
       label: 需求描述与原因（必填） / Problem and motivation (required)
-      description: 请简明扼要地描述问题所在，以及为什么需要这个功能 / Describe the problem and why the feature is needed.
+      description: 说明现状、问题，以及为什么需要这个功能 / Describe the problem and why the feature is needed.
       placeholder: |
         现状 / 遇到的问题：...
         希望解决：...
@@ -55,7 +51,7 @@ body:
     id: solution
     attributes:
       label: 期望的解决方案（必填） / Expected solution (required)
-      description: 描述你想要的解决方案，欢迎提供脑洞（界面位置、交互方式、期望结果等） / Describe the solution you want — UI placement, interaction, expected result; creative ideas are fine.
+      description: 期望的界面位置、交互方式与结果 / UI placement, interaction and expected result.
       placeholder: 例如：在「我的数据」页面增加 xxx 按钮，点击后 ...
     validations:
       required: true
@@ -65,7 +61,7 @@ body:
     id: alternatives
     attributes:
       label: 考虑过的替代方案 / Alternatives considered
-      description: 如果有参考实现、截图、上游项目或其它插件的链接，请在此附上 / Link any reference implementation, screenshot, upstream project or similar plugin here.
+      description: 可附参考实现、截图、上游项目或同类插件链接 / Reference implementations, screenshots, upstream projects or similar plugins.
     validations:
       required: false
 
@@ -73,6 +69,6 @@ body:
     id: extra
     attributes:
       label: 其他附加信息 / Anything else
-      description: 可以添加屏幕截图、参考链接等信息（图片直接拖拽到输入框即可上传） / Screenshots and reference links are welcome (drag images into the box to upload).
+      description: 截图与参考链接（图片可直接拖入本框上传） / Screenshots and reference links (drag images into this box).
     validations:
       required: false
