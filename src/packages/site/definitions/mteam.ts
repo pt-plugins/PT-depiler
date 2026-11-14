@@ -398,8 +398,15 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: "params.uid" },
         selectors: {
           seeding: { selector: "data.seederCount", filters: [{ name: "parseNumber" }] },
-          seedingSize: { selector: "data.seederSize", filters: [{ name: "parseNumber" }] },
           uploads: { selector: "data.uploadCount", filters: [{ name: "parseNumber" }] },
+        },
+      },
+      {
+        // 做种体积：站点网页「保種總體積」使用的就是该接口的 seedingSizeOver72h
+        requestConfig: { url: "/api/member/seedingStats", method: "POST", responseType: "json" },
+        assertion: { id: "params.userid" },
+        selectors: {
+          seedingSize: { selector: "data.seedingSizeOver72h", filters: [{ name: "parseNumber" }] },
         },
       },
       {
@@ -771,80 +778,6 @@ export default class MTeam extends PrivateSite {
 
     userInfo.seeding = seeding;
     return userInfo;
-  }
-
-  /**
-   * 做种体积。
-   *
-   * 站点的「保種總體積」只由 `/api/member/seedingStats`（`data.seedingSizeOver72h`）给出，
-   * 但该接口仅接受网页端 JWT：携带合法 `x-api-key` 实测返回 `code: 401 Access Denied`
-   * （Bearer 等写法亦被拒绝），因此不能使用。这里保留 `myPeerStatistics` 的 `seederSize`；
-   * 当它缺失/为 0 且账号确实在做种时，改为累加 `/api/member/getUserTorrentList`（type=SEEDING）
-   * 里各种子的 `size` 兜底（该接口 API Key 可用）。
-   */
-  protected async parseUserInfoForSeedingSize(userInfo: IUserInfo, dataDocument: any): Promise<IUserInfo> {
-    let seedingSize = definedFilters.parseNumber(get(dataDocument, "data.seederSize"));
-    if (!seedingSize && (userInfo.seeding ?? 0) > 0) {
-      const fallbackSeedingSize = await this.getSeedingSizeFromTorrentList(userInfo.id);
-      if (typeof fallbackSeedingSize === "number") {
-        seedingSize = fallbackSeedingSize;
-      }
-    }
-
-    userInfo.seedingSize = seedingSize;
-    return userInfo;
-  }
-
-  /**
-   * 分页汇总当前做种种子的体积（`getUserTorrentList` 每行结构为 `{ torrent: { size } }`）。
-   * 做种量极大的账号只翻前 `maxPages` 页：超出时不返回部分和，避免给出错误的做种体积。
-   * 兜底数据失败不应影响整次用户信息采集，因此所有异常都吞掉并返回 `undefined`。
-   */
-  private async getSeedingSizeFromTorrentList(userId?: number | string): Promise<number | undefined> {
-    const numericUserId = Number(userId);
-    if (!numericUserId) {
-      return undefined;
-    }
-
-    const pageSize = 200;
-    const maxPages = 50;
-    let pageNumber = 1;
-    let totalPages = 1;
-    let seedingSize = 0;
-
-    try {
-      do {
-        const { data } = await this.request<
-          IMTeamRawResp<{ totalPages?: string; data?: { torrent?: IMTeamRawTorrent }[] }>
-        >({
-          url: "/api/member/getUserTorrentList",
-          data: { pageNumber, pageSize, userid: numericUserId, type: "SEEDING" },
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (data?.code !== "0" || !data.data) {
-          return undefined;
-        }
-
-        totalPages = Number(data.data.totalPages ?? 0);
-        for (const row of data.data.data ?? []) {
-          const size = definedFilters.parseNumber(row.torrent?.size);
-          if (size > 0) {
-            seedingSize += size;
-          }
-        }
-
-        pageNumber++;
-        if (pageNumber <= totalPages) {
-          await this.sleepAction(300); // 翻页间稍作停顿，避免触发站点请求频率限制
-        }
-      } while (pageNumber <= totalPages && pageNumber <= maxPages);
-    } catch (error) {
-      console.warn("[MTeam] Failed to sum seeding torrents size:", error);
-      return undefined;
-    }
-
-    return totalPages > maxPages ? undefined : seedingSize;
   }
 
   /**
