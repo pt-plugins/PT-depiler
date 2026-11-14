@@ -42,7 +42,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合"],
 
   type: "public",
-  urls: ["https://torrenttip251.top/"],
+  urls: ["https://torrenttip252.top/"],
   legacyUrls: [
     "https://torrenttip232.top/",
     "https://torrenttip233.top/",
@@ -63,6 +63,8 @@ export const siteMetadata: ISiteMetadata = {
     "https://torrenttip248.top/",
     "https://torrenttip249.top/",
     "https://torrenttip250.top/",
+    // 2026-11-14 按 Jackett dac7534c 域名轮换更新：主域 251 → 252，旧域进 legacyUrls
+    "https://torrenttip251.top/",
   ],
 
   timezoneOffset: "+0000",

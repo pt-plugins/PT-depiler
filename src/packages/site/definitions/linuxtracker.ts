@@ -6,12 +6,12 @@ import { type ISiteMetadata } from "../types";
 /**
  * 分类 id 直接用站点 `?category=<数字id>` 的口径。
  *
- * 2026-11-12 全量同步：站点 `/torrents/` 页面自带的分类 `<select>` 共 **331 个选项**
- * （id + 名称），是权威清单。本表按其 **DOM 顺序**（字母序，`Other distros` 尾部收尾）原样收录，
- * 不再人工挑选子集——此前「只保留常见发行版」的取舍前提（认为站点没有分类导航 UI）已被证伪。
+ * 全量同步：站点 `/torrents/` 页面自带的分类 `<select>` 共 **338 个选项**
+ * （id + 名称），是权威清单。本表按其 **DOM 顺序**（字母序，`Other distros` 尾部收尾）原样收录。
  *
- * 每个 id 都用 `https://linuxtracker.org/torrents/?category=<id>` 核对过返回结果的
- * category-badge 与该 id 一一对应（2026-11-11 抽查含 Jackett 2026-11-08/09 新增的 14 个分类）。
+ * 2026-11-14 再同步（331 → 338）：站点新增 7 个发行版分类
+ * （27 CatOS、28 Maple Linux、29 OpenKylin、30 Kader⁴²、31 Hybrid-d77、32 Rocky Linux、33 Argent Linux），
+ * 其中前 4 个对应 Jackett d0a6d988 的新增项；0 删除、0 改名。
  */
 const categories: Array<{ name: string; value: number }> = [
   { name: "4MLinux", value: 2002 },
@@ -34,6 +34,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "ArchLabs", value: 2212 },
   { name: "Archman", value: 2183 },
   { name: "ArcoLinux", value: 2196 },
+  { name: "Argent Linux", value: 33 },
   { name: "Artix Linux", value: 2216 },
   { name: "AryaLinux", value: 2227 },
   { name: "Audiophile Linux", value: 2288 },
@@ -64,6 +65,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Cae", value: 2026 },
   { name: "Caine", value: 1220 },
   { name: "Calculate Linux", value: 2028 },
+  { name: "CatOS", value: 27 },
   { name: "CentOS", value: 102 },
   { name: "Chakra", value: 1216 },
   { name: "Chapeau", value: 2033 },
@@ -145,9 +147,11 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Helwan Linux", value: 21 },
   { name: "Hiren&#x27;s BootCD+PE", value: 2293 },
   { name: "Huayra Linux", value: 2166 },
+  { name: "Hybrid-d77", value: 31 },
   { name: "Hyperbola GNU", value: 2244 },
   { name: "Infinity Linux", value: 20 },
   { name: "IPFire", value: 252 },
+  { name: "Kader⁴²", value: 30 },
   { name: "Kaisen Linux", value: 2294 },
   { name: "Kali", value: 2051 },
   { name: "KaOS", value: 2052 },
@@ -179,6 +183,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "MagOS Linux", value: 10 },
   { name: "MakuluLinux", value: 2071 },
   { name: "Manjaro", value: 2073 },
+  { name: "Maple Linux", value: 28 },
   { name: "MidnightBSD", value: 343 },
   { name: "Minino", value: 2075 },
   { name: "Minix", value: 2076 },
@@ -207,6 +212,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "OpenBSD", value: 401 },
   { name: "Openelec", value: 2089 },
   { name: "OpenIndiana", value: 2090 },
+  { name: "OpenKylin", value: 29 },
   { name: "Openmamba GNU/Linux", value: 7 },
   { name: "OpenMandriva Lx", value: 2091 },
   { name: "Openmediavault", value: 2092 },
@@ -260,6 +266,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Rescuezilla", value: 2305 },
   { name: "Resilient Linux", value: 2270 },
   { name: "Robolinux", value: 2116 },
+  { name: "Rocky Linux", value: 32 },
   { name: "Rosa", value: 1223 },
   { name: "Runtu", value: 2117 },
   { name: "Sabayon", value: 14 },

@@ -21,6 +21,9 @@ export const siteMetadata: ISiteMetadata = {
     "uggcf://alnn.fv/",
     "uggcf://fhxrorv.alnn.fv/",
     // 官方镜像（Jackett 的 links 中另有 nyaa.iss.ink / nyaa.land，实测搜索接口 502/403，故不收录）
+    // 2026-11-14 实测：nyaa.wiki 为当前镜像主域（Jackett f2c58c88 新增），nyaa.mom 已 302 到 nyaa.wiki，
+    // 但仍保留 mom（重定向可用，Jackett 也保留）
+    "uggcf://alnn.jvxv/",
     "uggcf://alnn.zbz/",
     "uggcf://alnn.zrqvn/",
     "uggcf://fhxrorv.alnn.zbz/",
