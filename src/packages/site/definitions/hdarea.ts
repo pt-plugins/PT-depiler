@@ -25,16 +25,18 @@
  *   "data":null}`**——REST 侧用 JSON 信封表达错误（而不是 torznab 的 `<error>`），
  *   故 `loggedCheck` 里两条错误通道分别翻译。
  *
- * ⚠️ 未能真机验证（本机没有该站账号）：
- *   - feed 中 `<item>` 的具体形态——详情页写在 `<comments>` 还是 `<guid>`、下载地址是否在
- *     `<enclosure url>`、是否携带 `infohash` / `coverurl` / `downloadvolumefactor` 等扩展属性。
- *     选择器按 torznab 规范（Newznab Web API「Important fields of the returned data (RSS)」）与
- *     仓库内其它 Torznab 站（c411 / pandacd）的实测口径编写，并做了多候选兜底；
- *   - `/api/v1/user/profile` 的 `data` **字段名**。站方文档只写了「会返回上传/下载量、分享率、
- *     魔力值、时魔明细、做种数与做种体积、未读私信、邀请数」，没给字段路径；因该网关自称
- *     「兼容 M-Team 风格路由/接口」，这里以 M-Team `/api/member/profile` 的字段口径
- *     （`data.memberCount.{uploaded,downloaded,bonus}`、`data.role`、`data.createdDate`）为主，
- *     扁平写法（`data.uploaded` 等）为备选；拿到真实响应后按样本收窄即可。
+ * ✅ 2026-11-13 用户反馈的 `/api/v1/user/profile` 真实响应（#1706）：`data` 是**扁平结构**，不是
+ *   M-Team 的 `memberCount` 嵌套——`uploaded` / `downloaded`（纯字节）、`share_ratio`、`seedbonus`、
+ *   `hourly_bonus`（时魔总量，另有 `hourly_bonus_detail` 拆解）、`seeding_count` / `seeding_size`、
+ *   `unread_messages_count`、`invites`、`uploaded_torrents_count`（发种数）、
+ *   `completed_torrents_count`、`leeching_count`、`added` / `last_access`（站点墙上时间）、
+ *   `class_name`（等级名）、`donor`。下面的 `userInfo` 选择器即按这份样本编写。
+ *
+ * ⚠️ 仍未能真机验证（本机没有该站账号）：feed 中 `<item>` 的具体形态——详情页写在 `<comments>`
+ *   还是 `<guid>`、下载地址是否在 `<enclosure url>`、是否携带 `infohash` / `coverurl` /
+ *   `downloadvolumefactor` 等扩展属性。选择器按 torznab 规范（Newznab Web API「Important fields
+ *   of the returned data (RSS)」）与仓库内其它 Torznab 站（c411 / pandacd）的实测口径编写，
+ *   并做了多候选兜底。
  *
  * 相对旧的纯网页抓取，本次变更：
  *   1. `search` 指向 `/torznab.php`（`t=search`，关键词走 `q`，`imdb|` / `douban|` 高级搜索词走
@@ -49,10 +51,10 @@
  *      content-script 的列表页解析；搜索已不走网页，故 `mergeSearchSelectors: false`，
  *      免得把 XML 的选择器混进来；
  *   4. `userInfo` 由「/index.php + /userdetails.php + /mybonus.php 网页抓取」改为 REST API v1
- *      一次取全（见上方字段名说明），**并移除了原有的网页兼容兜底**：不再请求 `/mybonus.php`
- *      取做种总积，也不再把做种数 / 发种数回落到 `getusertorrentlistajax.php` 的 AJAX 解析。
- *      因此文档未覆盖的数据（真实上下传量、H&R、最近访问、捐赠、发种数）暂时没有来源，
- *      等拿到 `/api/v1/user/profile` 与 `/api/v1/user/torrents?type=uploaded` 的真实响应后再补；
+ *      一次取全（字段见上方真实响应样本），**并移除了原有的网页兼容兜底**：不再请求
+ *      `/mybonus.php` 取做种总积，也不再把做种数 / 发种数回落到 `getusertorrentlistajax.php`
+ *      的 AJAX 解析——这两项现在都直接来自 API（`seeding_count` / `uploaded_torrents_count`）。
+ *      接口没有的数据（真实上下传量、H&R 计数、做种积分）保持「未知」；
  *   5. `version` 由 1 提升到 2（用户要求；types/site.ts 对 NexusPHP 的建议值是 0，仓库现状约定俗成写 1）。
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -68,6 +70,7 @@ import type {
 import { NoUserInputError } from "../types";
 import NexusPHP, { SchemaMetadata } from "../schemas/NexusPHP.ts";
 import { parseTorznabApiError, parseTorznabSize, torznabCategoryName } from "../schemas/Torznab.ts";
+import { parseTimeWithZone } from "../utils/datetime";
 
 /**
  * 本站原生分类：id / 名称取自站点规则与 `t=caps`（torznab 的 `cat` 参数同时接受 Newznab 大类号与
@@ -174,7 +177,7 @@ const listSelectors = {
   ],
 };
 
-/** HDArea 等级体系（API 的 `data.role` 需要按它把等级名归一，基类随后用 name 反查 levelId） */
+/** HDArea 等级体系（API 的 `data.class_name` 需要按它把等级名归一，基类随后用 name 反查 levelId） */
 const levelRequirements: ILevelRequirement[] = [
   {
     id: 0,
@@ -245,7 +248,7 @@ const levelRequirements: ILevelRequirement[] = [
   },
 ];
 
-/** `data.role` 可能是等级名（"Power User"）也可能是数字等级 ID，统一归一成 levelRequirements 的 name */
+/** `data.class_name` 一般是等级名（"Power User"）；万一给的是数字等级 ID，也一并归一成 levelRequirements 的 name */
 const levelNameFromRole = (role: unknown): string => {
   if (typeof role !== "string" && typeof role !== "number") {
     return "";
@@ -256,6 +259,12 @@ const levelNameFromRole = (role: unknown): string => {
   );
   return matched?.name ?? text;
 };
+
+/**
+ * API 的时间字段是**站点本地墙上时间**（`"2026-09-24 13:15:58"`，无时区后缀），
+ * 按站点时区 +0800 换算成时间戳；不这么做会跟着浏览器所在时区漂移。
+ */
+const parseSiteTime = (value: string | number): number => parseTimeWithZone(value, "+0800");
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -421,53 +430,34 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    // 走官方 REST API v1 一次取全（字段名口径见文件头说明）：M-Team 兼容路径为主，扁平写法备选
+    // 走官方 REST API v1 一次取全；字段路径按 #1706 用户反馈的真实响应（data 为扁平结构）编写。
+    // 接口没有的字段（trueUploaded / trueDownloaded / hnr* / seedingBonus / avatar）就不声明，保持「未知」。
     pickLast: ["id"],
     process: [
       {
         requestConfig: { url: "/api/v1/user/profile", responseType: "json" }, // 兼容别名：/api/member/profile
         selectors: {
-          id: { selector: ["data.id"], filters: [{ name: "parseNumber" }] },
-          name: { selector: ["data.username", "data.name"] },
-          joinTime: { selector: ["data.createdDate", "data.joinTime"], filters: [{ name: "parseTime" }] },
-          uploaded: {
-            selector: ["data.memberCount.uploaded", "data.uploaded"],
-            filters: [{ name: "parseNumber" }],
-          },
-          downloaded: {
-            selector: ["data.memberCount.downloaded", "data.downloaded"],
-            filters: [{ name: "parseNumber" }],
-          },
-          ratio: {
-            selector: ["data.memberCount.ratio", "data.ratio"],
-            filters: [{ name: "parseNumber" }],
-          },
-          bonus: {
-            selector: ["data.memberCount.bonus", "data.bonus"],
-            filters: [{ name: "parseNumber" }],
-          },
-          // 时魔：可能挂在 memberCount 下，也可能来自时魔公式明细（M-Team 侧的 formulaParams.finalBs）
-          bonusPerHour: {
-            selector: ["data.memberCount.bonusPerHour", "data.bonusPerHour", "data.formulaParams.finalBs"],
-            filters: [{ name: "parseNumber" }],
-          },
-          seeding: {
-            selector: ["data.memberCount.seeding", "data.seeding"],
-            filters: [{ name: "parseNumber" }],
-          },
-          seedingSize: {
-            selector: ["data.memberCount.seedingSize", "data.seedingSize"],
-            filters: [{ name: "parseNumber" }],
-          },
-          messageCount: {
-            selector: ["data.memberCount.messageCount", "data.messageCount", "data.unreadMessages"],
-            filters: [{ name: "parseNumber" }],
-          },
-          invites: {
-            selector: ["data.memberCount.invites", "data.invites"],
-            filters: [{ name: "parseNumber" }],
-          },
-          levelName: { selector: ["data.role", "data.levelName"], filters: [levelNameFromRole] },
+          id: { selector: "data.id", filters: [{ name: "parseNumber" }] },
+          name: { selector: "data.username" },
+          // 站点自己算好的分享率（真实样本 33.884），比用 uploaded / downloaded 现算更贴合站点口径
+          ratio: { selector: "data.share_ratio", filters: [{ name: "parseNumber" }] },
+          uploaded: { selector: "data.uploaded", filters: [{ name: "parseNumber" }] },
+          downloaded: { selector: "data.downloaded", filters: [{ name: "parseNumber" }] },
+          // 魔力值 seedbonus / 时魔 hourly_bonus（hourly_bonus_detail 是拆解明细，这里只取总量）
+          bonus: { selector: "data.seedbonus", filters: [{ name: "parseNumber" }] },
+          bonusPerHour: { selector: "data.hourly_bonus", filters: [{ name: "parseNumber" }] },
+          invites: { selector: "data.invites", filters: [{ name: "parseNumber" }] },
+          seeding: { selector: "data.seeding_count", filters: [{ name: "parseNumber" }] },
+          seedingSize: { selector: "data.seeding_size", filters: [{ name: "parseNumber" }] },
+          uploads: { selector: "data.uploaded_torrents_count", filters: [{ name: "parseNumber" }] },
+          leeching: { selector: "data.leeching_count", filters: [{ name: "parseNumber" }] },
+          snatches: { selector: "data.completed_torrents_count", filters: [{ name: "parseNumber" }] },
+          messageCount: { selector: "data.unread_messages_count", filters: [{ name: "parseNumber" }] },
+          isDonor: { selector: "data.donor" },
+          joinTime: { selector: "data.added", filters: [parseSiteTime] },
+          lastAccessAt: { selector: "data.last_access", filters: [parseSiteTime] },
+          // class_name 是等级名（"User"）；数字 class 是站点的 1 基序号，与 levelRequirements 的 0 基 id 不同，故不用
+          levelName: { selector: "data.class_name", filters: [levelNameFromRole] },
         },
       },
     ],
