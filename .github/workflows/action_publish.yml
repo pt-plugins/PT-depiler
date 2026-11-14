@@ -2,16 +2,94 @@ name: Build Publish Release
 
 on:
   workflow_dispatch:
+    inputs:
+      force_run:
+        description: "强制运行（跳过「自上次发布以来无新增提交」的门槛判断）"
+        type: boolean
+        default: false
   schedule:
-    - cron: '0 20 1,15 * *'
+    # 北京时间（Asia/Shanghai）每周日上午 04:00 自动构建发布。
+    # timezone 为 GitHub Actions 新增的 schedule 字段（IANA 时区名，缺省为 Etc/UTC），
+    # 直接写本地时间比手算 UTC 偏移更不易出错，且不受夏令时影响。
+    # 见 https://docs.github.com/zh/actions/reference/workflows-and-actions/workflow-syntax#onschedule
+    # 周日凌晨发布可让周五/周六攒下的域名轮换与站点定义更新当周就进入各扩展商店。
+    - cron: '0 4 * * 0'
+      timezone: "Asia/Shanghai"
 
 jobs:
+  # 发布门槛：只有当「自上一次 GitHub Release 以来，仓库提交数确实增加了」才继续。
+  # 定时触发时若这一周没有任何新提交，整条流水线跳过，避免无谓地重复构建，
+  # 也避免反复向三个扩展商店提交同一版本。
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      should_run: ${{ steps.gate.outputs.should_run }}
+      reason: ${{ steps.gate.outputs.reason }}
+    steps:
+      - name: Checkout（取全量历史与 tags，用于提交数比对）
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 判断是否新增了提交
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ github.event.inputs.force_run || 'false' }}
+        run: |
+          set -euo pipefail
+
+          emit() {  # $1=should_run $2=reason
+            echo "should_run=$1" >> "$GITHUB_OUTPUT"
+            echo "reason=$2" >> "$GITHUB_OUTPUT"
+            echo "::notice::should_run=$1 ($2)"
+          }
+
+          if [ "$FORCE" = "true" ]; then
+            emit "true" "manual-force"
+            exit 0
+          fi
+
+          # 上一次发布用的 tag（取发布时间最新的一个 Release）
+          LAST_TAG="$(gh release list --limit 1 --json tagName --jq '.[0].tagName // empty' 2>/dev/null || true)"
+          if [ -z "$LAST_TAG" ]; then
+            emit "true" "no-previous-release"
+            exit 0
+          fi
+
+          LAST_SHA="$(git rev-list -n1 "refs/tags/$LAST_TAG" 2>/dev/null || true)"
+          if [ -z "$LAST_SHA" ]; then
+            # tag 存在却解析不到提交（例如历史被改写），保守放行
+            emit "true" "tag-unresolvable:$LAST_TAG"
+            exit 0
+          fi
+
+          # LAST_SHA..HEAD 的提交数 == 上次发布之后新增的提交数
+          AHEAD="$(git rev-list --count "$LAST_SHA..$GITHUB_SHA" 2>/dev/null || echo -1)"
+          if [ "$AHEAD" -lt 0 ]; then
+            emit "true" "count-failed:$LAST_TAG"
+            exit 0
+          fi
+
+          if [ "$AHEAD" -gt 0 ]; then
+            emit "true" "commits-ahead:$AHEAD"
+          else
+            emit "false" "no-new-commits-since:$LAST_TAG"
+          fi
+
   build:
+    needs: check
+    # 门槛未通过时整个可复用构建工作流跳过，publish 也随之 skipped
+    if: needs.check.outputs.should_run == 'true'
     uses: ./.github/workflows/action_build.yml
 
   publish:
     runs-on: ubuntu-latest
     needs: build
+    # 构建被门槛跳过时不要执行发布步骤
+    if: needs.build.result == 'success'
     permissions:
       contents: write
 
