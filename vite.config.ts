@@ -14,10 +14,10 @@ import { vitePluginGenerateWebextLocales } from "./vite/plugin/generateWebextLoc
 import { vitePluginGenerateSiteIndex } from "./vite/plugin/generateSiteIndex.ts";
 import { getGitInfo } from "./vite/utils/gitInfo.ts";
 
-import pkg from "./package.json";
+import pkg from "./package.json" with { type: "json" };
 
 function base_path(_path = "") {
-  return path.resolve(__dirname, _path);
+  return path.resolve(import.meta.dirname, _path);
 }
 
 const target = process.env.TARGET || "chrome";

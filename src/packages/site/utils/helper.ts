@@ -4,8 +4,8 @@
  * Helper functions for other utilities
  */
 
-import { type ISearchCategoryOptions } from "../types/search";
-import { type ISiteMetadata } from "../types/site";
+import { type ISearchCategoryOptions } from "../types/search.ts";
+import { type ISiteMetadata } from "../types/site.ts";
 
 /**
  * 判断站点定义里某个字段是否「可用」。
