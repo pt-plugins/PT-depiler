@@ -151,6 +151,7 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
           "downloaded",
           "ratio",
           "bonus",
+          "seeding",
           "seedingSize",
           "joinTime",
         ],
@@ -164,9 +165,11 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
       uploaded: { selector: "uploaded" },
       downloaded: { selector: "downloaded" },
       bonus: { selector: "seedbonus" },
+      // 做种数：兼容层 user.json 直接给 seeding（2026-11-13 #1706 反馈的真实响应确认）
+      seeding: { selector: "seeding" },
       // 做种体积站点直接给字节数，不用再换算；老版本兼容层的 user.json
       // 没有这两个字段，取不到时留空，不能让整条资料判成解析失败。
-      seedingSize: { selector: "seeding_size" },
+      seedingSize: { selector: ["seeding_size", "seedingSize"] },
       // 注册时间是 RFC3339（如 2025-07-15T20:45:13+00:00），换成毫秒时间戳
       joinTime: { selector: "join_at", filters: [{ name: "parseTime" }] },
     },
