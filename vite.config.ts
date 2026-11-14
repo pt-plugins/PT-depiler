@@ -234,14 +234,14 @@ export default defineConfig({
               // 产物 assets/cs-app.js 由轻量引导在匹配站点时通过 chrome.runtime.getURL 动态加载，
               // 并直接复用 options 构建已拆分的 vendor chunk（见 issue #1467）。
               config.build ??= {};
-              config.build.rollupOptions ??= {};
-              config.build.rollupOptions.input ??= {};
-              (config.build.rollupOptions.input as Record<string, string>)["cs-app"] = base_path(
+              config.build.rolldownOptions ??= {};
+              config.build.rolldownOptions.input ??= {};
+              (config.build.rolldownOptions.input as Record<string, string>)["cs-app"] = base_path(
                 "src/entries/content-script/app/init.ts",
               );
               // 该入口仅由 content script 引导在运行时动态 import（构建期无静态消费者），
               // 必须保留入口导出签名，否则 mountApp 会被 rollup 树摇成纯副作用壳
-              config.build.rollupOptions.preserveEntrySignatures = "strict";
+              config.build.rolldownOptions.preserveEntrySignatures = "strict";
               // 动态 import 不会自动加载按 chunk 拆分的 css 分片，cs-app 的组件树样式
               // （vuetify 组件、页面组件等分散在各 chunk 的 css）无法逐份在页面上下文
               // 引入，故合并为单文件，由 app/init.ts 按固定地址 link
@@ -260,8 +260,8 @@ export default defineConfig({
           {
             name: "sort-asserts",
             config(config) {
-              config.build!.rollupOptions!.output = {
-                ...config.build?.rollupOptions!.output,
+              config.build!.rolldownOptions!.output = {
+                ...config.build?.rolldownOptions!.output,
                 chunkFileNames: (chunkInfo) => {
                   // 特殊情况下 facadeModuleId 可能为 null，这时我们使用 moduleIds 的最后一个作为 chunkName
                   const chunkName = chunkInfo.facadeModuleId || chunkInfo.moduleIds.slice(-1)[0];
