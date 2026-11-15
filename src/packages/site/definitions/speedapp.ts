@@ -92,6 +92,14 @@ export const siteMetadata: ISiteMetadata = {
 
   legacyUrls: ["uggcf://vprgbeerag.bet/", "uggcf://fprarsm.zr/", "uggcf://h-gbeeragf.eb/", "uggcf://zlkm.rh/"],
 
+  noLoginAssert: {
+    matchSelectors: [
+      // 未登录时站点会给出登录表单（/login），以表单元素作为兜底判断
+      "form input[name='email'][type='email']",
+      "input#remember_me[name='_remember_me']",
+    ],
+  },
+
   // 这里除了 categories 其它均为自定义 key，需要在自定义站点方法中统一处理
   category: [
     {
