@@ -23,6 +23,16 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://cg.0ss.pp/"],
 
+  /**
+   * announce 走独立的 `tracker.0ff.cc`（rot13 见下），不是首页 `pt.0ff.cc` 的子域：
+   * 父域兜底只能回溯到 `0ff.cc`，认不到 `pt.0ff.cc`，所以挂在该 tracker 上的种子
+   * 在 MyClient 里标不出站点归属、也补不上「按所属站点自动补标签」。
+   * 2026-11-15 实测：`https://tracker.0ff.cc/announce.php` 返回 200 与 bencode
+   * （`d8:completei0e…15:warning message22:Missing key: info_hash…`），确认是活端点。
+   * ⚠️ 注意是 `tracker.0ff.cc`（带点），`tracker0ff.cc` 是另一个不存在的名字。
+   */
+  trackerUrls: ["uggcf://genpxre.0ss.pp/"],
+
   category: [
     {
       name: "分类",
