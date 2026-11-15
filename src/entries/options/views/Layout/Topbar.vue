@@ -26,7 +26,6 @@ const runtimeStore = useRuntimeStore();
 const appendMenu = computed<Array<{ title: string; icon: string; [str: string]: any }>>(() => [
   { title: t("layout.header.home"), icon: "mdi-home", href: REPO_URL },
   { title: t("layout.header.wiki"), icon: "mdi-help-circle", href: `${REPO_URL}/wiki` },
-  { title: "Ask AI", icon: "mdi-chat-question", href: `https://deepwiki.com/pt-plugins/PT-depiler` },
 ]);
 
 const searchKey = ref<string>("");
