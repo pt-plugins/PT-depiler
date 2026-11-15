@@ -189,6 +189,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.prof-lbl:contains('Joined:') + td"],
         filters: [{ name: "parseTime" }],
       },
+      lastAccessAt: {
+        selector: ["td.prof-lbl:contains('Last Visit') + td"],
+        filters: [{ name: "parseTime" }],
+      },
       uploaded: {
         selector: ["td.prof-lbl:contains('Uploaded:') + td"],
         filters: [{ name: "parseSize" }],
