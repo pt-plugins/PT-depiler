@@ -48,7 +48,9 @@ export const siteMetadata: ISiteMetadata = {
       return input.requestConfig!;
     },
     selectors: {
-      rows: { selector: "table.file-list > tbody > tr:has(td)" },
+      // 搜不到东西时，站点仍会在同一个 file-list 里渲染一行 <tr><td>We couldn't find anything ...</td></tr>，
+      // 那一行也有 <td>，所以只认带结果链接的行，否则它会被解析成一个空种子（issue #947）
+      rows: { selector: "table.file-list > tbody > tr:has(td > a[href])" },
       id: { selector: "a", attr: "href" },
       title: {
         selector: "a",
@@ -58,7 +60,11 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: { selector: "p.sample" },
       url: { selector: "a", attr: "href" },
       // link 需要访问后获取
-      size: { selector: "td.result-meta > div:not(.result-date)", filters: [{ name: "parseSize" }] },
+      // 搜索页的体积在 td.result-meta > div 里，listing 页则直接写在 td.td-size 上
+      size: {
+        selector: ["td.result-meta > div:not(.result-date)", "td.td-size"],
+        filters: [{ name: "parseSize" }],
+      },
       time: { selector: "td.result-meta div.result-date", filters: [{ name: "parseTime", args: ["yyyy-MM-dd"] }] },
       category: { text: "XXX" },
     },
