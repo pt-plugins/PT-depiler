@@ -297,17 +297,15 @@ export const siteMetadata: ISiteMetadata = {
         requestConfig: { url: "/" },
         selectors: {
           id: {
-            selector: ["a[href*='/u/']:first", "a[href*='userdetails.php']:first"],
+            // 2026-11 改版后头部导航的个人资料入口变为 /user.php?u=<id>，旧版为 /u/<id> 或 userdetails.php?id=<id>
+            selector: ["a[href*='user.php?u=']:first", "a[href*='/u/']:first", "a[href*='userdetails.php']:first"],
             attr: "href",
-            switchFilters: {
-              "a[href*='/u/']:first": [
-                (query: string) => {
-                  const queryMatch = query.match(/u\/(.+)/);
-                  return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "";
-                },
-              ],
-              "a[href*='userdetails.php']:first": [{ name: "querystring", args: ["id"] }],
-            },
+            filters: [
+              (query: string) => {
+                const queryMatch = query.match(/(?:user\.php\?u=|\/u\/|userdetails\.php\?id=)(\d+)/);
+                return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "";
+              },
+            ],
           },
         },
       },
