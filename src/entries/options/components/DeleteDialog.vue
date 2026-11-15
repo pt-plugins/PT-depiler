@@ -1,13 +1,12 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string | number">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-type TDeleteId = any;
-
 const showDialog = defineModel<boolean>();
+// 各调用方传入的 id 类型不同（站点 id / 下载器 key / 快照 key …），用泛型按调用点推断，避免 any 抹掉类型
 const { toDeleteIds, confirmDelete: confirmDeleteFn } = defineProps<{
-  toDeleteIds: TDeleteId[];
-  confirmDelete: (toDeleteId: TDeleteId) => Promise<void> | void;
+  toDeleteIds: T[];
+  confirmDelete: (toDeleteId: T) => Promise<void> | void;
 }>();
 const emits = defineEmits<{
   (e: "allDelete"): void;
@@ -38,7 +37,7 @@ async function dialogEnter() {
       </v-card-title>
 
       <v-card-text class="text-body-large">
-        {{ t("common.dialog.deleteText", [toDeleteIds!.length]) }}
+        {{ t("common.dialog.deleteText", [toDeleteIds.length]) }}
 
         <slot name="append-text" />
       </v-card-text>

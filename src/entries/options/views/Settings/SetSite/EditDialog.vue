@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import { type TSiteID } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import { STORED_SITE_USER_CONFIG_KEY, type TStoredSiteUserConfig } from "./injectionKeys.ts";
 
 import Editor from "./Editor.vue";
 
@@ -17,8 +19,8 @@ const metadataStore = useMetadataStore();
 
 const isFormValid = ref<boolean>(false);
 
-const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid: false });
-provide("storedSiteUserConfig", storedSiteUserConfig);
+const storedSiteUserConfig = ref<TStoredSiteUserConfig>({ valid: false });
+provide(STORED_SITE_USER_CONFIG_KEY, storedSiteUserConfig);
 
 async function patchSite() {
   await metadataStore.addSite(props.siteId, storedSiteUserConfig.value);

@@ -34,7 +34,7 @@ function resetSelectCategory() {
   }
 }
 
-const showPanel = ref<any[]>([]);
+const showPanel = ref<string[]>([]);
 
 function checkBtnIndeterminate(category: ISearchCategories): boolean {
   const field = selectCategory.value[category.key];

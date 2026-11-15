@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, provide, useTemplateRef, ref, shallowReactive, computed, withModifiers } from "vue";
+import { provide, useTemplateRef, ref, shallowReactive, computed, withModifiers } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDraggable } from "@vueuse/core";
 import { type ITorrent } from "@ptd/site";
@@ -8,8 +8,9 @@ import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
+import { REMOTE_DOWNLOAD_DIALOG_DATA_KEY, usePtdData } from "./injectionKeys.ts";
 import type { IRemoteDownloadDialogData } from "./types.ts";
-import { currentView, type IPtdData, pageType, updatePageType } from "./utils.ts";
+import { currentView, pageType, updatePageType } from "./utils.ts";
 
 import SpeedDialBtn from "./components/SpeedDialBtn.vue";
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
@@ -19,7 +20,7 @@ const runtimeStore = useRuntimeStore();
 const { t } = useI18n();
 
 const ptdIcon = chrome.runtime.getURL("icons/logo/64.png");
-const ptdData = inject<IPtdData>("ptd_data", {});
+const ptdData = usePtdData();
 
 const el = useTemplateRef<HTMLElement>("el");
 provide("app", el);
@@ -79,7 +80,7 @@ const remoteDownloadDialogData = shallowReactive<IRemoteDownloadDialogData>({
   torrents: [] as ITorrent[],
   isDefaultSend: false,
 });
-provide("remoteDownloadDialogData", remoteDownloadDialogData);
+provide(REMOTE_DOWNLOAD_DIALOG_DATA_KEY, remoteDownloadDialogData);
 
 const CUSTOM_DRAG_MIME = "text/json+ptd";
 
