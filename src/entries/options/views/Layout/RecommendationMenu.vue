@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 import PQueue from "p-queue";
 import { useI18n } from "vue-i18n";
 import type { ISocialRecommendationItem, TSocialRecommendationCategory } from "@ptd/social";
@@ -19,7 +19,8 @@ const { t } = useI18n();
 const isRecommendationMenuOpen = ref(false);
 const isLoadingRecommendations = ref(false);
 const recommendationError = ref("");
-const recommendationItems = ref<ISocialRecommendationItem[]>([]);
+// 推荐项只整体替换（result.items 赋值 / map 重建），无元素级就地修改
+const recommendationItems = shallowRef<ISocialRecommendationItem[]>([]);
 let recommendationRequestId = 0;
 
 const recommendationCategories: TSocialRecommendationCategory[] = ["movie", "tv", "variety", "anime"];

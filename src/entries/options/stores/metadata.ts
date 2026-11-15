@@ -71,7 +71,8 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getSortedAddedSites(state): Array<ISiteUserConfig & { id: string }> {
-      return this.getAddedSites.sort((a, b) => {
+      // getAddedSites 是缓存的 getter 结果，用 toSorted 避免原地重排污染其顺序
+      return this.getAddedSites.toSorted((a, b) => {
         return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
       });
     },

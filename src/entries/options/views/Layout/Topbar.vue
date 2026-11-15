@@ -214,12 +214,7 @@ function updateNavBarOpenStatus() {
             <v-divider />
 
             <!-- 用户自定义的搜索方案列表 -->
-            <v-list-item
-              v-for="(item, index) in searchPlans"
-              :key="index"
-              :value="index"
-              @click="() => (searchPlanKey = item.id)"
-            >
+            <v-list-item v-for="item in searchPlans" :key="item.id" @click="() => (searchPlanKey = item.id)">
               <v-list-item-title>{{ metadataStore.getSearchSolutionName(item.id) }}</v-list-item-title>
             </v-list-item>
           </v-list>
