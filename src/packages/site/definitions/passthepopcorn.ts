@@ -22,6 +22,15 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Gazelle",
   urls: ["https://passthepopcorn.me/"],
 
+  noLoginAssert: {
+    matchSelectors: [
+      // 未登录时站点会直接返回 Gazelle 登录表单（URL 可能不变，无法靠 urlPatterns 判断）
+      "form#loginform",
+      "form[action*='login.php']",
+      "input#username[name='username']",
+    ],
+  },
+
   // 搜索分类
   category: [
     {
@@ -133,6 +142,7 @@ export const siteMetadata: ISiteMetadata = {
           "bonus",
           "bonusPerHour",
           "joinTime", // Gazelle 基础项
+          "lastAccessAt",
           "seeding",
           "seedingSize",
           "uploads",
@@ -186,6 +196,15 @@ export const siteMetadata: ISiteMetadata = {
       },
       joinTime: {
         selector: ["div.panel__heading:contains('Stats') + div.panel__body > ul.list > li:contains('Joined:') > span"],
+        elementProcess: (element: HTMLElement) => {
+          const query = (element.getAttribute("title") || element.innerText).trim();
+          return parseValidTimeString(query, ["MMM dd yyyy, HH:mm"]);
+        },
+      },
+      lastAccessAt: {
+        selector: [
+          "div.panel__heading:contains('Stats') + div.panel__body > ul.list > li:contains('Last Seen') > span",
+        ],
         elementProcess: (element: HTMLElement) => {
           const query = (element.getAttribute("title") || element.innerText).trim();
           return parseValidTimeString(query, ["MMM dd yyyy, HH:mm"]);
