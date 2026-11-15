@@ -14,7 +14,9 @@ const {
   groupProps?: any;
 }>();
 
-const emit = defineEmits(["remove:solution"]);
+const emit = defineEmits<{
+  "remove:solution": [solution: ISearchSolution];
+}>();
 
 function removeSolution(solution: ISearchSolution) {
   emit("remove:solution", solution);

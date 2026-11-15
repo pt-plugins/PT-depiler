@@ -18,7 +18,9 @@ const { siteId } = defineProps<{
   siteId: TSiteID;
 }>();
 
-const emit = defineEmits(["update:solution"]);
+const emit = defineEmits<{
+  "update:solution": [solution: ISearchSolution];
+}>();
 
 const { t } = useI18n();
 const showCustomSolutionDialog = ref(false);
