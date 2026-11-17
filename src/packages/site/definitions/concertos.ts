@@ -19,6 +19,11 @@ import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 // 未配置 API Token 时使用的 HTML 搜索结果解析
 const htmlSearch: ISearchConfig = {
   ...SchemaMetadata.search,
+  advanceKeywordParams: {
+    ...SchemaMetadata.search.advanceKeywordParams,
+    imdb: false,
+    tmdb: false,
+  },
   selectors: {
     ...SchemaMetadata.search.selectors,
     rows: { selector: "tr.c-torrent-row[data-torrent-id]" },
@@ -61,6 +66,11 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
+    advanceKeywordParams: {
+      ...SchemaMetadata.search.advanceKeywordParams,
+      imdb: false,
+      tmdb: false,
+    },
     keywordPath: "params.name",
     requestConfig: {
       url: "/api/torrents/filter",
