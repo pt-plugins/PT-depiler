@@ -41,8 +41,6 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo,
     selectors: {
       ...SchemaMetadata.userInfo.selectors!,
-      bonus: { text: "N/A" },
-      bonusPerHour: { text: "N/A" },
       seeding: {
         selector: ["li.ratio-bar__uploaded a:has( > i.fa-arrow-up) + a"],
         filters: [{ name: "parseNumber" }],

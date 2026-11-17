@@ -228,8 +228,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["div[id='seed-search-stat']"],
         filters: [(query: string) => parseInt(query?.match(/Page (\d+) \//)?.[1] ?? "0")],
       },
-      // 没有积分系统
-      bonus: { text: "0" },
       seedingSize: {
         selector: ":self",
         elementProcess: (element: any) => {
