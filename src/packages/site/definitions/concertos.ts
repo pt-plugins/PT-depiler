@@ -3,7 +3,7 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/concertos.yml
  * @Issue https://github.com/pt-plugins/PT-depiler/issues/143
  *
- * 站点为 UNIT3D 9.1.7：配置了 API Token 时搜索走 /api/torrents/filter，未配置时解析页面 HTML 搜索结果。
+ * 站点为 UNIT3D 9.1.7：配置了 API Key 时搜索走 /api/torrents/filter，未配置时解析页面 HTML 搜索结果。
  * 首页列表与用户信息选择器按站点改版覆写。
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -16,7 +16,7 @@ import {
 } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 
-// 未配置 API Token 时使用的 HTML 搜索结果解析
+// 未配置 API Key 时使用的 HTML 搜索结果解析
 const htmlSearch: ISearchConfig = {
   ...SchemaMetadata.search,
   selectors: {
@@ -53,7 +53,7 @@ export const siteMetadata: ISiteMetadata = {
   userInputSettingMeta: [
     {
       name: "apikey",
-      label: "API Token（不设置将使用网页搜索）",
+      label: "API Key（不设置将使用网页搜索）",
       hint: "在 Concertos 的 My Settings → API Key 页面获取；填写后搜索以 Authorization: Bearer 调用 /api/torrents/filter",
       required: false,
     },
@@ -67,6 +67,19 @@ export const siteMetadata: ISiteMetadata = {
       responseType: "json",
       params: {
         perPage: 100,
+      },
+    },
+    advanceKeywordParams: {
+      ...SchemaMetadata.search.advanceKeywordParams,
+      imdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.params?.name) {
+            // UNIT3D 的 imdbId 参数会被强转为整数，不能带 tt 前缀
+            config.params.imdbId = String(config.params.name).replace(/^tt/i, "");
+            delete config.params.name;
+          }
+          return config!;
+        },
       },
     },
     selectors: {
@@ -230,7 +243,7 @@ export default class Concertos extends Unit3D {
     keywords?: string,
     searchEntry: ISearchEntryRequestConfig = {},
   ): Promise<ISearchResult> {
-    // 未填写 API Token 时使用 HTML 搜索结果解析
+    // 未填写 API Key 时使用 HTML 搜索结果解析
     if (!this.userConfig.inputSetting?.apikey?.trim()) {
       searchEntry = { ...htmlSearch, ...searchEntry, merge: false };
     }
@@ -242,15 +255,15 @@ export default class Concertos extends Unit3D {
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
   ): Promise<AxiosResponse<T>> {
-    // 只向站点 API 搜索请求发送 Token，不将凭据附在用户页面或种子下载请求上。
+    // 只向站点 API 搜索请求发送 API Key，不将凭据附在用户页面或种子下载请求上。
     if (axiosConfig.url === "/api/torrents/filter") {
-      const token = this.userConfig.inputSetting?.apikey?.trim();
-      if (!token) {
-        throw new NoUserInputError("API Token");
+      const apiKey = this.userConfig.inputSetting?.apikey?.trim();
+      if (!apiKey) {
+        throw new NoUserInputError("API Key");
       }
       axiosConfig.headers = {
         ...(axiosConfig.headers ?? {}),
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${apiKey}`,
         Accept: "application/json",
       };
     }
