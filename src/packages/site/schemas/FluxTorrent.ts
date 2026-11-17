@@ -151,6 +151,8 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
           "downloaded",
           "ratio",
           "bonus",
+          "bonusPerHour",
+          "uploads",
           "seeding",
           "seedingSize",
           "joinTime",
@@ -165,6 +167,12 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
       uploaded: { selector: "uploaded" },
       downloaded: { selector: "downloaded" },
       bonus: { selector: "seedbonus" },
+      // 时魔（每小时魔力）：2026-11-17 服务端在 user.json 补了 bonusPerHour
+      // （与「我的魔力」页同一份预估口径）。老站点版本没有该字段，取不到时
+      // 留空，不能让整条资料判成解析失败。
+      bonusPerHour: { selector: "bonusPerHour" },
+      // 发布数：本人名下种子数（服务端 2026-11-17 起下发）。
+      uploads: { selector: "uploads" },
       // 做种数：兼容层 user.json 直接给 seeding（2026-11-13 #1706 反馈的真实响应确认）
       seeding: { selector: "seeding" },
       // 做种体积站点直接给字节数，不用再换算；老版本兼容层的 user.json

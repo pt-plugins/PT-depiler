@@ -129,6 +129,101 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  // 等级梯度待确认：迁移后站点的用户组名称与门槛以站点配置为准，
-  // 接口返回的 class / class_name 已是权威值，这里不写死一份可能对不上的梯度。
+  /**
+   * 等级梯度（2026-11-17 补）。
+   *
+   * 口径取自站点 `class_rules`（门槛四维：上传量 / 完成下载数 / 做种小时 / 账龄）
+   * × `user_classes`（权威等级名）—— 与站内「等级要求」页 `/classes` 同一份数据。
+   * 名称必须与接口返回的 `class_name`（= user_classes.name）一致，否则用户卡的
+   * 「下一等级」算不出来。
+   *
+   * `min_download_count` 是**个数**（完成过的下载数），不是体积，所以不放
+   * `downloaded`（那个字段语义是下载量体积），另存 `downloadCount`。
+   *
+   * ⚠ 门槛可由站长在后台调整；站点另开了 `GET /api/v1/open/me/classes`
+   * （开放 API Token 鉴权）动态下发同一份数据。这份静态表用于「未登录时也能看
+   * 到门槛」，与站内配置不一致时以站内为准。
+   */
+  levelRequirements: [
+    { id: 0, name: "Peasant" },
+    { id: 1, name: "User" },
+    {
+      id: 2,
+      name: "Power User",
+      uploaded: "50 GiB",
+      downloadCount: 241,
+      seedingTime: 240 * 3600,
+      interval: "P28D",
+    },
+    {
+      id: 3,
+      name: "LV3",
+      uploaded: "120 GiB",
+      seedingTime: 560 * 3600,
+      interval: "P56D",
+    },
+    {
+      id: 4,
+      name: "Crazy User",
+      uploaded: "300 GiB",
+      seedingTime: 1120 * 3600,
+      interval: "P105D",
+    },
+    {
+      id: 5,
+      name: "Insane User",
+      uploaded: "500 GiB",
+      seedingTime: 2000 * 3600,
+      interval: "P175D",
+    },
+    {
+      id: 6,
+      name: "Veteran User",
+      uploaded: "750 GiB",
+      seedingTime: 3360 * 3600,
+      interval: "P280D",
+    },
+    {
+      id: 7,
+      name: "Extreme User",
+      uploaded: "1 TiB",
+      seedingTime: 5280 * 3600,
+      interval: "P420D",
+    },
+    {
+      id: 8,
+      name: "Ultimate User",
+      uploaded: "1.5 TiB",
+      seedingTime: 7680 * 3600,
+      interval: "P560D",
+    },
+    {
+      id: 9,
+      name: "Nexus Master",
+      uploaded: "3 TiB",
+      seedingTime: 10000 * 3600,
+      interval: "P700D",
+    },
+    {
+      id: 10,
+      name: "Legend",
+      uploaded: "6 TiB",
+      seedingTime: 14000 * 3600,
+      interval: "P730D",
+    },
+    {
+      id: 11,
+      name: "Overseer",
+      uploaded: "12 TiB",
+      seedingTime: 18000 * 3600,
+      interval: "P1095D",
+    },
+    {
+      id: 12,
+      name: "Immortal",
+      uploaded: "20 TiB",
+      seedingTime: 22000 * 3600,
+      interval: "P1825D",
+    },
+  ],
 };
