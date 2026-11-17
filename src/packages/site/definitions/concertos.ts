@@ -3,12 +3,38 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/concertos.yml
  * @Issue https://github.com/pt-plugins/PT-depiler/issues/143
  *
- * 站点为 UNIT3D 9.1.7，Jackett 侧已由 HTML 抓取改用 API（api/torrents/filter）。
- * 保留 Unit3D 引擎，覆写 JSON 搜索配置、首页列表与用户信息选择器；搜索接口使用 API Token。
+ * 站点为 UNIT3D 9.1.7：配置了 API Token 时搜索走 /api/torrents/filter，未配置时解析页面 HTML 搜索结果。
+ * 首页列表与用户信息选择器按站点改版覆写。
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { NoUserInputError, type ISiteMetadata } from "../types";
+import {
+  NoUserInputError,
+  type ISearchConfig,
+  type ISearchEntryRequestConfig,
+  type ISearchResult,
+  type ISiteMetadata,
+} from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+
+// 未配置 API Token 时使用的 HTML 搜索结果解析
+const htmlSearch: ISearchConfig = {
+  ...SchemaMetadata.search,
+  selectors: {
+    ...SchemaMetadata.search.selectors,
+    rows: { selector: "tr.c-torrent-row[data-torrent-id]" },
+    id: { selector: ":self", attr: "data-torrent-id" },
+    title: { selector: "a.c-torrent-row__name" },
+    url: { selector: "a.c-torrent-row__name", attr: "href" },
+    link: { selector: "a.c-torrent-row__action--download[href]", attr: "href" },
+    category: { selector: ".c-format-cell__category" },
+    size: { selector: "td.c-torrent-row__size" },
+    author: { selector: "a.user-tag__link" },
+    seeders: { selector: ".c-stat-triple__item--seeders .c-stat-triple__value" },
+    leechers: { selector: ".c-stat-triple__item--leechers .c-stat-triple__value" },
+    completed: { selector: ".c-stat-triple__item--completed .c-stat-triple__value" },
+    comments: { text: 0 },
+  },
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -27,9 +53,9 @@ export const siteMetadata: ISiteMetadata = {
   userInputSettingMeta: [
     {
       name: "apikey",
-      label: "API Token",
-      hint: "在 Concertos 的 My Settings → API Key 页面获取 API Token；搜索时以 Authorization: Bearer 发送",
-      required: true,
+      label: "API Token（不设置将使用网页搜索）",
+      hint: "在 Concertos 的 My Settings → API Key 页面获取；填写后搜索以 Authorization: Bearer 调用 /api/torrents/filter",
+      required: false,
     },
   ],
 
@@ -200,6 +226,18 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Concertos extends Unit3D {
+  public override async getSearchResult(
+    keywords?: string,
+    searchEntry: ISearchEntryRequestConfig = {},
+  ): Promise<ISearchResult> {
+    // 未填写 API Token 时使用 HTML 搜索结果解析
+    if (!this.userConfig.inputSetting?.apikey?.trim()) {
+      searchEntry = { ...htmlSearch, ...searchEntry, merge: false };
+    }
+
+    return super.getSearchResult(keywords, searchEntry);
+  }
+
   public override async request<T>(
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
