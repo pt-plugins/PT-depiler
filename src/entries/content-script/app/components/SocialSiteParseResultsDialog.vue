@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ISocialSitePageInformation } from "@ptd/social";
-import { doKeywordSearch, type IPtdData } from "../utils.ts";
-import { computed, inject } from "vue";
+import { doKeywordSearch } from "../utils.ts";
+import { usePtdData } from "../injectionKeys.ts";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
@@ -14,7 +15,7 @@ const { parseResults, searchPlan = "default" } = defineProps<{
   searchPlan?: string;
 }>();
 
-const ptdData = inject<IPtdData>("ptd_data", {});
+const ptdData = usePtdData();
 
 const customSearchPlans = computed(() => {
   if (!metadataStore.$ready) {

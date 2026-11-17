@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, ref, shallowRef } from "vue";
+import { computed, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { type ITorrent } from "@ptd/site";
 
@@ -7,8 +7,8 @@ import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import type { IRemoteDownloadDialogData } from "../types.ts";
-import { copyTextToClipboard, doKeywordSearch, siteInstance, type IPtdData } from "../utils.ts";
+import { usePtdData, useRemoteDownloadDialogData } from "../injectionKeys.ts";
+import { copyTextToClipboard, doKeywordSearch, siteInstance } from "../utils.ts";
 
 import SpeedDialBtn from "../components/SpeedDialBtn.vue";
 import TorrentFavoriteDialog from "@/options/components/TorrentFavoriteDialog.vue";
@@ -17,7 +17,7 @@ const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 const { t } = useI18n();
 
-const ptdData = inject<IPtdData>("ptd_data", {});
+const ptdData = usePtdData();
 const enabledDownloadersBySite = computed(() => {
   return metadataStore.getEnabledDownloadersBySite(ptdData.siteId ?? "");
 });
@@ -37,7 +37,7 @@ async function parseDetailPage() {
   return parsedResult!;
 }
 
-const remoteDownloadDialogData = inject<IRemoteDownloadDialogData>("remoteDownloadDialogData")!;
+const remoteDownloadDialogData = useRemoteDownloadDialogData();
 
 function handleLinkCopy() {
   parseDetailPage().then(async (torrent) => {

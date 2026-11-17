@@ -18,7 +18,9 @@ const { siteId } = defineProps<{
   siteId: TSiteID;
 }>();
 
-const emit = defineEmits(["update:solution"]);
+const emit = defineEmits<{
+  "update:solution": [solution: ISearchSolution];
+}>();
 
 const { t } = useI18n();
 const showCustomSolutionDialog = ref(false);
@@ -32,7 +34,7 @@ function resetSelectCategory() {
   }
 }
 
-const showPanel = ref<any[]>([]);
+const showPanel = ref<string[]>([]);
 
 function checkBtnIndeterminate(category: ISearchCategories): boolean {
   const field = selectCategory.value[category.key];

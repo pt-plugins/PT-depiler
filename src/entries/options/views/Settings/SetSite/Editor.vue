@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { watch, ref, onMounted, inject, computed } from "vue";
+import { watch, ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { set } from "es-toolkit/compat";
-import type { timezoneOffset, ISiteUserConfig, TSiteID, ISiteMetadata, TSiteUrl } from "@ptd/site";
+import type { timezoneOffset, TSiteID, ISiteMetadata, TSiteUrl } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { urlPattern } from "@/options/plugins/vuetify.ts";
 import { formatDate } from "@/options/utils.ts";
 import { toMerged } from "es-toolkit";
+
+import { useStoredSiteUserConfig } from "./injectionKeys.ts";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -18,7 +20,7 @@ const emit = defineEmits<{
 }>();
 
 const siteMetaData = ref<ISiteMetadata>({} as unknown as ISiteMetadata);
-const siteUserConfig = inject<ISiteUserConfig>("storedSiteUserConfig", {});
+const siteUserConfig = useStoredSiteUserConfig();
 const siteName = computed({
   get: () => siteUserConfig.value.merge?.name ?? siteMetaData.value.name,
   set: (value) => set(siteUserConfig.value, "merge.name", value),
@@ -44,8 +46,9 @@ async function initSiteData(siteId: TSiteID, flush = false) {
   );
 
   // fix: customSiteUrl not show in Editor (#726)
-  if (!siteMetaData.value.urls.includes(siteUserConfig.value.url)) {
-    customSiteUrl.value = siteUserConfig.value.url;
+  const siteUserConfigUrl = siteUserConfig.value.url;
+  if (siteUserConfigUrl && !siteMetaData.value.urls.includes(siteUserConfigUrl)) {
+    customSiteUrl.value = siteUserConfigUrl;
   }
 
   updateFormValid(siteMetaData.value.isDead ? true : isFormValid.value);

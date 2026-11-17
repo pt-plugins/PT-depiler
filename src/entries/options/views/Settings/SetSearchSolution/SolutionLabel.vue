@@ -11,10 +11,12 @@ const {
 } = defineProps<{
   solutions: ISearchSolution[];
   closable?: boolean;
-  groupProps?: any;
+  groupProps?: Record<string, unknown>;
 }>();
 
-const emit = defineEmits(["remove:solution"]);
+const emit = defineEmits<{
+  "remove:solution": [solution: ISearchSolution];
+}>();
 
 function removeSolution(solution: ISearchSolution) {
   emit("remove:solution", solution);

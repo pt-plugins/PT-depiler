@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, inject } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useWindowSize } from "@vueuse/core";
 import { ETorrentStatus, ITorrent } from "@ptd/site";
@@ -10,7 +10,7 @@ import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import type { IRemoteDownloadDialogData } from "../types.ts";
+import { useRemoteDownloadDialogData } from "../injectionKeys.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
@@ -82,7 +82,7 @@ async function handleLinkCopyMulti() {
   }
 }
 
-const remoteDownloadDialogData = inject<IRemoteDownloadDialogData>("remoteDownloadDialogData")!;
+const remoteDownloadDialogData = useRemoteDownloadDialogData();
 
 function handleRemoteDownloadMulti(isDefaultSend = false) {
   remoteDownloadDialogData.torrents = selectedTorrents.value;
