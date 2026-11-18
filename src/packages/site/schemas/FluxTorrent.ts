@@ -94,6 +94,8 @@ export interface IFluxTorrentUser {
   ratio_display?: string;
   /** 做种体积（字节）；老版本兼容层没有该字段 */
   seeding_size?: number;
+  /** 做种积分（= sum(seeded_seconds)/3600）；老版本兼容层没有该字段 */
+  seedingPoints?: number;
   /** 注册时间（RFC3339）；老版本兼容层没有该字段 */
   join_at?: string;
 }
@@ -151,6 +153,7 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
           "downloaded",
           "ratio",
           "bonus",
+          "seedingBonus",
           "seedingSize",
           "joinTime",
         ],
@@ -164,6 +167,11 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
       uploaded: { selector: "uploaded" },
       downloaded: { selector: "downloaded" },
       bonus: { selector: "seedbonus" },
+      // 做种积分（保种积分）：站点 user.json 下发的 seedingPoints
+      // （= sum(seeded_seconds)/3600，与「我的魔力」页做种积分同源）。
+      // 老版本兼容层没有该字段，取不到时留空（text: 0），
+      // 不能让整条资料判成解析失败；用户卡「积分」列第二行据此显示。
+      seedingBonus: { selector: ["seedingPoints", "seed_points"], text: 0 },
       // 做种体积站点直接给字节数，不用再换算；老版本兼容层的 user.json
       // 没有这两个字段，取不到时留空，不能让整条资料判成解析失败。
       seedingSize: { selector: "seeding_size" },
