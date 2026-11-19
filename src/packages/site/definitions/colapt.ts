@@ -163,11 +163,11 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/api/v1/me/stats" },
         selectors: {
-          uploaded: { selector: "billed_uploaded" },
-          downloaded: { selector: "billed_downloaded" },
+          uploaded: { selector: "billed_uploaded_bytes" },
+          downloaded: { selector: "billed_downloaded_bytes" },
           ratio: { selector: "ratio", filters: [Number] },
-          trueUploaded: { selector: "raw_uploaded" },
-          trueDownloaded: { selector: "raw_downloaded" },
+          trueUploaded: { selector: "raw_uploaded_bytes" },
+          trueDownloaded: { selector: "raw_downloaded_bytes" },
           seeding: { selector: "seeding" },
           leeching: { selector: "leeching" },
           snatches: { selector: "completions" },
