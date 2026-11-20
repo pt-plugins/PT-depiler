@@ -53,6 +53,15 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
   type: "private",
   urls: ["uggcf://gwhcg.bet/", "uggcf://jjj.gwhcg.bet/"],
+
+  /**
+   * announce 走 `tracker-public` 子域（rot13 见下值，与站点页相同）。该子域的父域正是站点页域名，
+   * 现有「父域逐级回溯」已能从它认出本站点；这里仍按 #1734 显式登记 announce 域，避免日后
+   * 站点页域名调整后反查失效。
+   * 2026-11-20 实测：announce.php 返回 200 与 bencode（`d14:failure reason18:丢失关键信息e`）。
+   */
+  trackerUrls: ["uggcf://genpxre-choyvp.gwhcg.bet/"],
+
   description:
     "TJUPT是天津市首个、全国前列的校园Private Tracker，建立于2010年，" +
     "由天津大学信网协会和天外天共同开发的，旨在为大家建立一个更好的资源共享环境，提高资源水准。",
