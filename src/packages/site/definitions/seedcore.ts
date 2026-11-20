@@ -1,7 +1,11 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/seedcore-api.yml
  *
- * SeedCore（ROT）—— 罗马尼亚私有综合站（MOVIES / TV / GENERAL）。
+ * SeedCore（SC）—— 罗马尼亚私有综合站（MOVIES / TV / GENERAL）。
+ *
+ * 2026-11-20 站方去掉「RoTorrent」品牌，Jackett（2e1f3766，issue 17275）同步把描述改为
+ * `SeedCore (SC)`；本文件同步 description，但 **aka 保留 ROT / Rotorrent**——旧名仍被用户搜索，
+ * 且部分 tracker 列表沿用旧缩写。
  *
  * 站点为 **UNIT3D 9.2.0（custom）**，Jackett 侧走 JSON API（`api/torrents/filter` + `Authorization: Bearer`），
  * 本文件照此实现搜索；用户信息 / 详情页 / 标签等逻辑仍由 Unit3D 引擎提供（同 concertos、huno 的处理）。
@@ -36,7 +40,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "seedcore",
   name: "SeedCore",
   aka: ["ROT", "Rotorrent"],
-  description: "SeedCore (ROT) is a ROMANIAN Private Torrent Tracker for MOVIES / TV / GENERAL",
+  description: "SeedCore (SC) is a ROMANIAN Private Torrent Tracker for MOVIES / TV / GENERAL",
   tags: ["影视", "综合"],
 
   type: "private",
