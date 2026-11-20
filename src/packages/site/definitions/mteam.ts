@@ -180,6 +180,16 @@ export const siteMetadata: ISiteMetadata = {
     "uggcf://arkg.z-grnz.pp/",
   ],
 
+  /**
+   * announce 走独立的 `tracker.*` 域，与站点页（kp / ob / h5 等镜像域）不是父子关系：
+   * 父域兜底只能回溯到裸域，而裸域未登记，于是挂在该 tracker 上的种子在 MyClient 里
+   * 标不出站点归属、也补不上「按所属站点自动补标签」（#1734）。
+   * 2026-11-20 实测：该 announce 端点（rot13 见下值）返回 Cloudflare 403，域名存活、
+   * 源站被 CF 保护，未能拿到 bencode。
+   * 该站点 tags 含成人标记，按 checkSiteDefinition.ts 的要求写成 rot13。
+   */
+  trackerUrls: ["uggcf://genpxre.z-grnz.pp/"],
+
   category: [
     {
       name: "分类入口",
