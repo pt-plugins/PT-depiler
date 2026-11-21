@@ -202,6 +202,8 @@ jobs:
             --channel "${FIREFOX_CHANNEL:-listed}"
 
       # 提交至 Microsoft Edge Add-ons
+      # 审核 1.3.1 要求提供测试账号或说明原因：本插件服务于邀请制私有 PT 站，无法提供账号，
+      # 故每次提交都附带说明（--notes，与 --notes-file 互斥）。改文案时注意 Edge 限 2000 字符。
       - name: Publish to Microsoft Edge Add-ons
         if: ${{ steps.github_release.outputs.id != '' }}
         continue-on-error: true
@@ -209,4 +211,15 @@ jobs:
           WEPUB_EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
           WEPUB_EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
           WEPUB_EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
-        run: wepub edge extension-chrome.zip
+          EDGE_CERTIFICATION_NOTES: |
+            No test account can be provided.
+
+            PT Depiler serves users of private, invitation-only trackers (PT/BT). Accounts
+            are personal and non-transferable, and the extension has no account system or
+            backend - it reuses the cookies of a user already signed in to their own sites.
+
+            Reviewing needs no account: install it, click the toolbar icon for the options
+            page, change any setting, and use "Check Connect" in Settings > Download Server /
+            Backup & Restore to validate a real connection. Only search results and site user
+            info need a tracker login.
+        run: wepub edge extension-chrome.zip --notes "$EDGE_CERTIFICATION_NOTES"
