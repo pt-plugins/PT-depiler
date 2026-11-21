@@ -8,7 +8,7 @@ import {
   IMediaServerSearchOptions,
   IMediaServerSearchResult,
 } from "../types.ts";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { EResultParseStatus } from "@ptd/site";
 import { createOverviewAccumulator } from "../utils.ts";
 import { md5 } from "@noble/hashes/legacy.js";
@@ -20,11 +20,13 @@ export const mediaServerMetaData: IMediaServerMetadata = {
   warning: [
     "地址填写飞牛 NAS 的访问地址即可（如 http://192.168.1.2:5666 或影视应用的 http://192.168.1.2:5666/v），无须追加 /emby。",
     "使用「飞牛影视」应用内的账号登录（与 NAS 账号是两套用户体系），请先在影视应用中完成初始化并创建用户。",
+    "如果 NAS 开启了「访问码」，请一并填写；扩展会先通过网关校验访问码再登录。",
     "parentId 可选；填写媒体库/目录的 GUID 后，未输入关键词时的浏览范围会限制在该库/目录内。",
   ],
   auth_field: [
     "username",
     "password",
+    { name: "accessCode", required: false, message: "可选：NAS 访问码（网关开启访问码保护时填写）" },
     { name: "parentId", required: false, message: "可选：媒体库/目录 GUID，留空则搜索全部媒体库" },
   ],
 } as const;
@@ -34,6 +36,7 @@ interface IFnOSConfig extends IMediaServerBaseConfig {
   auth: {
     username: string;
     password: string;
+    accessCode?: string;
     parentId?: string;
   };
 }
@@ -45,6 +48,7 @@ export const mediaServerConfig: IFnOSConfig = {
   auth: {
     username: "",
     password: "",
+    accessCode: "",
     parentId: "",
   },
   timeout: 5000,
@@ -56,6 +60,8 @@ const FNOS_AUTH_PATH = "/v/api/v2";
 /** 客户端签名常量：影视 Web 端内置的签名前缀与客户端密钥 */
 const FNOS_SIGN_SALT = "NDzZTVxnRKP8Z0jXg1VAMonaG8akvh";
 const FNOS_CLIENT_KEY = "16CCEB3D-AB42-077D-36A1-F355324E4237";
+/** 访问码网关校验：0.9.x 走 header 契约，旧版回退 /c/{code} */
+const FNOS_ACCESS_CODE_VERIFY_PATH = "/access_code_verify";
 /** 会话失效（-2 Auth Failed / -15 Password Incorrect）后强制重新登录一次 */
 const FNOS_AUTH_ERROR_CODES = new Set([-2, -15]);
 
@@ -110,6 +116,8 @@ interface IFnOSNativeItem {
   number_of_seasons?: number;
   number_of_episodes?: number;
   duration?: number;
+  /** 时长（分钟），部分接口用它代替 duration */
+  runtime?: number;
   /** 已播放秒数 */
   ts?: number;
   /** 列表接口字段：是否已看完（0/1） */
@@ -158,9 +166,30 @@ function getYear(date?: string): number | undefined {
   return matched ? Number(matched[1]) : undefined;
 }
 
+/** 六位随机数：同时用于 authx 的 nonce 与 POST 请求体的防重放字段 */
+function randomNonce(): string {
+  return String(Math.floor(Math.random() * 900000) + 100000);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** 访问码需要按 UTF-8 编码后再做 Base64（影视 Electron 客户端的契约） */
+function toBase64Utf8(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
 export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
   private static sessionCache = new Map<string, IFnOSSession>();
   private static posterUrlCache = new Map<string, string>();
+  /** 已通过访问码校验的 origin + 访问码，避免每次请求都重新走网关 */
+  private static accessCodeGrants = new Set<string>();
 
   /** 服务根地址（协议 + 主机 + 端口） */
   get origin(): string {
@@ -173,7 +202,9 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
   }
 
   private get cacheKey(): string {
-    return [this.origin, this.config.auth.username, this.config.auth.password].join("|");
+    return [this.origin, this.config.auth.username, this.config.auth.password, this.config.auth.accessCode ?? ""].join(
+      "|",
+    );
   }
 
   private get session(): IFnOSSession | undefined {
@@ -187,7 +218,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
    * 其中 GET 的签名数据是**未 URL 编码**的查询串，POST 的签名数据是实际发送的 JSON 字符串。
    */
   private sign(path: string, data: string): string {
-    const nonce = String(Math.floor(Math.random() * 900000) + 100000);
+    const nonce = randomNonce();
     const timestamp = String(Date.now());
     const dataHash = bytesToHex(md5(utf8ToBytes(data)));
     const sign = bytesToHex(
@@ -206,8 +237,11 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
       token?: string;
       skipAuth?: boolean;
     },
-    retried = false,
+    attempt = 0,
   ): Promise<IFnOSApiResponse<T>> {
+    // 任何接口（包括不登录的 /sys/version）都可能被访问码网关拦截，先确保网关已放行
+    await this.verifyAccessCode();
+
     const method = options.method ?? (options.data === undefined ? "GET" : "POST");
     const path = `${options.basePath ?? FNOS_API_PATH}${options.path}`;
 
@@ -217,7 +251,18 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
     const rawQuery = queryEntries.map(([key, value]) => `${key}=${value}`).join("&");
     const encodedQuery = queryEntries.map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`).join("&");
 
-    const body = method !== "GET" && options.data !== undefined ? JSON.stringify(options.data) : "";
+    // 飞牛客户端会给 POST/PUT 的请求体加一个随机数字段做防重放；服务端会忽略未知字段
+    let payload = options.data;
+    if (
+      method !== "GET" &&
+      payload !== undefined &&
+      payload !== null &&
+      typeof payload === "object" &&
+      !Array.isArray(payload)
+    ) {
+      payload = { ...(payload as Record<string, unknown>), nonce: randomNonce() };
+    }
+    const body = method !== "GET" && payload !== undefined ? JSON.stringify(payload) : "";
     const token = options.token ?? (options.skipAuth ? undefined : this.session?.token);
 
     const headers: Record<string, string> = {
@@ -240,6 +285,8 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
         data: body || undefined,
         headers,
         timeout: this.config.timeout,
+        // 访问码网关的会话在 Cookie 里，带凭据才能自动携带（没有访问码时无副作用）
+        withCredentials: true,
       });
 
       const data = response.data as unknown;
@@ -247,28 +294,99 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
         // 地址指向了非影视服务（或被反向代理成前端页面）时，返回的会是 HTML 而不是业务 JSON
         throw new FnOSApiError(-1, "飞牛影视接口返回格式异常，请检查地址是否为飞牛影视服务");
       }
-      return data as IFnOSApiResponse<T>;
+
+      // 签名可能因设备与服务端时钟偏差、网关多节点时钟漂移而偶发失效，换一组 nonce/时间戳重试
+      const apiResponse = data as IFnOSApiResponse<T>;
+      if (apiResponse.code === 5000 && /invalid sign/i.test(apiResponse.msg ?? "") && attempt < 2) {
+        await sleep(100);
+        return await this.send<T>(options, attempt + 1);
+      }
+
+      return apiResponse;
     } catch (e) {
-      // 令牌过期时飞牛可能直接回 HTTP 401：强制重新登录后重试一次
-      if (!retried && !options.skipAuth && e instanceof AxiosError && e.response?.status === 401) {
+      // 令牌过期时飞牛可能直接回 HTTP 401：强制重新登录后重试
+      if (attempt < 2 && !options.skipAuth && e instanceof AxiosError && e.response?.status === 401) {
         FnOS.sessionCache.delete(this.cacheKey);
         await this.login(true);
-        return await this.send<T>({ ...options, token: this.session?.token }, true);
+        return await this.send<T>({ ...options, token: this.session?.token }, attempt + 1);
       }
       throw e;
     }
   }
 
-  private async login(force = false): Promise<IFnOSSession> {
-    const cachedSession = this.session;
-    if (!force && cachedSession) {
-      return cachedSession;
+  /**
+   * 访问码网关校验。
+   *
+   * 0.9.x 使用 header 契约（`x-access-code` 为 UTF-8 访问码的 Base64、`x-access-source: web`），
+   * 校验通过后网关在浏览器 Cookie 罐里种下会话，后续 API/图片请求会自动携带；
+   * 旧版没有该接口时退回 `/c/{code}`。
+   */
+  private async verifyAccessCode(): Promise<void> {
+    const accessCode = this.config.auth.accessCode?.trim();
+    if (!accessCode) {
+      return;
     }
 
+    const grantKey = `${this.origin}|${accessCode}`;
+    if (FnOS.accessCodeGrants.has(grantKey)) {
+      return;
+    }
+
+    const requestConfig = {
+      baseURL: this.origin,
+      method: "GET" as const,
+      timeout: this.config.timeout,
+      withCredentials: true,
+      validateStatus: () => true,
+    };
+
+    let response: AxiosResponse;
+    try {
+      response = await axios.request({
+        ...requestConfig,
+        url: FNOS_ACCESS_CODE_VERIFY_PATH,
+        headers: {
+          "x-access-code": toBase64Utf8(accessCode),
+          "x-access-source": "web",
+        },
+      });
+    } catch (e) {
+      throw new FnOSApiError(-2, `飞牛访问码校验失败：${e instanceof Error ? e.message : String(e)}`);
+    }
+
+    if ([401, 403, 429].includes(response.status)) {
+      throw new FnOSApiError(-2, "飞牛访问码错误或已失效");
+    }
+
+    // 旧版网关没有 header 校验接口，退回访问码路径
+    if (response.status === 404 || response.status === 405) {
+      try {
+        response = await axios.request({ ...requestConfig, url: `/c/${encodeURIComponent(accessCode)}` });
+      } catch (e) {
+        throw new FnOSApiError(-2, `飞牛访问码校验失败：${e instanceof Error ? e.message : String(e)}`);
+      }
+      if (response.status === 404) {
+        throw new FnOSApiError(-2, "飞牛访问码错误或已失效");
+      }
+    }
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new FnOSApiError(-2, `飞牛访问码校验失败（HTTP ${response.status}）`);
+    }
+
+    FnOS.accessCodeGrants.add(grantKey);
+  }
+
+  private async login(force = false): Promise<IFnOSSession> {
     const username = this.config.auth.username?.trim();
     const password = this.config.auth.password ?? "";
     if (!username || !password) {
       throw new FnOSApiError(-2, "请先填写飞牛影视的用户名与密码");
+    }
+
+    const cachedSession = this.session;
+    if (!force && cachedSession) {
+      return cachedSession;
     }
 
     // v2 登录接口要求密码为 SHA-256 十六进制摘要
@@ -283,6 +401,10 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
         skipAuth: true,
       });
     } catch (e) {
+      // 访问码/配置类错误不是「v2 接口不存在」，直接抛出，避免无意义地回退到 v1
+      if (e instanceof FnOSApiError) {
+        throw e;
+      }
       // 旧版服务端没有 v2 登录接口时才回退到 v1 明文登录；v2 已返回业务失败则不回退
       response = await this.send<{ token?: string }>({
         path: "/login",
@@ -417,6 +539,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
         method: "GET",
         responseType: "arraybuffer",
         timeout: this.config.timeout,
+        withCredentials: true,
         headers: {
           Authorization: session.token,
           authx: this.sign(imagePath, ""),
@@ -456,7 +579,12 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
     item: IFnOSNativeItem,
     options: { withPoster?: boolean } = {},
   ): Promise<IMediaServerItem<IFnOSNativeItem>> {
-    const duration = item.duration && item.duration > 0 ? item.duration : undefined;
+    const duration =
+      item.duration && item.duration > 0
+        ? item.duration
+        : item.runtime && item.runtime > 0
+          ? item.runtime * 60
+          : undefined;
     const position = item.ts || item.watched_ts || undefined;
     const rating = Number(item.vote_average);
     const year = getYear(item.release_date) ?? getYear(item.air_date);
