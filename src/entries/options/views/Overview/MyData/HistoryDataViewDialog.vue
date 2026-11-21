@@ -174,8 +174,8 @@ const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useT
 
           <!-- 魔力/积分 -->
           <template #item.bonus="{ item }">
-            <!-- bonus/seedingBonus 允许是站点直接给出的非数字串（如 "N/A"，见 karagarga / seedpool 等定义），
-                 formatNumber 会把它们渲染成 NaN，故与 MyData/Index.vue 一致改用 BonusFormatSpan 承载 -->
+            <!-- bonus/seedingBonus 允许是站点直接给出的非数字串（如旧版本数据中的 "N/A"），
+                 formatNumber 会把它们渲染成 NaN，故与 MyData/Index.vue 一致改用 BonusFormatSpan 承载（N/A 显示为 "-"） -->
             <v-container class="py-0 pr-0">
               <v-row gap="0" class="align-center justify-end">
                 <BonusFormatSpan v-if="item.bonus" :num="item.bonus" />

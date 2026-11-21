@@ -78,12 +78,6 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo,
     selectors: {
       ...SchemaMetadata.userInfo.selectors!,
-      bonus: {
-        text: "N/A",
-      },
-      bonusPerHour: {
-        text: "N/A",
-      },
       // /ajax.php?action=community_stats
       seedingSize: {
         selector: ["response.seedingsize"],

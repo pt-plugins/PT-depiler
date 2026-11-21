@@ -4,7 +4,7 @@
  * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/karagarga.json
  */
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
-import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag, IUserInfo } from "../types";
+import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 import { parseSizeString, parseValidTimeString } from "../utils";
 
 const categoryOptions = [
@@ -248,8 +248,6 @@ export const siteMetadata: ISiteMetadata = {
             selector: "td[style*='background: #DF0101'] a[href*='messages.php']",
             filters: [{ name: "parseNumber" }],
           },
-          bonus: { text: "N/A" },
-          bonusPerHour: { text: "N/A" },
         },
       },
       {
@@ -301,16 +299,6 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class KaraGarga extends PrivateSite {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    const userInfo = await super.getUserInfoResult(lastUserInfo);
-    const userInfoRecord = userInfo as Record<string, unknown>;
-
-    userInfoRecord.bonus = "N/A";
-    userInfoRecord.bonusPerHour = "N/A";
-
-    return userInfo;
-  }
-
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: Element | Document | object,
