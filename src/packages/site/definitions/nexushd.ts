@@ -16,6 +16,17 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://v6.nexushd.org/", "https://www.nexushd.org/"],
 
+  /**
+   * announce 走独立的 tracker 域，与站点页（v6 / www.nexushd.org）不是父子关系：
+   * 父域兜底只能回溯到 nexushd.org，认不到这两个站点页域名，于是挂在这些 tracker 上的种子
+   * 在 MyClient 里标不出站点归属、也补不上「按所属站点自动补标签」（#1734）。
+   * 2026-11-20 实测：https://v6.tracker.nexushd.org/announce.php 返回 200 与 bencode
+   * （`d14:failure reason24:Invalid info_hash (0 - )e`），确认是活端点；
+   * https://tracker.nexushd.org/ 由 #1734 报告者提供，本环境 DNS 把它解析到内网地址
+   * 10.79.26.99，无法复核响应，但域名与 v6 前缀版本同源，一并登记。
+   */
+  trackerUrls: ["https://v6.tracker.nexushd.org/", "https://tracker.nexushd.org/"],
+
   category: [
     {
       name: "分类",

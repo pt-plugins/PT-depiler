@@ -4,7 +4,7 @@
 
 PT-depiler is a browser extension (Manifest v3) for enhancing Private Tracker (PT) site usability: multi-site search, torrent / user-info management, and downloader integration. Stack: Vue 3 + TypeScript + Vuetify.
 
-- Toolchain: **pnpm** (>=12), **Node** >=23.7, TypeScript ~6.0, Vite 6.
+- Toolchain: **pnpm** (>=12), **Node** >=23.7, TypeScript ~6.0, Vite 8 (Rolldown).
 - ~400 tracker engines' worth of site definitions ship in-tree under `src/packages/site/definitions/`.
 
 ## Architecture & Key Components
@@ -24,6 +24,7 @@ PT-depiler is a browser extension (Manifest v3) for enhancing Private Tracker (P
 - **BackupServer** `@ptd/backupServer` — WebDAV, S3, Backblaze B2, Dropbox, Google Drive, Gist, CookieCloud, OWSS
 - **MediaServer** `@ptd/mediaServer` — Jellyfin, Plex, Emby, fnOS
 - **Social** `@ptd/social` — Douban, IMDb, TMDb, AniDB, Bangumi, TVmaze lookups
+- **Utils** `@ptd/utils` — small cross-package helpers: `crypto.ts`, `filename.ts`, `url.ts`
 
 ⚠️ Do not import the `@ptd/site` barrel into the service worker or the content-script bootstrap: it pulls the whole definitions graph. Use deep imports (`@ptd/site/utils/html.ts`, `@ptd/site/types/base.ts`, …) there.
 
@@ -51,7 +52,7 @@ PT-depiler is a browser extension (Manifest v3) for enhancing Private Tracker (P
 
 ### Site Integration
 
-- Engine schemas in `src/packages/site/schemas/`: `AbstractBittorrentSite`, `AbstractPrivateSite`, plus `NexusPHP`, `Unit3D`, `Gazelle`, `GazelleJSONAPI`, `AvistazNetwork`, `Luminance`, `Rartracker`, `TCG`.
+- Engine schemas in `src/packages/site/schemas/`: `AbstractBittorrentSite`, `AbstractPrivateSite`, plus `NexusPHP`, `Unit3D`, `Gazelle`, `GazelleJSONAPI`, `AvistazNetwork`, `Luminance`, `Rartracker`, `TCG`, `FluxTorrent`, `Torznab` (generic API protocol).
 - Site definitions in `src/packages/site/definitions/<id>.ts` export `siteMetadata` (types in `site/types/site.ts`). **The file name must equal `siteMetadata.id`** — the loader uses the file name as `siteId`.
 - Engine default metadata: every schema exports `SchemaMetadata` typed as `TSchemaMetadata<键集>` (`site/types/site.ts`) — enumerate the keys the engine **always** provides (`Required<Pick<ISiteMetadata, K>>`). Reading those keys then needs no `!`, while their values keep the _declared_ types: definitions legitimately read optional members the engine never sets (`noLoginAssert`, `requestConfig.params`, …), which a narrowed literal type would reject.
 - Selector-based scraping: `IElementQuery` (`selector` / `attr` / `filters` / `switchFilters` / `elementProcess`), parsed with Sizzle.
@@ -68,6 +69,8 @@ PT-depiler is a browser extension (Manifest v3) for enhancing Private Tracker (P
 
 - Use `<script setup>` consistently.
 - Prefer `ref()` / `reactive()` / `computed()` over the Options API.
+- Prefer `shallowRef()` for lists that are only ever replaced as a whole (table data, selection sets, per-dialog batch loads); keep a deep `ref()` only when a nested field is mutated in place.
+- Declare `provide` / `inject` keys as `InjectionKey<T>` (a `Symbol`) and read them through a composable; do not use string keys plus `!`.
 - Vuetify 4 components with CSS utility classes; all user-facing strings go through vue-i18n.
 
 ## Build & Development

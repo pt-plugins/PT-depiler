@@ -7,12 +7,13 @@ import appCss from "./app.css?inline";
 import { createApp } from "vue";
 
 import App from "./App.vue";
-import { updatePageType } from "./utils.ts";
+import { PTD_DATA_KEY } from "./injectionKeys.ts";
+import { updatePageType, type IPtdData } from "./utils.ts";
 import { piniaInstance as pinia } from "@/options/plugins/pinia.ts";
 import { i18nInstance as i18n } from "@/options/plugins/i18n.ts";
 import { vuetifyInstance as vuetify } from "@/options/plugins/vuetify.ts";
 
-export function mountApp(document: Document, data: any = {}) {
+export function mountApp(document: Document, data: IPtdData = {}) {
   // 检查站点原来有没有 vuetify 的样式，如果有，则缓存其内容以便于我们的Vuetify挂载后恢复其内容
   const siteVuetifyThemePer = document.querySelector("#vuetify-theme-stylesheet");
   const hasSiteVuetifyThemePre = siteVuetifyThemePer !== null && siteVuetifyThemePer instanceof HTMLLinkElement;
@@ -74,7 +75,7 @@ export function mountApp(document: Document, data: any = {}) {
 
   // 挂载 Vue 应用
   const app = createApp(App).use(pinia).use(i18n).use(vuetify);
-  app.provide("ptd_data", data); // 提供数据给 Vue 应用
+  app.provide(PTD_DATA_KEY, data); // 提供数据给 Vue 应用
   app.mount(appMountElement);
 
   // 此时 vuetify 已挂载了我们的主题样式，需要移动到shadow Dom中以免影响网站样式

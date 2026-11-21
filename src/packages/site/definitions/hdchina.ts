@@ -546,6 +546,48 @@ export default class HDChina extends NexusPHP {
     return data?.message ?? null;
   }
 
+  /**
+   * 本站的下载链接是签名形式（download.php?hash=...），而 download.php?id=xxx 会直接返回 404。
+   *
+   * 从种子列表页拖拽标题链接时，前端拿到的是 details.php?id=xxx&hit=1，NexusPHP 基类会把它
+   * 改写成 download.php?id=xxx；因此这里先请求详情页，再用 detail.selectors.link 取出签名链接。
+   */
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    const link = torrent.link ?? "";
+    if (link.startsWith("magnet:") || link.includes("download.php?hash=")) {
+      return super.getTorrentDownloadLink(torrent);
+    }
+
+    // 只有详情页 / 按 id 下载的链接需要回详情页解析签名链接；其它外部链接保持原样，
+    // 避免把从别的站点拖进来的种子地址误当成详情页请求。
+    const isDetailLink =
+      link.includes("details.php") || link.includes("torrents.php?id=") || link.includes("download.php?id=");
+    let detailUrl = isDetailLink ? link : "";
+    if (!detailUrl && !link && (torrent.url?.includes("details.php") || torrent.url?.includes("torrents.php?id="))) {
+      detailUrl = torrent.url;
+    }
+    if (!detailUrl && !link && torrent.id) {
+      detailUrl = this.fixLink(`/details.php?id=${torrent.id}`, { baseURL: this.url });
+    }
+
+    const linkSelector = this.metadata.detail?.selectors?.link;
+    if (!detailUrl || !linkSelector) {
+      return super.getTorrentDownloadLink(torrent);
+    }
+
+    const { data } = await this.request<any>({
+      url: detailUrl,
+      responseType: "document",
+      ...(this.metadata.detail?.requestConfig ?? {}),
+    });
+    const signedLink = this.getFieldData(data, linkSelector) as string | undefined;
+    if (signedLink) {
+      torrent.link = this.fixLink(signedLink, { baseURL: this.url, url: detailUrl });
+    }
+
+    return super.getTorrentDownloadLink(torrent);
+  }
+
   private async fetchCsrfToken(): Promise<string> {
     if (this.csrfToken) {
       return this.csrfToken;

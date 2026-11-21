@@ -25,7 +25,7 @@ import { type ISiteMetadata, type ITorrent } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 export const siteMetadata: ISiteMetadata = {
-  version: 20260813,
+  version: 20261114,
   id: "yzyy",
   name: "YzYY",
   aka: [],
@@ -85,11 +85,13 @@ export const siteMetadata: ISiteMetadata = {
         data: "time",
         text: 0,
       },
+      // torrents.php 输出的 data-size 是纯字节数（intval($t['size'])），不是带单位文本。
+      // parseSize 过滤器要求结尾带 B/iB，纯数字会返回 0（搜索结果体积显示 0.00 B）。
       size: {
         selector: ":self",
         data: "size",
         text: 0,
-        filters: [{ name: "parseSize" }],
+        filters: [{ name: "parseNumber" }],
       },
       seeders: {
         selector: ":self",

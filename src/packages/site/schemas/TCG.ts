@@ -107,12 +107,6 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
           },
           seeding: { selector: "img[title='seeders'] + span:first" },
           levelName: { selector: "td.rowhead:contains('Class') + td" },
-          bonus: {
-            text: "N/A",
-          },
-          bonusPerHour: {
-            text: "N/A",
-          },
           seedingSize: {
             selector: "div#kd1 > table.details > tbody",
             elementProcess: (el?: HTMLElement) => {

@@ -174,7 +174,7 @@ const { tableRef: fitTableRef, fittedHeaders, tableClass: fitTableClass } = useT
                 <v-icon icon="mdi-filter" v-bind="props" />
               </template>
               <v-list class="pa-0">
-                <v-list-item v-for="(transKey, filterKey) in booleanField">
+                <v-list-item v-for="(transKey, filterKey) in booleanField" :key="filterKey">
                   <v-checkbox
                     v-model="advanceFilterDictRef[filterKey].required"
                     :label="t(transKey)"

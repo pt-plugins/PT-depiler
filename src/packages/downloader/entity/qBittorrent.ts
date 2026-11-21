@@ -537,6 +537,12 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     for (const key of QBittorrentAdvanceAddTorrentOptionsBooleanKey) {
       if (advanceAddTorrentOptions[key] === true) {
         formData.append(key, "true");
+        // qBittorrent 5.3.0（WebAPI 2.16.0）把 skip_checking 改名 seedMode，旧名不再被接受
+        // （上游 WebAPI_Changelog 2.16.0 #24724）。与上面 paused/stopped 同办法：两名同发，
+        // 各代客户端只认自己那个名字、把不认识的丢掉，不需要版本门。
+        if (key === "skip_checking") {
+          formData.append("seedMode", "true");
+        }
       }
     }
 

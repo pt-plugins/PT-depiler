@@ -1,5 +1,5 @@
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import type { ISearchInput, ISiteMetadata, ITorrent, IUserInfo } from "../types";
+import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
 import { NeedLoginError } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite";
 
@@ -22,7 +22,7 @@ interface IReelCoreGroup {
 
 export const siteMetadata: ISiteMetadata = {
   id: "colapt",
-  version: 1,
+  version: 2,
   name: "可乐",
   aka: ["Cola", "ColaPT"],
   description: "使用 ReelCore 的影视站点；积分表示瓶盖，“发布帖子数”表示核子可乐余额。晋级需达标并消耗两种积分。",
@@ -138,6 +138,9 @@ export const siteMetadata: ISiteMetadata = {
           },
           uploads: { selector: "contributions.torrents" },
           bonus: { selector: "stats.points", filters: [Number] },
+          // 做种体积：资料页的 stats.seeding_bytes 就是字节数（2026-11-13 #1706 反馈的真实响应确认），
+          // 不用再去 /me/activity 分页累加（那种做法还要处理 projection_status，且多打 N 次接口）
+          seedingSize: { selector: "stats.seeding_bytes", filters: [{ name: "parseNumber" }] },
         },
       },
       {
@@ -159,12 +162,12 @@ export const siteMetadata: ISiteMetadata = {
       },
       {
         requestConfig: { url: "/api/v1/me/stats" },
-        fields: ["seedingSize"],
         selectors: {
-          uploaded: { selector: "billed_uploaded" },
-          downloaded: { selector: "billed_downloaded" },
-          trueUploaded: { selector: "raw_uploaded" },
-          trueDownloaded: { selector: "raw_downloaded" },
+          uploaded: { selector: "billed_uploaded_bytes" },
+          downloaded: { selector: "billed_downloaded_bytes" },
+          ratio: { selector: "ratio", filters: [Number] },
+          trueUploaded: { selector: "raw_uploaded_bytes" },
+          trueDownloaded: { selector: "raw_downloaded_bytes" },
           seeding: { selector: "seeding" },
           leeching: { selector: "leeching" },
           snatches: { selector: "completions" },
@@ -175,7 +178,6 @@ export const siteMetadata: ISiteMetadata = {
         selectors: {
           levelId: { selector: "level.rank" },
           levelName: { selector: "level.title" },
-          trueRatio: { selector: "stats.ratio", filters: [Number] },
         },
       },
       {
@@ -202,8 +204,8 @@ export const siteMetadata: ISiteMetadata = {
       name: "经典罐",
       nameAka: ["Classic Can", "classic_can"],
       interval: "P7D",
-      trueUploaded: "50 GiB",
-      trueRatio: 1,
+      uploaded: "50 GiB",
+      ratio: 1,
       snatches: 5,
       bonus: 22000,
       posts: 35,
@@ -214,8 +216,8 @@ export const siteMetadata: ISiteMetadata = {
       name: "玻璃瓶",
       nameAka: ["Glass Bottle", "glass_bottle"],
       interval: "P30D",
-      trueUploaded: "200 GiB",
-      trueRatio: 1.2,
+      uploaded: "200 GiB",
+      ratio: 1.2,
       snatches: 20,
       bonus: 93000,
       posts: 115,
@@ -226,8 +228,8 @@ export const siteMetadata: ISiteMetadata = {
       name: "分享装",
       nameAka: ["Sharing Pack", "sharing_pack"],
       interval: "P90D",
-      trueUploaded: "1 TiB",
-      trueRatio: 1.5,
+      uploaded: "1 TiB",
+      ratio: 1.5,
       snatches: 50,
       bonus: 272000,
       posts: 300,
@@ -238,8 +240,8 @@ export const siteMetadata: ISiteMetadata = {
       name: "家庭装",
       nameAka: ["Family Pack", "family_pack"],
       interval: "P180D",
-      trueUploaded: "5 TiB",
-      trueRatio: 2,
+      uploaded: "5 TiB",
+      ratio: 2,
       snatches: 100,
       bonus: 433000,
       posts: 450,
@@ -250,8 +252,8 @@ export const siteMetadata: ISiteMetadata = {
       name: "可乐收藏家",
       nameAka: ["Cola Collector", "cola_collector"],
       interval: "P365D",
-      trueUploaded: "20 TiB",
-      trueRatio: 2.5,
+      uploaded: "20 TiB",
+      ratio: 2.5,
       snatches: 300,
       bonus: 923000,
       posts: 925,
@@ -262,12 +264,13 @@ export const siteMetadata: ISiteMetadata = {
       name: "可乐大亨",
       nameAka: ["Cola Tycoon", "cola_tycoon"],
       interval: "P730D",
-      trueUploaded: "50 TiB",
-      trueRatio: 3,
+      uploaded: "50 TiB",
+      ratio: 3,
       snatches: 1000,
       bonus: 1865000,
       posts: 1825,
       privilege: "达标后手动晋级，消耗 1,865,000 瓶盖和 1,825 核子可乐。",
+      isKept: true,
     },
   ],
 };
@@ -294,27 +297,6 @@ export default class ColaPT extends PrivateSite {
     }
 
     return torrent;
-  }
-
-  protected async parseUserInfoForSeedingSize(userInfo: IUserInfo, stats: { seeding: number }): Promise<IUserInfo> {
-    let seedingSize = 0;
-    if (stats.seeding > 0) {
-      let totalPages = 1;
-      for (let page = 1; page <= totalPages; page++) {
-        const { data } = await this.request<{
-          items: { size_bytes: string | null }[];
-          total_pages: number;
-          projection_status: string;
-        }>({ url: "/api/v1/me/activity", params: { state: "seeding", page, page_size: 100 } });
-        // 统计不可用时保留未知，不能把缺失的做种量记成零。
-        if (data.projection_status !== "current" || data.items.some((item) => item.size_bytes === null))
-          return userInfo;
-        totalPages = data.total_pages;
-        seedingSize += data.items.reduce((sum, item) => sum + Number(item.size_bytes), 0);
-      }
-    }
-    userInfo.seedingSize = seedingSize;
-    return userInfo;
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {

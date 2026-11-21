@@ -14,9 +14,11 @@ const normalizedValue = computed<{ type: "number"; value: number } | { type: "te
     return { type: "number", value: num };
   }
 
+  // 空值以及历史数据中的 "N/A" 统一显示为 "-"
+  const text = typeof num === "string" ? num.trim() : "";
   return {
     type: "text",
-    value: typeof num === "string" ? num : typeof num === "undefined" ? "-" : "N/A",
+    value: text === "" || text.toUpperCase() === "N/A" ? "-" : text,
   };
 });
 

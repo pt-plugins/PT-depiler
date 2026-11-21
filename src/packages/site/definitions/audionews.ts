@@ -330,8 +330,6 @@ export const siteMetadata: ISiteMetadata = {
             ],
           },
           // seedingSize: { text: "N/A" },
-          bonus: { text: "N/A" },
-          bonusPerHour: { text: "N/A" },
         },
       },
     ],

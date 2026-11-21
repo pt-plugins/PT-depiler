@@ -192,8 +192,10 @@ export async function fetchInformation(
       .replace(/s(_ratio_poster|pic)/g, "l$1")
       .replace(/img\d(.doubanio.com)/g, "img1$1");
 
-    resDict.ratingScore = ld_json?.aggregateRating?.ratingValue ?? 0;
-    resDict.ratingCount = ld_json?.aggregateRating?.ratingCount ?? 0;
+    // LD-JSON 里的评分与评分人数都是字符串（如 "7.5"），而 ISocialInformation 约定为数字：
+    // 直接赋字符串会让下游（如热门推荐 `ratingScore.toFixed(1)`）抛错，整行标题因此渲染不出来。
+    resDict.ratingScore = Number(ld_json?.aggregateRating?.ratingValue ?? 0);
+    resDict.ratingCount = Number(ld_json?.aggregateRating?.ratingCount ?? 0);
     resDict.summary = (ld_json?.description ?? "").replace(/\s+/g, " ").trim();
   } catch (error) {
     console.warn(error);

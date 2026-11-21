@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { provide, ref, shallowRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import { type TSiteID } from "@ptd/site";
 import type { TSiteMetadataIndexEntryWithId } from "@ptd/site/metadataIndex";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { STORED_SITE_USER_CONFIG_KEY, type TStoredSiteUserConfig } from "./injectionKeys.ts";
 import { getCanAddedSiteIndexEntries } from "./utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
@@ -19,10 +20,10 @@ const metadataStore = useMetadataStore();
 
 const currentStep = ref<0 | 1>(0);
 const selectedSiteId = ref<TSiteID | null>(null);
-const storedSiteUserConfig = ref<ISiteUserConfig>({});
+const storedSiteUserConfig = ref<TStoredSiteUserConfig>({});
 const isFormValid = ref<boolean>(false);
 
-provide("storedSiteUserConfig", storedSiteUserConfig);
+provide(STORED_SITE_USER_CONFIG_KEY, storedSiteUserConfig);
 
 function resetDialog() {
   currentStep.value = 0;

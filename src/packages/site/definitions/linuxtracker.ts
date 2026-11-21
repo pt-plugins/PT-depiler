@@ -6,18 +6,24 @@ import { type ISiteMetadata } from "../types";
 /**
  * 分类 id 直接用站点 `?category=<数字id>` 的口径。
  *
- * 2026-11-12 全量同步：站点 `/torrents/` 页面自带的分类 `<select>` 共 **331 个选项**
- * （id + 名称），是权威清单。本表按其 **DOM 顺序**（字母序，`Other distros` 尾部收尾）原样收录，
- * 不再人工挑选子集——此前「只保留常见发行版」的取舍前提（认为站点没有分类导航 UI）已被证伪。
+ * 全量同步：站点 `/torrents/` 页面自带的分类 `<select>` 共 **352 个选项**
+ * （id + 名称），是权威清单。本表按其 **DOM 顺序**（字母序，`Other distros` 尾部收尾）原样收录。
  *
- * 每个 id 都用 `https://linuxtracker.org/torrents/?category=<id>` 核对过返回结果的
- * category-badge 与该 id 一一对应（2026-11-11 抽查含 Jackett 2026-11-08/09 新增的 14 个分类）。
+ * 2026-11-20 再同步（338 → 352）：站点新增 14 个发行版分类
+ * （34 ENux、35 Genuen、36 CarotOS、37 Vitalinux、38 Valtux OS、40 Shanios、41 Lyra OS、
+ * 42 Unraid OS、43 Basalt Linux、44 CloudLinux OS、45 InstantOS、46 PelandukOS、
+ * 47 GNU/Linux KDu、48 Neko-Void），另有 2 项改名
+ * （2311 AlmaLinux → AlmaLinux OS、346 Zenwalk Linux → Zenwalk GNU Linux）；0 删除。
+ *
+ * 注意：Jackett 的 linuxtracker.yml 在本轮只报了其中 6 项新增与 1 项改名，
+ * 其余 8 项（含 Genuen、Neko-Void、CloudLinux OS、InstantOS、GNU/Linux KDu、
+ * PelandukOS、AlmaLinux OS 改名）Jackett 漏报 —— 本表以**站点实际**为准。
  */
 const categories: Array<{ name: string; value: number }> = [
   { name: "4MLinux", value: 2002 },
   { name: "Abora OS", value: 17 },
   { name: "Absolute", value: 13 },
-  { name: "AlmaLinux", value: 2311 },
+  { name: "AlmaLinux OS", value: 2311 },
   { name: "Alpine Linux", value: 2003 },
   { name: "ALT Linux", value: 2004 },
   { name: "Anarchy Linux", value: 2292 },
@@ -34,6 +40,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "ArchLabs", value: 2212 },
   { name: "Archman", value: 2183 },
   { name: "ArcoLinux", value: 2196 },
+  { name: "Argent Linux", value: 33 },
   { name: "Artix Linux", value: 2216 },
   { name: "AryaLinux", value: 2227 },
   { name: "Audiophile Linux", value: 2288 },
@@ -41,6 +48,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "AV Linux", value: 2012 },
   { name: "Backbox", value: 1231 },
   { name: "BackSlash Linux", value: 2219 },
+  { name: "Basalt Linux", value: 43 },
   { name: "Batocera Linux", value: 2237 },
   { name: "BBQLinux", value: 2252 },
   { name: "BeeFree OS", value: 2272 },
@@ -64,6 +72,8 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Cae", value: 2026 },
   { name: "Caine", value: 1220 },
   { name: "Calculate Linux", value: 2028 },
+  { name: "CarotOS", value: 36 },
+  { name: "CatOS", value: 27 },
   { name: "CentOS", value: 102 },
   { name: "Chakra", value: 1216 },
   { name: "Chapeau", value: 2033 },
@@ -71,6 +81,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "ClearOS", value: 2264 },
   { name: "Clonezilla", value: 107 },
   { name: "ClonOS", value: 2248 },
+  { name: "CloudLinux OS", value: 44 },
   { name: "Condres OS", value: 2257 },
   { name: "Connochaet", value: 2036 },
   { name: "Container Linux", value: 2037 },
@@ -107,6 +118,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Endless OS", value: 2179 },
   { name: "EnigmarsOS", value: 2310 },
   { name: "Enso OS", value: 2223 },
+  { name: "ENux", value: 34 },
   { name: "Exe GNU/Linux", value: 2043 },
   { name: "Extix", value: 2045 },
   { name: "Ezarcher", value: 9 },
@@ -127,8 +139,10 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "GeckoLinux", value: 2214 },
   { name: "GeeXboX", value: 203 },
   { name: "Gentoo", value: 206 },
+  { name: "Genuen", value: 35 },
   { name: "GhostBSD", value: 2048 },
   { name: "Gnewsense", value: 210 },
+  { name: "GNU/Linux KDu", value: 47 },
   { name: "GNUSlashLinux", value: 22 },
   { name: "GoboLinux", value: 216 },
   { name: "GParted", value: 1212 },
@@ -145,9 +159,12 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Helwan Linux", value: 21 },
   { name: "Hiren&#x27;s BootCD+PE", value: 2293 },
   { name: "Huayra Linux", value: 2166 },
+  { name: "Hybrid-d77", value: 31 },
   { name: "Hyperbola GNU", value: 2244 },
   { name: "Infinity Linux", value: 20 },
+  { name: "InstantOS", value: 45 },
   { name: "IPFire", value: 252 },
+  { name: "Kader⁴²", value: 30 },
   { name: "Kaisen Linux", value: 2294 },
   { name: "Kali", value: 2051 },
   { name: "KaOS", value: 2052 },
@@ -174,11 +191,13 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Livecd", value: 316 },
   { name: "Lubuntu", value: 1218 },
   { name: "LXLE", value: 2068 },
+  { name: "Lyra OS", value: 41 },
   { name: "Mabox Linux", value: 2296 },
   { name: "Mageia", value: 1228 },
   { name: "MagOS Linux", value: 10 },
   { name: "MakuluLinux", value: 2071 },
   { name: "Manjaro", value: 2073 },
+  { name: "Maple Linux", value: 28 },
   { name: "MidnightBSD", value: 343 },
   { name: "Minino", value: 2075 },
   { name: "Minix", value: 2076 },
@@ -193,6 +212,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "NakeDeb", value: 2302 },
   { name: "Namib GNU/Linux", value: 2217 },
   { name: "NAS4Free", value: 2078 },
+  { name: "Neko-Void", value: 48 },
   { name: "Neptune", value: 2079 },
   { name: "NetBSD", value: 380 },
   { name: "Nethserver", value: 2080 },
@@ -207,6 +227,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "OpenBSD", value: 401 },
   { name: "Openelec", value: 2089 },
   { name: "OpenIndiana", value: 2090 },
+  { name: "OpenKylin", value: 29 },
   { name: "Openmamba GNU/Linux", value: 7 },
   { name: "OpenMandriva Lx", value: 2091 },
   { name: "Openmediavault", value: 2092 },
@@ -224,6 +245,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Partedmagic", value: 421 },
   { name: "Pcbsd", value: 422 },
   { name: "PCLinuxOS", value: 423 },
+  { name: "PelandukOS", value: 46 },
   { name: "Pentoo", value: 429 },
   { name: "Peppermint", value: 430 },
   { name: "Pfsense", value: 432 },
@@ -260,6 +282,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Rescuezilla", value: 2305 },
   { name: "Resilient Linux", value: 2270 },
   { name: "Robolinux", value: 2116 },
+  { name: "Rocky Linux", value: 32 },
   { name: "Rosa", value: 1223 },
   { name: "Runtu", value: 2117 },
   { name: "Sabayon", value: 14 },
@@ -269,6 +292,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Security Onion", value: 2304 },
   { name: "SELKS", value: 2119 },
   { name: "Septor", value: 2250 },
+  { name: "Shanios", value: 40 },
   { name: "SharkLinux", value: 489 },
   { name: "Siduction", value: 2121 },
   { name: "Simplicity Linux", value: 2122 },
@@ -320,12 +344,15 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "Ultimate Boot CD", value: 2277 },
   { name: "Ultimate Edition", value: 569 },
   { name: "Univention Corporate", value: 2222 },
+  { name: "Unraid OS", value: 42 },
   { name: "Untangle NG Firewall", value: 2149 },
   { name: "Uruk GNU/Linux", value: 2173 },
   { name: "VailuxOS", value: 2 },
+  { name: "Valtux OS", value: 38 },
   { name: "Vector", value: 579 },
   { name: "Ventoy", value: 3 },
   { name: "Virage", value: 2282 },
+  { name: "Vitalinux", value: 37 },
   { name: "Void Linux", value: 2151 },
   { name: "Volumio", value: 2152 },
   { name: "Voyager Live", value: 2153 },
@@ -340,7 +367,7 @@ const categories: Array<{ name: string; value: number }> = [
   { name: "ZelixOS", value: 24 },
   { name: "Zen", value: 612 },
   { name: "Zentyal", value: 2159 },
-  { name: "Zenwalk Linux", value: 346 },
+  { name: "Zenwalk GNU Linux", value: 346 },
   { name: "Zeroshell", value: 2160 },
   { name: "Zevenet", value: 2193 },
   { name: "Zorin", value: 1233 },

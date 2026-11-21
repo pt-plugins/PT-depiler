@@ -26,7 +26,6 @@ const runtimeStore = useRuntimeStore();
 const appendMenu = computed<Array<{ title: string; icon: string; [str: string]: any }>>(() => [
   { title: t("layout.header.home"), icon: "mdi-home", href: REPO_URL },
   { title: t("layout.header.wiki"), icon: "mdi-help-circle", href: `${REPO_URL}/wiki` },
-  { title: "Ask AI", icon: "mdi-chat-question", href: `https://deepwiki.com/pt-plugins/PT-depiler` },
 ]);
 
 const searchKey = ref<string>("");
@@ -215,12 +214,7 @@ function updateNavBarOpenStatus() {
             <v-divider />
 
             <!-- 用户自定义的搜索方案列表 -->
-            <v-list-item
-              v-for="(item, index) in searchPlans"
-              :key="index"
-              :value="index"
-              @click="() => (searchPlanKey = item.id)"
-            >
+            <v-list-item v-for="item in searchPlans" :key="item.id" @click="() => (searchPlanKey = item.id)">
               <v-list-item-title>{{ metadataStore.getSearchSolutionName(item.id) }}</v-list-item-title>
             </v-list-item>
           </v-list>

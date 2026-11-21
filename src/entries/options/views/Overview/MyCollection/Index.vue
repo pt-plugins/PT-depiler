@@ -22,7 +22,8 @@ const { t } = useI18n();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 
-const favorites = ref<ITorrentFavoriteItem[]>([]);
+// 收藏列表只整体替换（加载 / 过滤 / 清空），无元素级就地修改
+const favorites = shallowRef<ITorrentFavoriteItem[]>([]);
 const selectedKeys = ref<TTorrentFavoriteKey[]>([]);
 const favCategoryFilter = ref<string[]>([]); // 空数组表示全部分类，"" 表示未分类，其余为分类名（可多选）
 const loading = ref(false);

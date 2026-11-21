@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type {
@@ -28,18 +28,18 @@ const activeTab = ref<string>("info");
 // 下载器能力元数据（feature 声明）
 const metaData = ref<TorrentClientMetaData | null>(null);
 
-// 文件
-const files = ref<CTorrentFile[]>([]);
+// 文件（列表只整体替换：整批加载 / 清空，无元素级就地修改）
+const files = shallowRef<CTorrentFile[]>([]);
 const filesLoading = ref(false);
 const filesLoaded = ref(false);
 
 // peers
-const peers = ref<CTorrentPeer[]>([]);
+const peers = shallowRef<CTorrentPeer[]>([]);
 const peersLoading = ref(false);
 const peersLoaded = ref(false);
 
 // trackers
-const trackers = ref<CTorrentTracker[]>([]);
+const trackers = shallowRef<CTorrentTracker[]>([]);
 const trackersLoading = ref(false);
 const trackersLoaded = ref(false);
 const trackerInput = ref("");

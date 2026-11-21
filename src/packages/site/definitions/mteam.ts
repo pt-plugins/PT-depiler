@@ -4,12 +4,13 @@
  * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/mteam.json
  */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { set } from "es-toolkit/compat";
+import { get, set } from "es-toolkit/compat";
 import { build as buildDouban } from "@ptd/social/entity/douban.ts";
 import { build as buildImdb } from "@ptd/social/entity/imdb.ts";
 
 import {
   type ILevelRequirement,
+  type IUserInfo,
   ISearchInput,
   ISiteMetadata,
   ITorrent,
@@ -17,6 +18,7 @@ import {
   TSchemaMetadataListSelectors,
   ETorrentStatus,
 } from "../types";
+import { definedFilters } from "../utils/filter.ts";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 const siteCategory: { value: string; name: string; type: "normal" | "adult" }[] = [
@@ -177,6 +179,16 @@ export const siteMetadata: ISiteMetadata = {
     "uggcf://nc.z-grnz.pp/",
     "uggcf://arkg.z-grnz.pp/",
   ],
+
+  /**
+   * announce 走独立的 `tracker.*` 域，与站点页（kp / ob / h5 等镜像域）不是父子关系：
+   * 父域兜底只能回溯到裸域，而裸域未登记，于是挂在该 tracker 上的种子在 MyClient 里
+   * 标不出站点归属、也补不上「按所属站点自动补标签」（#1734）。
+   * 2026-11-20 实测：该 announce 端点（rot13 见下值）返回 Cloudflare 403，域名存活、
+   * 源站被 CF 保护，未能拿到 bencode。
+   * 该站点 tags 含成人标记，按 checkSiteDefinition.ts 的要求写成 rot13。
+   */
+  trackerUrls: ["uggcf://genpxre.z-grnz.pp/"],
 
   category: [
     {
@@ -392,10 +404,19 @@ export const siteMetadata: ISiteMetadata = {
       },
       {
         requestConfig: { url: "/api/tracker/myPeerStatistics", method: "POST", responseType: "json" },
+        // 接口文档声明 uid 必填（不传时服务端虽会回落到当前 Key 对应用户，但显式传入更稳妥）
+        assertion: { id: "params.uid" },
         selectors: {
           seeding: { selector: "data.seederCount", filters: [{ name: "parseNumber" }] },
-          seedingSize: { selector: "data.seederSize", filters: [{ name: "parseNumber" }] },
           uploads: { selector: "data.uploadCount", filters: [{ name: "parseNumber" }] },
+        },
+      },
+      {
+        // 做种体积：站点网页「保種總體積」使用的就是该接口的 seedingSizeOver72h
+        requestConfig: { url: "/api/member/seedingStats", method: "POST", responseType: "json" },
+        assertion: { id: "params.userid" },
+        selectors: {
+          seedingSize: { selector: "data.seedingSizeOver72h", filters: [{ name: "parseNumber" }] },
         },
       },
       {
@@ -741,6 +762,32 @@ export default class MTeam extends PrivateSite {
 
     torrent.tags = tags;
     return torrent;
+  }
+
+  /**
+   * 做种数。
+   *
+   * `/api/tracker/myPeerStatistics` 的 `seederCount` 对部分账号恒为 0（refs: #1702），
+   * 而站点前端取做种数用的是 `/api/tracker/myPeerStatus` 的 `data.seeder`，
+   * 因此在 tracker statistics 返回 0 时回落到后者。
+   */
+  protected async parseUserInfoForSeeding(userInfo: IUserInfo, dataDocument: any): Promise<IUserInfo> {
+    let seeding = definedFilters.parseNumber(get(dataDocument, "data.seederCount"));
+    if (!seeding) {
+      try {
+        const { data } = await this.request<IMTeamRawResp<{ seeder?: string | number }>>({
+          url: "/api/tracker/myPeerStatus",
+        });
+        if (data?.code === "0" && typeof data.data?.seeder !== "undefined") {
+          seeding = definedFilters.parseNumber(data.data.seeder);
+        }
+      } catch (error) {
+        console.warn("[MTeam] Failed to fetch myPeerStatus:", error);
+      }
+    }
+
+    userInfo.seeding = seeding;
+    return userInfo;
   }
 
   /**

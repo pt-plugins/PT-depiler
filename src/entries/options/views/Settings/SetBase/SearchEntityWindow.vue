@@ -32,6 +32,12 @@ const promotionDisplayOptions = computed(() => [
   { title: t("SetBase.searchEntity.promotionDisplayOptions.factor"), value: "factor" },
   { title: t("SetBase.searchEntity.promotionDisplayOptions.both"), value: "both" },
 ]);
+
+const titleDisplayModeOptions = computed(() => [
+  { title: t("SetBase.searchEntity.titleDisplayModeOptions.end"), value: "end" },
+  { title: t("SetBase.searchEntity.titleDisplayModeOptions.middle"), value: "middle" },
+  { title: t("SetBase.searchEntity.titleDisplayModeOptions.scroll"), value: "scroll" },
+]);
 </script>
 
 <template>
@@ -112,6 +118,24 @@ const promotionDisplayOptions = computed(() => [
             :label="t('SetBase.searchEntity.quickSiteFilter')"
             color="success"
             hide-details
+          />
+
+          <v-divider />
+        </v-col>
+      </v-row>
+
+      <v-row density="compact">
+        <v-col cols="12" md="2" class="d-flex align-center justify-center">
+          <v-label>{{ t("SetBase.searchEntity.displayLabel") }}</v-label>
+        </v-col>
+        <v-col>
+          <v-select
+            v-model="configStore.searchEntifyControl.titleDisplayMode"
+            :items="titleDisplayModeOptions"
+            :label="t('SetBase.searchEntity.titleDisplayMode')"
+            :messages="t('SetBase.searchEntity.titleDisplayModeMessage')"
+            class="mb-2"
+            density="compact"
           />
 
           <v-divider />

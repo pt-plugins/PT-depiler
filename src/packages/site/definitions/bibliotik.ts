@@ -188,7 +188,6 @@ export const siteMetadata: ISiteMetadata = {
             attr: "datetime",
             filters: [{ name: "parseTime" }],
           },
-          bonus: { text: "N/A" },
         },
       },
     ],

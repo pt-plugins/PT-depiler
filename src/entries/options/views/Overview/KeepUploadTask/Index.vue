@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, shallowRef } from "vue";
 import type { DataTableHeader } from "vuetify";
 import { useI18n } from "vue-i18n";
 import type { CAddTorrentOptions } from "@ptd/downloader";
@@ -21,7 +21,8 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 const configStore = useConfigStore();
 
-const tasks = ref<IKeepUploadTask[]>([]);
+// 任务列表只整体替换（加载 / 过滤 / 清空），无元素级就地修改，用 shallowRef 省去深层代理
+const tasks = shallowRef<IKeepUploadTask[]>([]);
 // v-data-table 设置了 item-value="id"，因此 v-model 中保存的是任务ID（TKeepUploadTaskKey）而非任务对象
 const selectedTasks = ref<TKeepUploadTaskKey[]>([]);
 const expanded = ref<string[]>([]);

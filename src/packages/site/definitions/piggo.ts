@@ -24,6 +24,13 @@
  * 评论数、发布人、做种体积都不返回；搜索条目也不带下载链接，要按种子调 `/download-link` 现签
  * （约 24 小时有效，成功 announce 后作废）。
  *
+ * ✅ 2026-11-13 按 #1706 反馈者贴出的 `/me` 真实响应复核（`data.user.id` / `username` /
+ *   `class.name` / `created_at` / `last_access` / `mail_unread.total`、`stats.{uploaded,
+ *   downloaded,true_uploaded,true_downloaded,ratio,true_ratio,seeding,leeching,seed_time,bonus,
+ *   seed_points,seed_points_per_hour,seedbonus_per_hour,invites}`、`donor`）：现有选择器与之一一
+ *   对应，**无需改动**；「我的数据」里仍为空的做种体积、发种数是上面说的接口缺口（`/me` 既不返回
+ *   `seeding_size`，也没有发种计数），不是解析漏字段。
+ *
  * 种子标签同理：站点前台在列表上打的「完结 / 中字 / 官方 / 禁转 / 中英双语」这类标记接口不返回，
  * `/catalog` 的 taxonomies 里也没有对应的分组（只有官组、来源、介质、编码、音轨、分辨率、HDR、
  * 地区）。所以在接口补齐标签之前，这里不自己生成任何标签（连 taxonomy 推的「官方」也不做），

@@ -29,7 +29,13 @@ export function logger(data: ILoggerItem) {
 }
 
 onMessage("logger", ({ data }) => logger(data));
-onMessage("getLogger", async () => loggerStorage.value);
+/**
+ * 注意：消息回包由浏览器负责序列化 —— Chrome 用 JSON（可以顺手处理 Proxy），
+ * Firefox 用 structured clone（Proxy 无法克隆，会抛 DataCloneError）。
+ * `loggerStorage` 是 `useSessionStorage` 生成的 ref，其 `.value` 是 Vue 的响应式 Proxy，
+ * 直接 return 出去会导致 Firefox 下调用方拿不到日志（issue #1716），故这里回一份纯数据快照。
+ */
+onMessage("getLogger", async () => JSON.parse(JSON.stringify(loggerStorage.value)) as ILoggerItem[]);
 onMessage("clearLogger", async () => {
   loggerStorage.value = [];
 });

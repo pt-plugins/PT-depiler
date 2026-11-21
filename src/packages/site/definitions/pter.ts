@@ -44,6 +44,8 @@ export const siteMetadata: ISiteMetadata = {
         { name: "电影 (Movie)", value: 401 },
         { name: "电视剧 (TV Series)", value: 404 },
         { name: "动画 (Animation)", value: 403 },
+        // 2026-11-20 按 Jackett pterclub.yml（233a15af）补：站点新增「短剧」分类
+        { name: "短剧 (Short)", value: 419 },
         { name: "综艺 (TV Show)", value: 405 },
         { name: "音乐短片 (MV)", value: 413 },
         { name: "音乐 (Music)", value: 406 },

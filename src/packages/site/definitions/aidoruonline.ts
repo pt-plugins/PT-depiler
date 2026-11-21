@@ -189,11 +189,25 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.prof-lbl:contains('Joined:') + td"],
         filters: [{ name: "parseTime" }],
       },
+      lastAccessAt: {
+        selector: ["td.prof-lbl:contains('Last Visit') + td"],
+        filters: [{ name: "parseTime" }],
+      },
+      // 页面格式为 "56.40 TB (56.40 TB)"，括号内为真实上传量
       uploaded: {
         selector: ["td.prof-lbl:contains('Uploaded:') + td"],
-        filters: [{ name: "parseSize" }],
+        filters: [(query: string) => query.split("(")[0], { name: "parseSize" }],
+      },
+      trueUploaded: {
+        selector: ["td.prof-lbl:contains('Uploaded:') + td"],
+        filters: [(query: string) => query.match(/\(([^)]*)\)/)?.[1] ?? query, { name: "parseSize" }],
       },
       downloaded: {
+        selector: ["td.prof-lbl:contains('Downloaded:') + td"],
+        filters: [{ name: "parseSize" }],
+      },
+      // 下载量没有括号区分，直接视为真实下载量
+      trueDownloaded: {
         selector: ["td.prof-lbl:contains('Downloaded:') + td"],
         filters: [{ name: "parseSize" }],
       },
@@ -214,9 +228,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["div[id='seed-search-stat']"],
         filters: [(query: string) => parseInt(query?.match(/Page (\d+) \//)?.[1] ?? "0")],
       },
-      // 没有积分系统
-      bonus: { text: "0" },
-      // "/get_account_peers.php"
       seedingSize: {
         selector: ":self",
         elementProcess: (element: any) => {

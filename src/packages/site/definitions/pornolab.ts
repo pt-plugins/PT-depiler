@@ -243,8 +243,6 @@ export const siteMetadata: ISiteMetadata = {
             },
           },
           uploads: { text: 0, selector: "div.seed:contains('Своих')", filters: [{ name: "parseNumber" }] },
-          bonus: { text: "N/A" },
-          bonusPerHour: { text: "N/A" },
         },
       },
     ],

@@ -493,14 +493,19 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
         },
         filters: [{ name: "extImdbId" }],
       },
+      // 优惠标签在上游（include/functions.php 的 get_torrent_promotion_append）有两套渲染，按用户偏好
+      // $CURUSER['appendpromotion'] 二选一：icon 模式出 <img class="pro_*">，word 模式出 <font class='*'>。
+      // 偏好默认 icon，但用户可改成 word；且详情页（public/details.php）是写死 word 的，所以两套都得认。
       tags: [
         { name: "H&R", selector: "img.hitandrun", color: "black" },
-        { name: "Free", selector: "img.pro_free", color: "blue" },
-        { name: "2xFree", selector: "img.pro_free2up", color: "green" },
-        { name: "2xUp", selector: "img.pro_2up", color: "lime" },
-        { name: "2x50%", selector: "img.pro_50pctdown2up", color: "light-green" },
-        { name: "30%", selector: "img.pro_30pctdown", color: "indigo" },
-        { name: "50%", selector: "img.pro_50pctdown", color: "deep-orange-darken-1" },
+        { name: "Free", selector: "img.pro_free, font.free", color: "blue" },
+        { name: "2xFree", selector: "img.pro_free2up, font.twoupfree", color: "green" },
+        { name: "2xUp", selector: "img.pro_2up, font.twoup", color: "lime" },
+        { name: "2x50%", selector: "img.pro_50pctdown2up, font.twouphalfdown", color: "light-green" },
+        { name: "30%", selector: "img.pro_30pctdown, font.thirtypercent", color: "indigo" },
+        { name: "50%", selector: "img.pro_50pctdown, font.halfdown", color: "deep-orange-darken-1" },
+        // 「热门」是选种标记（上游 picktype=hot），不是优惠，单独一条
+        { name: "Hot", selector: "font.hot", color: "yellow-lighten-1" },
       ],
     },
   },

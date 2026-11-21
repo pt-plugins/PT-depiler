@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import type { DataTableHeader } from "vuetify";
@@ -56,7 +56,8 @@ const {
 // ── state ──────────────────────────────────────────────────────────────────
 const loading = ref(false);
 
-const tableSelected = ref<CTorrent[]>([]);
+// 选择集只整体赋值 / 清空（v-data-table 的 v-model 每次 emit 新数组），元素本身只读，无需深层代理
+const tableSelected = shallowRef<CTorrent[]>([]);
 const searchText = ref("");
 
 // delete dialog
