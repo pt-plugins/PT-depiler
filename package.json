@@ -68,7 +68,7 @@
     "valid-filename": "^5.0.0",
     "vue": "^3.5.45",
     "vue-echarts": "^8.3.2",
-    "vue-i18n": "^11.4.19",
+    "vue-i18n": "^11.4.20",
     "vue-konva": "^4.0.1",
     "vue-router": "^5.5.0",
     "vuetify": "^4.3.3",
