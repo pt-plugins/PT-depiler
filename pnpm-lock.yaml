@@ -285,8 +285,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       fontverter:
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.1.0
+        version: 2.1.0
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -2036,8 +2036,8 @@ packages:
       debug:
         optional: true
 
-  fontverter@2.0.0:
-    resolution: {integrity: sha512-DFVX5hvXuhi1Jven1tbpebYTCT9XYnvx6/Z+HFUPb7ZRMCW+pj2clU9VMhoTPgWKPhAs7JJDSk3CW1jNUvKCZQ==}
+  fontverter@2.1.0:
+    resolution: {integrity: sha512-UhH5aYymXL1bM8V5CA88V+aUe5Ypxu810AYjepQpdk5mLb8SA3xs+HeSr/vUkhEBL9oLhWCx7ezuge6/mqpT0A==}
 
   form-data@4.0.6:
     resolution: {integrity: sha512-vKatAh4SlVfgbv+YtmhiRjhEMJsYpsG1Y2rMQtR+SVSbytsSD1YGzDIcrAJmdFec88u/+VoGmxnl+80gL1tRCQ==}
@@ -4767,7 +4767,7 @@ snapshots:
     optionalDependencies:
       debug: 4.4.3
 
-  fontverter@2.0.0:
+  fontverter@2.1.0:
     dependencies:
       wawoff2: 2.0.1
       woff2sfnt-sfnt2woff: 1.0.0
@@ -5559,7 +5559,7 @@ snapshots:
 
   subset-font@2.9.0:
     dependencies:
-      fontverter: 2.0.0
+      fontverter: 2.1.0
       harfbuzzjs: 1.6.4
       p-limit: 3.1.0
 
