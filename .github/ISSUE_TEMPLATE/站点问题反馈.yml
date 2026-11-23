@@ -162,7 +162,7 @@ body:
     id: search_query
     attributes:
       label: 搜索类问题专用：查询条件 / Search issues only — the query used
-      description: 仅搜索问题填写：关键字、分类、搜索方案（最好附上站点网页上同条件可搜到结果的链接） / Only for search issues: keywords, category, search profile, ideally with a site URL returning results for the same query.
+      description: 仅搜索问题填写：关键字、分类、搜索方案（最好附上站点网页上同条件可搜到结果的链接） / Only for search issues - keywords, category, search profile, ideally with a site URL returning results for the same query.
       placeholder: 例如 关键字「示例」，分类「电影」，搜索方案「默认」
     validations:
       required: false
