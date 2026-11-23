@@ -4,9 +4,7 @@ import { filesize, type FilesizeOptions } from "filesize";
 import {
   differenceInDays,
   differenceInHours,
-  differenceInMonths,
   differenceInWeeks,
-  differenceInYears,
   differenceInMinutes,
   format as dateFormat,
 } from "date-fns";
@@ -67,9 +65,14 @@ export const formatTimeAgo = (sourceDate: Date | number | string, options: forma
     return `${weeks}${spacer}${i18n.t("common.time.week")}` + i18n.t("common.time.ago");
   }
 
-  const years = differenceInYears(nowDate, sourceDate);
-  const months = differenceInMonths(nowDate, sourceDate) % 12;
-  const days = differenceInDays(nowDate, sourceDate) % 30;
+  // 按「一年 365 天 / 一个月 30 天」逐级相减来分解（与 PT 站点口径一致）。
+  // 不能把 differenceInMonths 与 differenceInDays % 30 混用：两者基准不同（日历月 vs 30 天），
+  // 会得到 "2 months 1 day" 这类在月界处倒退/不连续的相对时间（#1745）。
+  let restDays = Math.max(0, differenceInDays(nowDate, sourceDate));
+  const years = Math.floor(restDays / 365);
+  restDays -= years * 365;
+  const months = Math.floor(restDays / 30);
+  const days = restDays - months * 30;
   const hours = differenceInHours(nowDate, sourceDate) % 24;
   const mins = differenceInMinutes(nowDate, sourceDate) % 60;
 
