@@ -790,6 +790,7 @@
       "contextMenuSocialSearch": "Enable social link (douban, imdb) search",
       "contextMenuTextSearch": "Enable selected text search",
       "dataTable": "Data Table",
+      "disabledSocialSites": "Social sites without the sidebar (multiple selectable)",
       "displayMode": {
         "auto": "Auto (Follow Browser or System)",
         "dark": "Dark Mode",
@@ -806,6 +807,14 @@
       "showReleaseNote": "Show changelog window when plugin updates",
       "sidebarFunctions": "Sidebar Functions",
       "sidebarStyle": "Sidebar Style",
+      "socialSiteName": {
+        "anidb": "AniDB",
+        "bangumi": "Bangumi",
+        "douban": "Douban",
+        "imdb": "IMDb",
+        "tmdb": "TMDB",
+        "tvmaze": "TVmaze"
+      },
       "socialSiteSearchBy": {
         "chosen": "Let me choose",
         "id": "Search by ID",

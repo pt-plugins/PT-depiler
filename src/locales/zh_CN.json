@@ -790,6 +790,7 @@
       "contextMenuSocialSearch": "启用社交链接（ douban, imdb ）搜索",
       "contextMenuTextSearch": "启用选中文字搜索",
       "dataTable": "数据表格",
+      "disabledSocialSites": "不显示侧边栏的社交站点（可多选）",
       "displayMode": {
         "auto": "跟随系统",
         "dark": "暗黑模式",
@@ -806,6 +807,14 @@
       "showReleaseNote": "插件更新时显示更新日志窗口",
       "sidebarFunctions": "侧边栏功能",
       "sidebarStyle": "侧边栏样式",
+      "socialSiteName": {
+        "anidb": "AniDB",
+        "bangumi": "Bangumi",
+        "douban": "豆瓣",
+        "imdb": "IMDb",
+        "tmdb": "TMDB",
+        "tvmaze": "TVmaze"
+      },
       "socialSiteSearchBy": {
         "chosen": "让我选择",
         "id": "按 ID 搜索",

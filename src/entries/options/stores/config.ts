@@ -99,6 +99,7 @@ export const useConfigStore = defineStore("config", {
     contentScript: {
       enabled: true,
       enabledAtSocialSite: true,
+      disabledSocialSites: [],
       allowExceptionSites: false,
 
       position: { x: 0, y: 0 },
