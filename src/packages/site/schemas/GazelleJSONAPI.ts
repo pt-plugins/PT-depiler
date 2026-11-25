@@ -1,6 +1,6 @@
 import type { AxiosResponse } from "axios";
 
-import { GazelleBase } from "./Gazelle";
+import { GazelleBase, SchemaMetadata as GazelleHtmlSchemaMetadata } from "./Gazelle";
 import { parseTimeWithZone, extractContent } from "../utils";
 import {
   type TSchemaMetadata,
@@ -304,14 +304,35 @@ export const SchemaMetadata: TSchemaMetadata<TMetadataKeys> = {
 export default class GazelleJSONAPI extends GazelleBase {
   private _authKey?: { authkey: string; passkey: string };
 
+  /**
+   * 兼容非标准 JSON 信封：多数 Gazelle 为 `{ status, response }`，
+   * 但部分分支（如 bemaniso，见 #1225）把状态体放在 `data` 下（错误信息同样在 `data`）。
+   * 这里在缺少 `response` 时补一份别名，让下方固定使用 `response.*` 的选择器与解析逻辑继续生效。
+   */
+  protected fixJsonEnvelope<T>(body: T): T {
+    const payload = body as any;
+    if (
+      payload &&
+      typeof payload === "object" &&
+      payload.response === undefined &&
+      payload.data &&
+      typeof payload.data === "object"
+    ) {
+      payload.response = payload.data;
+    }
+    return body;
+  }
+
   protected async requestApi<T extends jsonResponse>(
     action: apiType,
     params: { [key: string]: any },
   ): Promise<AxiosResponse<T>> {
-    return await this.request<T>({
+    const res = await this.request<T>({
       url: "/ajax.php",
       params: { action, ...params },
     });
+    this.fixJsonEnvelope(res.data);
+    return res;
   }
 
   protected async requestApiInfo(): Promise<infoJsonResponse> {
@@ -402,6 +423,8 @@ export default class GazelleJSONAPI extends GazelleBase {
   ): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
+    doc = this.fixJsonEnvelope(doc);
+
     if (doc.status === "success") {
       const rows = doc.response.results;
       for (const group of rows) {
@@ -451,6 +474,19 @@ export default class GazelleJSONAPI extends GazelleBase {
             ...flushUserInfo,
             ...(await this.getSeedingSize(flushUserInfo.id as number)),
           };
+        }
+
+        // 部分 Gazelle 分支的 index 不返回 userstats（如 bemaniso，见 #1225），回落到资料页统计块
+        if (!flushUserInfo.uploaded && !flushUserInfo.downloaded) {
+          const statsFromHtml: Record<string, any> = {
+            ...(await this.getUserStatsFromHtml(flushUserInfo.id as number)),
+          };
+          for (const [key, value] of Object.entries(statsFromHtml)) {
+            if (value === "" || value === undefined) {
+              delete statsFromHtml[key];
+            }
+          }
+          flushUserInfo = { ...flushUserInfo, ...statsFromHtml };
         }
 
         // 清理数据
@@ -506,6 +542,28 @@ export default class GazelleJSONAPI extends GazelleBase {
       "invited",
       "lastAccessAt",
     ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+  }
+
+  /**
+   * 回落到 user.php 资料页的统计块取数据，用于 JSON 接口不提供 userstats 的分支
+   * （如 bemaniso，见 #1225）。选择器复用 Gazelle（HTML）引擎的默认统计块规则，
+   * 与 GazelleBase.getSeedingSize 的 HTML 回落是同一思路。
+   */
+  protected async getUserStatsFromHtml(userId: number): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
+    const { data: userPage } = await this.request<Document>({
+      url: "/user.php",
+      params: { id: userId },
+      responseType: "document",
+    });
+
+    return this.getFieldsData(userPage, GazelleHtmlSchemaMetadata.userInfo!.selectors!, [
+      "uploaded",
+      "downloaded",
+      "ratio",
+      "levelName",
+    ] as (keyof IUserInfo)[]) as Partial<IUserInfo>;
   }
 
   protected cleanupUserInfo(flushUserInfo: IUserInfo): IUserInfo {

@@ -7,7 +7,7 @@
 ## 判定站点是否属于该引擎
 
 - 请求 `/ajax.php?action=browse`（搜索）、`action=index`（账号概览）、`action=user&id=`（用户详情）后返回 JSON（226-236、303-316、488-493）。
-- 返回体统一为 `{ status: "success", response: {...} }`，搜索结果是 `response.results`（157、400-402）。
+- 返回体统一为 `{ status: "success", response: {...} }`，搜索结果是 `response.results`（157、400-402）。少数分支把状态体放在 `data` 下（如 bemaniso，错误信息同样在 `data`）；引擎的 `fixJsonEnvelope` 会在缺少 `response` 时补一份别名，所以站点定义里的选择器照旧写 `response.*`，不要改成 `data.*`。
 - 下载链接形如 `torrents.php?torrentid=<id>`，由 `GazelleBase.getTorrentDownloadLinkFactory("torrentid")` 补成 `torrents.php?action=download&id=<id>`（419-422、`schemas/Gazelle.ts:436-455`）。
 - 页面仍是 Gazelle 体系（`torrents.php`、`user.php`），但列表页 HTML 不参与解析。
 
@@ -90,9 +90,10 @@ export default class Example extends GazelleJSONAPI {}
 2. `getUserBaseInfo()` 请求 `action=index`，取 `id`、`name`、`messageCount`、`uploaded`、`downloaded`、`ratio`、`levelName`、`bonus`、`bonusPerHour`、`seedingSize`（471-486）。
 3. 有 `id` 时 `getUserExtendInfo(id)` 请求 `action=user&id=`，取 `joinTime`、`seeding`、`uploads`、`perfectFlacs`、`groups`、`invited`、`lastAccessAt`（488-504）；该步骤前会按 `userInfo.requestDelay` 等待（489）。
 4. `seedingSize` 仍为空时，调用基类 `getSeedingSize(id)` 翻页抓做种列表累加（444-449、`schemas/Gazelle.ts:377-426`）。
-5. `cleanupUserInfo`（506-518）：`bonus`/`bonusPerHour` 为空时填 `"N/A"`，`perfectFlacs` 为空时删除该键。
-6. 有 `levelName` 但无 `levelId` 时按 `levelRequirements` 反推（455-457、`schemas/AbstractPrivateSite.ts:194-197`）。
-7. 异常映射：`NeedLoginError` → `needLogin`，其余 → `parseError`（460-466）。
+5. `uploaded` / `downloaded` 仍为空时（部分分支的 `action=index` 不下发 `userstats`，如 bemaniso），调用 `getUserStatsFromHtml(id)` 抓 `user.php` 的统计块兜底，选择器复用 Gazelle（HTML）的默认统计块规则；统计齐全的站点不会多发这次请求。
+6. `cleanupUserInfo`（506-518）：`bonus`/`bonusPerHour` 为空时填 `"N/A"`，`perfectFlacs` 为空时删除该键。
+7. 有 `levelName` 但无 `levelId` 时按 `levelRequirements` 反推（455-457、`schemas/AbstractPrivateSite.ts:194-197`）。
+8. 异常映射：`NeedLoginError` → `needLogin`，其余 → `parseError`（460-466）。
 
 由于字段全靠 `userInfo.selectors` 的 JSON 路径（`getFieldsData`，474-485、495-503），站点接口改名时只改对应 selector 即可；字段缺失不会报错，只会被 `cleanupUserInfo` 兜底。
 
