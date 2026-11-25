@@ -25,6 +25,13 @@ sendMessage("getExtStorage", "config").then(async (data) => {
     if (configStore?.contentScript?.enabledAtSocialSite ?? true) {
       const socialSite = await sendMessage("matchSocialPage", window.location.href);
       if (socialSite) {
+        // 用户在设置中单独关闭了该社交站点（见 issue #1003）：不挂载，也不再按 PT 站点匹配
+        // （这里读到的是未经 store 默认值合并的原始存储，旧配置没有该字段，需要兜底为空数组）
+        if ((configStore?.contentScript?.disabledSocialSites ?? []).includes(socialSite)) {
+          console.debug(`[PTD] Social site ${socialSite} is disabled by user, skip loading app.`);
+          return;
+        }
+
         console.debug(`[PTD] Social site detected: ${socialSite}, loading app...`);
         await loadApp({ socialSite });
         return; // 找到匹配的 social site 后，直接加载应用并退出

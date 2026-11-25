@@ -1,5 +1,5 @@
 import type { TSiteID } from "@ptd/site";
-import type { IFetchSocialSiteInformationConfig } from "@ptd/social";
+import type { IFetchSocialSiteInformationConfig, TSupportSocialSite } from "@ptd/social";
 
 import type { TLangCode } from "@/options/plugins/i18n.ts";
 import type { ITimelineUserInfoField } from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
@@ -48,6 +48,7 @@ export interface IConfigPiniaStorageSchema {
   contentScript: {
     enabled: boolean; // 是否启用 contentScript
     enabledAtSocialSite: boolean; // 是否允许在社交站点  contentScript 中使用
+    disabledSocialSites: TSupportSocialSite[]; // 不显示侧边栏的社交站点（仅在 enabledAtSocialSite 开启时生效）
     allowExceptionSites: boolean; // 是否允许在 contentScript 中排除站点（即站点不显示侧边栏）
 
     position: { x: number; y: number }; // 图标位置（运行时配置，用户不可以直接编辑）
