@@ -349,15 +349,19 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       time: {
+        // 本站使用 table.torrent_list，NexusPHP 无法从标准 table.torrents 的表头推断时间列；
+        // 必须显式指定 selector，否则字段提取器不会执行下面的 elementProcess 和 filters。
+        selector: "td.t_time",
         // 站点设置「时间显示类型」为「已去时间」时，列表时间渲染为
         // <td class="t_time"><span title="2026-11-07 22:54:11">21时18分</span></td>；
         // 「发生时间」时为 <td class="t_time">2026-11-07 22:54:11</td>。
-        // 有 span[title] 时直接取 title 值（绝对时间），没有则取单元格文本；两种形态都走 parseTime。
-        // （不能写成 selector + attr:"title"：attr 对命中的 td.t_time 生效，「发生时间」下无
-        // title 会取到空串，绝对时间反而丢失。）
+        // 有非空 span[title] 时直接取 title 值（完整时间），否则取单元格文本；两种形态都走 parseTime。
+        // 不能只写 selector: "td.t_time" + attr: "title"：title 位于子元素 span 上，
+        // 而非 td 上；「发生时间」模式下也没有该属性，因此需要在 elementProcess 中兼容处理。
+        // textContent 不依赖页面渲染，适用于后台请求解析出的离线 DOM。
         elementProcess: (element: HTMLElement) => {
           const span = element.querySelector("span[title]");
-          return span?.getAttribute("title") ?? element.innerText;
+          return span?.getAttribute("title") || element.textContent || "";
         },
         filters: [{ name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] }],
       },
