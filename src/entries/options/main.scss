@@ -56,3 +56,87 @@ a:not(:hover) {
     margin-left: 4px;
   }
 }
+
+/* ------------------------------------------------------------------
+ * 小屏幕（手机 / 竖屏平板）适配
+ * ------------------------------------------------------------------ */
+
+/* 数据表格的分页栏：中文标签「每页数目」在窄屏会被压成两行；
+ * 每页数量的下拉框也不要被压缩（否则「全部」会显示成「全...」）。 */
+.v-data-table-footer__items-per-page > span {
+  white-space: nowrap;
+}
+
+.v-data-table-footer__items-per-page > .v-select {
+  flex-shrink: 0;
+}
+
+@media (max-width: 599.98px) {
+  /* 页面内容区留白收紧（默认 16px），把横向空间让给表格与表单 */
+  #ptd-main > .v-container {
+    padding: 8px;
+  }
+
+  /* 中文「全部」在 90px 的每页数量下拉框里会显示成「全...」 */
+  .v-data-table-footer__items-per-page > .v-select {
+    width: 104px;
+  }
+
+  /* 页面标题条（v-alert）：标题字号收一档；右侧统计 / 操作换到第二行，
+   * 避免把标题挤成竖排（如「我的下载器」）。 */
+  .v-alert {
+    grid-template-areas:
+      "prepend content close"
+      ". append append";
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+  }
+
+  .v-alert--density-default {
+    padding: 12px;
+  }
+
+  .v-alert-title {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+  }
+
+  .v-alert__append {
+    margin-inline-start: 0;
+    margin-top: 8px;
+  }
+
+  /* 对话框在手机上留白从 24px 收到 8px，多出的宽度给表单内容 */
+  .v-dialog > .v-overlay__content {
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    max-height: calc(100% - 16px);
+    margin: 8px;
+  }
+
+  .v-dialog > .v-overlay__content > .v-card > .v-card-item {
+    padding: 16px;
+  }
+
+  .v-dialog > .v-overlay__content > .v-card > .v-card-text {
+    padding: 12px 16px 16px;
+  }
+
+  /* 操作按钮在窄屏允许换行，而不是把同一行的文字挤成两行 */
+  .v-dialog .v-card-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* 小屏幕下数据表格改为横向滚动（不再压缩列宽），空状态默认在整张表宽里居中，
+ * 长文案会跑到视口外；改为左对齐，并把自定义空状态内容限制在视口内。 */
+@media (max-width: 1144.98px) {
+  .v-data-table tbody tr.v-data-table-rows-no-data > td {
+    padding-inline: 16px;
+    text-align: start;
+  }
+
+  .v-data-table tbody tr.v-data-table-rows-no-data > td > .v-alert {
+    max-width: calc(100vw - 64px);
+    margin-inline: 0;
+  }
+}

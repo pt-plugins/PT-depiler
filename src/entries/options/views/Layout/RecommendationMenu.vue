@@ -2,6 +2,7 @@
 import { computed, ref, shallowRef, watch } from "vue";
 import PQueue from "p-queue";
 import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import type { ISocialRecommendationItem, TSocialRecommendationCategory } from "@ptd/social";
 
 import { sendMessage } from "@/messages.ts";
@@ -15,6 +16,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const display = useDisplay();
 
 const isRecommendationMenuOpen = ref(false);
 const isLoadingRecommendations = ref(false);
@@ -200,7 +202,7 @@ watch(isRecommendationMenuOpen, (isOpen) => {
       />
     </template>
 
-    <v-card min-width="1120" max-width="1280">
+    <v-card class="recommendation-menu-card" max-width="1280" :min-width="display.lgAndDown.value ? undefined : 1120">
       <v-card-title class="d-flex align-center py-2">
         <v-icon icon="mdi-fire" class="mr-2" />
         <span class="text-body-large">{{ t("layout.header.hotRecommendations.title") }}</span>
@@ -393,5 +395,18 @@ watch(isRecommendationMenuOpen, (isOpen) => {
   color: rgba(var(--v-theme-on-surface), 0.58);
   font-size: 0.72rem;
   line-height: 1.25;
+}
+
+/* 小屏幕下菜单改为视口内浮层：固定 1120px 最小宽度会直接撑出屏幕 */
+@media (max-width: 1144.98px) {
+  .recommendation-menu-card {
+    width: calc(100vw - 24px);
+    max-height: 76vh;
+    overflow-y: auto;
+  }
+
+  .hot-recommendation-list {
+    max-height: 320px;
+  }
 }
 </style>
