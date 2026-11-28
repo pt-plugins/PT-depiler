@@ -54,7 +54,7 @@
     "echarts": "^6.1.0",
     "es-toolkit": "^1.53.2",
     "fflate": "^0.8.3",
-    "filesize": "^11.0.32",
+    "filesize": "^11.0.35",
     "idb": "^8.0.4",
     "konva": "^10.9.1",
     "nanoid": "^6.0.2",
