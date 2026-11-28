@@ -85,7 +85,7 @@
     "cross-env": "^10.1.0",
     "fontverter": "^2.1.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.6.0",
+    "lint-staged": "^17.6.1",
     "prettier": "^3.10.1",
     "sass": "^1.108.2",
     "subset-font": "^2.9.0",
