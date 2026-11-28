@@ -17,9 +17,19 @@ const configStore = useConfigStore();
 
 // 当页面窗口大小发生变化时，调整 Navigation 的显示
 const display = useDisplay();
-watch(display.mdAndUp, () => {
+
+// 小屏幕（手机 / 平板）下侧边栏改为抽屉式浮层并从收起状态开始，
+// 避免像桌面端那样挤占本就有限的内容宽度。
+// 断点与 Vuetify 4 的 mobile 判定一致（lg = 1145px）：低于它时侧边栏临时浮层，达到后才常驻。
+// 这里直接读 media query：组件 setup 阶段 display 的宽度可能尚未初始化，
+// 用 display.lgAndDown 会把大屏也误关。在渲染前就置为收起，防止首帧先展开、下一帧再收起造成闪烁。
+if (window.matchMedia("(max-width: 1144.98px)").matches) {
+  configStore.isNavBarOpen = false;
+}
+
+watch(display.lgAndUp, () => {
   if (configStore.autoToggleNavBarOnDisplayChange) {
-    configStore.isNavBarOpen = display.mdAndUp.value;
+    configStore.isNavBarOpen = display.lgAndUp.value;
   }
 });
 
@@ -45,7 +55,13 @@ const menuOptions = routes
 </script>
 
 <template>
-  <v-navigation-drawer id="ptd-navigation" v-model="configStore.isNavBarOpen" :width="220" expand-on-hover permanent>
+  <v-navigation-drawer
+    id="ptd-navigation"
+    v-model="configStore.isNavBarOpen"
+    :permanent="display.lgAndUp.value"
+    :width="220"
+    expand-on-hover
+  >
     <!-- 侧边栏导航标题 -->
     <v-list density="compact" nav>
       <template v-for="(group, groupIndex) in menuOptions" :key="groupIndex">

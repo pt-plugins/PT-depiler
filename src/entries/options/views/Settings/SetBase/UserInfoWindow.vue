@@ -68,7 +68,7 @@ onMounted(async () => {
       />
       <v-row v-if="configStore.userInfo.autoReflush.enabled" class="mt-1 ml-2 mb-2">
         <v-alert type="info" variant="outlined">
-          <div class="d-inline-flex align-center text-no-wrap mb-1">
+          <div class="d-inline-flex align-center text-no-wrap mb-1 auto-refresh-line">
             • {{ t("SetBase.userInfo.afterTime") }}
             <v-text-field
               :model-value="configStore.userInfo.autoReflush.afterTime"
@@ -96,7 +96,7 @@ onMounted(async () => {
             {{ t("userInfo.autoRefresh.ofSites") }}
           </div>
           <br />
-          <div class="d-inline-flex align-center text-no-wrap">
+          <div class="d-inline-flex align-center text-no-wrap auto-refresh-line">
             • {{ t("userInfo.autoRefresh.retryOnFail") }}
             <v-select
               v-model="configStore.userInfo.autoReflush.retry.max"
@@ -141,7 +141,7 @@ onMounted(async () => {
       />
       <v-row v-if="configStore.autoExtendCookies.enabled" class="mt-1 ml-2 mb-2">
         <v-alert type="info" variant="outlined">
-          <div class="d-inline-flex align-center text-no-wrap">
+          <div class="d-inline-flex align-center text-no-wrap auto-refresh-line">
             {{ t("userInfo.autoExtendCookies.triggerThreshold") }}:
             <v-select
               v-model="configStore.autoExtendCookies.triggerThreshold"
@@ -186,4 +186,17 @@ onMounted(async () => {
   </v-row>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+/* 句子内嵌表单控件：窄屏下强制不换行会被裁掉，改为允许换行并给控件保留最小宽度 */
+@media (max-width: 599.98px) {
+  .auto-refresh-line {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .auto-refresh-line :deep(.v-input) {
+    flex: 0 0 auto;
+    min-width: 88px;
+  }
+}
+</style>

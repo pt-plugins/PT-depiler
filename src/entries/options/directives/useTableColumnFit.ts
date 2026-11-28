@@ -8,7 +8,7 @@ import {
   type ComponentPublicInstance,
   type MaybeRefOrGetter,
 } from "vue";
-import type { DataTableHeader } from "vuetify";
+import { useDisplay, type DataTableHeader } from "vuetify";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 
@@ -39,6 +39,7 @@ const KEY_ATTR = "data-fit-key";
  */
 export function useTableColumnFit(headers: MaybeRefOrGetter<readonly DataTableHeader[]>) {
   const configStore = useConfigStore();
+  const display = useDisplay();
   const tableRef = shallowRef<ComponentPublicInstance | null>(null);
   const fitted = shallowRef<{ signature: string; widths: Record<string, string> } | null>(null);
 
@@ -47,7 +48,11 @@ export function useTableColumnFit(headers: MaybeRefOrGetter<readonly DataTableHe
   );
 
   const signature = computed(() => arrangedHeaders.value.map((header) => header.key).join("\n"));
-  const isFitted = computed(() => configStore.tableColumnFit && fitted.value?.signature === signature.value);
+  // 小屏幕（手机 / 平板 / 窄窗口）下不做列宽适应：把十几列压进有限宽度会让表头被裁得无法阅读，
+  // 此时保留原列宽、让表格横向滚动更易读。（Vuetify 4 的 lg 断点为 1145px，与 mobile 判定一致）
+  const isFitted = computed(
+    () => !display.lgAndDown.value && configStore.tableColumnFit && fitted.value?.signature === signature.value,
+  );
 
   const fittedHeaders = computed<DataTableHeader[]>(() =>
     arrangedHeaders.value.map((header) => {
@@ -68,6 +73,7 @@ export function useTableColumnFit(headers: MaybeRefOrGetter<readonly DataTableHe
   const tableClass = computed(() => ({ "table-column-fitted": isFitted.value }));
 
   function fitColumns() {
+    if (display.lgAndDown.value) return;
     const root = tableRef.value?.$el as HTMLElement | undefined;
     const wrapper = root?.querySelector<HTMLElement>(".v-table__wrapper");
     const headerRow = wrapper?.querySelector<HTMLElement>("thead tr");
@@ -135,12 +141,12 @@ export function useTableColumnFit(headers: MaybeRefOrGetter<readonly DataTableHe
   }
 
   watch(
-    [() => configStore.tableColumnFit, tableRef, signature],
-    async ([enabled, table]) => {
+    [() => configStore.tableColumnFit, tableRef, signature, () => display.lgAndDown.value],
+    async ([enabled, table, , isNarrow]) => {
       observer?.disconnect();
       observer = undefined;
       cancelAnimationFrame(frame);
-      if (!enabled || !table) return;
+      if (!enabled || isNarrow || !table) return;
 
       await nextTick();
       const element = (table.$el as HTMLElement | undefined)?.querySelector(".v-table__wrapper > table");

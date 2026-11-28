@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useLocale as useVuetifyLocal } from "vuetify";
+import { useLocale as useVuetifyLocal, useDisplay } from "vuetify";
 import { useDevicePixelRatio } from "@vueuse/core";
 
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -14,6 +14,7 @@ import ReleaseNoteDialog from "./views/Layout/ReleaseNoteDialog.vue";
 
 const { current: currentVuetifyLocal } = useVuetifyLocal();
 const { locale: currentVueI18nLocal, t } = useI18n({ useScope: "global" });
+const display = useDisplay();
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -45,9 +46,9 @@ configStore.$onReady(() => {
 
 <template>
   <v-app id="ptd" :theme="configStore.uiTheme">
-    <!-- 页面比例提示 -->
+    <!-- 页面比例提示（手机 / 平板的 devicePixelRatio 天然大于 1，只在桌面宽度下判断） -->
     <v-system-bar
-      v-if="(pixelRatio > 1.1 || pixelRatio < 0.8) && !configStore.ignoreWrongPixelRatio"
+      v-if="display.lgAndUp.value && (pixelRatio > 1.1 || pixelRatio < 0.8) && !configStore.ignoreWrongPixelRatio"
       class="justify-center"
       color="purple-darken-2"
     >

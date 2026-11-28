@@ -28,8 +28,17 @@ const appendMenu = computed<Array<{ title: string; icon: string; [str: string]: 
   { title: t("layout.header.wiki"), icon: "mdi-help-circle", href: `${REPO_URL}/wiki` },
 ]);
 
-const searchKey = ref<string>("");
+// 初值用 null 而不是空串：VCombobox 会把 `""` 包成 `[""]` 并视为 dirty，
+// 从而隐藏 placeholder，小屏幕下顶栏就只剩一个看不见输入框的空白区域。
+const searchKey = ref<string | null>(null);
 const searchPlanKey = ref<string>("default");
+
+// 当前搜索方案的显示名：小屏幕下按钮只显示图标，名称放进 title 提示
+const searchPlanLabel = computed(() =>
+  searchPlanKey.value === "default"
+    ? t("layout.header.searchPlan.default")
+    : metadataStore.getSearchSolutionName(searchPlanKey.value),
+);
 
 const searchPlans = computed(() =>
   metadataStore.getSearchSolutions
@@ -119,11 +128,10 @@ function updateNavBarOpenStatus() {
     <v-combobox
       v-model="searchKey"
       :placeholder="t('layout.header.searchTip')"
-      class="ptd-search-input pl-2"
+      class="ptd-search-input"
       clearable
       enterkeyhint="search"
       hide-details
-      style="width: 300px"
       type="search"
       @keyup.enter="startSearchEntity"
     >
@@ -139,22 +147,27 @@ function updateNavBarOpenStatus() {
 
       <template #append-inner>
         <RecommendationMenu
-          v-if="configStore.searchEntity.showHotRecommendations"
+          v-if="configStore.searchEntity.showHotRecommendations && !display.xs.value"
           :disabled="runtimeStore.search.isSearching"
           @search="searchRecommendation"
         />
       </template>
 
       <template #prepend-inner>
-        <!-- 搜索方案选择框 -->
+        <!-- 搜索方案选择框：小屏幕下收成图标按钮，避免挤占输入框 -->
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" color="primary">
-              {{
-                searchPlanKey == "default"
-                  ? t("layout.header.searchPlan.default")
-                  : metadataStore.getSearchSolutionName(searchPlanKey)
-              }}
+            <v-btn
+              v-bind="props"
+              color="primary"
+              :icon="display.xs.value"
+              :size="display.xs.value ? 'small' : 'default'"
+              :title="searchPlanLabel"
+            >
+              <template v-if="display.xs.value">
+                <v-icon icon="mdi-tune-variant" />
+              </template>
+              <template v-else>{{ searchPlanLabel }}</template>
             </v-btn>
           </template>
           <v-list>
@@ -277,5 +290,23 @@ function updateNavBarOpenStatus() {
 
 .ptd-search-input:deep(.v-input__append) {
   padding-top: 4px;
+}
+
+/* 桌面端固定搜索框宽度；小屏幕（手机 / 竖屏平板）下让它占满剩余空间，
+ * 避免固定 300px 与标题、右侧按钮共同溢出顶栏。 */
+.ptd-search-input {
+  width: 300px;
+  max-width: 300px;
+  flex: 0 1 300px;
+}
+
+@media (max-width: 839.98px) {
+  .ptd-search-input {
+    width: auto;
+    max-width: 400px;
+    min-width: 0;
+    flex: 1 1 auto;
+    margin-inline: 8px;
+  }
 }
 </style>
