@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter, type LocationQuery, type LocationQueryRaw } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDisplay, type DataTableHeader } from "vuetify";
 import {
@@ -35,6 +35,7 @@ import { doSearch, retrySearch, searchPlanStatus, searchQueue } from "./utils/se
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -146,6 +147,50 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn, buildAdvanceItemProps
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
 
+/**
+ * 筛选词与地址栏中的 filters 双向同步（ #1480 ），这样收藏页面即可同时保存搜索词与筛选词：
+ *  - 地址栏中的 filters 变化（收藏夹、前进后退、手动修改）：以其为准覆盖当前筛选词；
+ *    未带 filters 时保持现有筛选词不变（即「保存上一次使用的搜索筛选词」等现有行为）；
+ *  - 筛选词变化：写回地址栏（router.replace，不新增历史记录）。
+ *
+ * 与 metadataStore.setLastSearchFilter 一致，写回时去掉 site: 关键词：站点筛选项随每次搜索重建，
+ * doSearch 也会主动清掉它，不适合随链接保存。
+ */
+function getRouteFilters(params?: LocationQuery): string | undefined {
+  if (params?.filters === undefined) return undefined;
+  // 未带值时（`?filters` 解析为 null，`?filters=` 解析为空串）按「清空筛选」处理
+  const filters = Array.isArray(params.filters) ? params.filters[0] : params.filters;
+  return filters ?? "";
+}
+
+function stripSiteKeywords(filters: string): string {
+  // 点击输入框的清除按钮时，Vuetify 会把 v-model 置为 null（类型上仍是 string）
+  return (filters ?? "").replace(/\s*site:\S+/g, "").trim();
+}
+
+/** 把筛选词应用到输入框与高级筛选字典；需在 doSearch 之后调用，否则会被其中的站点筛选重置覆盖 */
+function applyRouteFilters(filters: string) {
+  buildFilterDictFn(filters);
+  tableWaitFilterRef.value = filters;
+}
+
+/** 最近一次写回地址栏的 filters；由它引起的 route 变化不再回写到输入框（此时输入框可能已有更新的输入） */
+let pendingRouteFilters: string | undefined;
+
+function syncRouteFilters(filters: string) {
+  const routeFilters = stripSiteKeywords(filters);
+  if ((getRouteFilters(route.query) ?? "") === routeFilters) return;
+
+  pendingRouteFilters = routeFilters || undefined;
+  const query: LocationQueryRaw = { ...route.query };
+  if (routeFilters) {
+    query.filters = routeFilters;
+  } else {
+    delete query.filters;
+  }
+  router.replace({ query });
+}
+
 watch(
   () => route.query,
   (newParams, oldParams) => {
@@ -162,8 +207,11 @@ watch(
         }
       });
     } else {
+      // flush 会一直留在地址栏中，所以只在它本次导航新出现时才视为一次搜索请求；
+      // 否则筛选词写回地址栏后，每次 route 变化都会触发整轮重新搜索
+      const isNewFlush = !!newParams.flush && newParams.flush !== oldParams?.flush;
       if (
-        newParams.flush ||
+        isNewFlush ||
         (newParams.search && newParams.search != oldParams?.search) ||
         (newParams.plan && newParams.plan != oldParams?.plan)
       ) {
@@ -172,10 +220,25 @@ watch(
         // doSearch 会自动处理过滤器重置
         doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
       }
+
+      const routeFilters = getRouteFilters(newParams);
+      if (routeFilters !== undefined && routeFilters !== getRouteFilters(oldParams)) {
+        if (routeFilters !== pendingRouteFilters) {
+          applyRouteFilters(routeFilters);
+        }
+        pendingRouteFilters = undefined;
+      }
+      // 本次导航没有带 filters：地址栏与当前筛选词保持一致
+      if (routeFilters === undefined) {
+        syncRouteFilters(tableWaitFilterRef.value);
+      }
     }
   },
   { immediate: true },
 );
+
+// 筛选词变化后写回地址栏；使用防抖后的 tableFilterRef，避免输入过程中频繁 replace
+watch(tableFilterRef, (filters) => syncRouteFilters(filters));
 
 const isSearchingParsed = ref<boolean>(searchQueue.isPaused);
 
